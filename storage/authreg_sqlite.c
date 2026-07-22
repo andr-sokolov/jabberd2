@@ -40,7 +40,7 @@
 #define HAVE_CRYPT 1
 #else
 #ifdef HAVE_CRYPT
-#include <unistd.h>
+#include <crypt.h>
 #endif
 #endif
 
