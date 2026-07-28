@@ -604,6 +604,9 @@
       <item category='conference' type='public' jid='conference.jabber.org' name='Text conferencing'/>
       -->
 
+      <!-- SOCKS5 Bytestreams proxy (XEP-0065); also auto-discovered when proxy65 is online -->
+      <item category='proxy' type='bytestreams' jid='proxy.localhost.localdomain' name='SOCKS5 Bytestreams Proxy'/>
+
     </items>
 
     <!-- Server information added to server discovery information

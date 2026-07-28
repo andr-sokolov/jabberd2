@@ -532,9 +532,14 @@ static mod_ret_t _disco_in_sess(mod_instance_t mi, sess_t sess, pkt_t pkt) {
 }
 
 static mod_ret_t _disco_pkt_user(mod_instance_t mi, user_t user, pkt_t pkt) {
-    /* disco info requests */
+    /* disco info requests to bare JID: return account identity.
+       Full JID (with resource) must be delivered to the client session
+       so it can advertise its own features (SI/FT, caps, etc.). */
     if(pkt->type == pkt_IQ && pkt->ns == ns_DISCO_INFO)
     {
+        if(pkt->to != NULL && pkt->to->resource[0] != '\0')
+            return mod_PASS;
+
         _disco_user_result(pkt, user);
         pkt_router(pkt_tofrom(pkt));
         return mod_HANDLED;

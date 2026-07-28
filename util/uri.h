@@ -79,6 +79,7 @@
 #define uri_DISCO       "http://jabber.org/protocol/disco"
 #define uri_DISCO_ITEMS "http://jabber.org/protocol/disco#items"
 #define uri_DISCO_INFO  "http://jabber.org/protocol/disco#info"
+#define uri_BYTESTREAMS "http://jabber.org/protocol/bytestreams"
 #define uri_SERVERINFO  "http://jabber.org/network/serverinfo"
 #define urn_SOFTWAREINFO "urn:xmpp:dataforms:softwareinfo"
 

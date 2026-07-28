@@ -85,12 +85,17 @@ $jobs{s2s}->{cmd} = "$Bin/s2s";
 $jobs{s2s}->{config} = "$config_dir/s2s.xml";
 $jobs{s2s}->{prefix} = "S2S";
 
+$jobs{proxy65}->{cmd} = "$Bin/proxy65";
+$jobs{proxy65}->{config} = "$config_dir/proxy65.xml";
+$jobs{proxy65}->{prefix} = "P65";
+
 if ($config eq "internal")
 {
     $programs[0] = ["router"];
     $programs[1] = ["sm"];
     $programs[2] = ["c2s"];
     $programs[3] = ["s2s"];
+    $programs[4] = ["proxy65"];
 }
 else
 {

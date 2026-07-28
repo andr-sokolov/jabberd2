@@ -1,0 +1,56 @@
+<!-- proxy65 configuration (XEP-0065 SOCKS5 Bytestreams proxy) -->
+<proxy65>
+  <!-- Our ID on the network (component JID / domain) -->
+  <id>proxy.localhost.localdomain</id>
+
+  <!-- The process ID file. Comment this out if you don't need to know
+       the process ID from outside the process (eg for control scripts) -->
+  <pidfile>@localstatedir@/@package@/pid/${id}.pid</pidfile>
+
+  <!-- Router connection configuration -->
+  <router>
+    <!-- IP/port the router is waiting for connections on -->
+    <ip>127.0.0.1</ip>            <!-- default: 127.0.0.1 -->
+    <port>5347</port>             <!-- default: 5347 -->
+
+    <!-- Username/password to authenticate as -->
+    <user>jabberd</user>          <!-- default: jabberd -->
+    <pass>secret</pass>           <!-- default: secret -->
+
+    <!-- File containing an SSL certificate and private key to use when
+         setting up an encrypted channel with the router. -->
+    <!--
+    <pemfile>@sysconfdir@/server.pem</pemfile>
+    -->
+
+    <!-- Router connection retry -->
+    <retry>
+      <init>3</init>
+      <lost>3</lost>
+      <sleep>2</sleep>
+    </retry>
+  </router>
+
+  <!-- Log configuration - type is "syslog", "file" or "stdout" -->
+  <log type='file'>
+    <ident>jabberd/proxy65</ident>
+    <facility>local3</facility>
+    <file>@localstatedir@/@package@/log/proxy65.log</file>
+  </log>
+
+  <!-- SOCKS5 listen / advertise -->
+  <local>
+    <!-- Address and port to bind for SOCKS5 connections -->
+    <ip>0.0.0.0</ip>
+    <port>7777</port>
+
+    <!-- Host address advertised to clients in <streamhost/>
+         (must be reachable by clients; often a public IP or hostname) -->
+    <host>127.0.0.1</host>
+  </local>
+
+  <io>
+    <!-- Maximum number of file descriptors -->
+    <max_fds>1024</max_fds>
+  </io>
+</proxy65>

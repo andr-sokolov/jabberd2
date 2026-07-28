@@ -16,3 +16,4 @@
 @jabberd_sm_bin@          @sysconfdir@/sm.xml
 @jabberd_s2s_bin@         @sysconfdir@/s2s.xml
 @jabberd_c2s_bin@         @sysconfdir@/c2s.xml
+@jabberd_proxy65_bin@     @sysconfdir@/proxy65.xml
