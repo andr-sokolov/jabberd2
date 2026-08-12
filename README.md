@@ -59,7 +59,7 @@ get you started. Complete documentation is available at http://jabberd2.org/
 
 ## Configure:
 
-  Edit $prefix/etc/(router|sm|c2s|s2s).xml to taste. In
+  Edit $prefix/etc/(router|sm|c2s).xml to taste. In
   particular, make sure you setup for your choice of data storage
   correctly. If you're using the Berkeley DB backend, you'll need to
   create /var/run/jabberd and sets its permissions so that the server
@@ -79,7 +79,6 @@ get you started. Complete documentation is available at http://jabberd2.org/
   You can either run all of the pieces separately:
 
     % $prefix/bin/router &
-    % $prefix/bin/s2s &
     % $prefix/bin/sm &
     % $prefix/bin/c2s &
 

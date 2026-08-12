@@ -11,4 +11,3 @@ jabber2/
     c2s/        - Client-to-server
     router/     - XML router
     sm/         - Session manager
-    s2s/        - Server-to-server

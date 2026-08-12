@@ -1,16 +1,16 @@
 LIBTOOL += --quiet
 
-sysconf_DATA = c2s.xml.dist router.xml.dist s2s.xml.dist sm.xml.dist proxy65.xml.dist jabberd.cfg.dist router-users.xml.dist router-filter.xml.dist
+sysconf_DATA = c2s.xml.dist router.xml.dist sm.xml.dist proxy65.xml.dist jabberd.cfg.dist router-users.xml.dist router-filter.xml.dist
 initdir = $(prefix)/etc/init
-init_DATA = jabberd-c2s.conf jabberd-router.conf jabberd-s2s.conf jabberd-sm.conf
+init_DATA = jabberd-c2s.conf jabberd-router.conf jabberd-sm.conf
 systemddir = $(prefix)/lib/systemd/system
-systemd_DATA = jabberd-sm.service jabberd.service jabberd-s2s.service jabberd-router.service jabberd-c2s.service
+systemd_DATA = jabberd-sm.service jabberd.service jabberd-router.service jabberd-c2s.service
 configs = $(sysconf_DATA) $(init_DATA) $(systemd_DATA)
 EXTRA_DIST = $(sysconf_DATA:%.dist=%.dist.in) $(init_DATA:%.conf=%.conf.in) $(systemd_DATA:%.service=%.service.in)
 
 SUBDIRS = templates
 
-jabberd_bin = router sm s2s c2s proxy65
+jabberd_bin = router sm c2s proxy65
 
 edit = sed \
 	-e 's,@package\@,$(PACKAGE),g' \

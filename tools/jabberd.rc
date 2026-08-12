@@ -18,7 +18,7 @@ else
 	exit -1
 fi
 #
-progs="router sm c2s s2s"
+progs="router sm c2s"
 progsPath="/usr/local/bin"
 confPath="/usr/local/etc/jabberd"
 pidPath="/usr/local/var/jabberd/pid"
@@ -101,8 +101,6 @@ Start ( ) {
 			ports="5347"
 		elif [ ${prog} == "c2s" ]; then
 			ports="5222 5223"
-		elif [ ${prog} == "s2s" ]; then
-			ports="5269"
 		else
 			ports=""
 		fi

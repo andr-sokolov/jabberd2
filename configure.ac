@@ -916,7 +916,6 @@ AC_CONFIG_FILES([Doxyfile
                  storage/Makefile
                  c2s/Makefile
                  router/Makefile
-                 s2s/Makefile
                  sm/Makefile
                  proxy65/Makefile
                  tools/Makefile

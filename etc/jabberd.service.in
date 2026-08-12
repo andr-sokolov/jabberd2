@@ -1,8 +1,8 @@
 [Unit]
 Description=Jabber Server
-Requires=jabberd-router.service jabberd-sm.service jabberd-c2s.service jabberd-s2s.service
-After=network.target jabberd-router.service jabberd-sm.service jabberd-c2s.service jabberd-s2s.service
-BindsTo=jabberd-router.service jabberd-sm.service jabberd-c2s.service jabberd-s2s.service
+Requires=jabberd-router.service jabberd-sm.service jabberd-c2s.service
+After=network.target jabberd-router.service jabberd-sm.service jabberd-c2s.service
+BindsTo=jabberd-router.service jabberd-sm.service jabberd-c2s.service
 
 [Service]
 Type=oneshot

@@ -5,7 +5,6 @@ HEADERS += config.h \
            $$files(c2s/*.h) \
            $$files(mio/*.h) \
            $$files(router/*.h) \
-           $$files(s2s/*.h) \
            $$files(sm/*.h) \
            $$files(storage/*.h) \
            $$files(subst/*.h) \
@@ -14,7 +13,6 @@ HEADERS += config.h \
 SOURCES += $$files(c2s/*.c) \
            $$files(mio/*.c) \
            $$files(router/*.c) \
-           $$files(s2s/*.c) \
            $$files(sm/*.c) \
            $$files(storage/*.c) \
            $$files(subst/*.c) \
@@ -28,7 +26,6 @@ OTHER_FILES += configure.ac \
                c2s/Makefile.am \
                mio/Makefile.am \
                router/Makefile.am \
-               s2s/Makefile.am \
                sm/Makefile.am \
                storage/Makefile.am \
                sx/Makefile.am \

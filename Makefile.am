@@ -6,7 +6,7 @@ SUBDIRS = etc man
 if USE_LIBSUBST
 SUBDIRS += subst
 endif
-SUBDIRS += tools mio sx util c2s router s2s storage sm proxy65
+SUBDIRS += tools mio sx util c2s router storage sm proxy65
 if ENABLE_TESTS
 SUBDIRS += tests
 endif
