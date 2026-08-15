@@ -629,7 +629,7 @@ static void _disco_free(module_t mod) {
     free(d);
 }
 
-DLLEXPORT int module_init(mod_instance_t mi, const char *arg)
+int module_init(mod_instance_t mi, const char *arg)
 {
     module_t mod = mi->mod;
     disco_t d;

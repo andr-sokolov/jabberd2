@@ -14,7 +14,7 @@ env:
 
 before_script: autoreconf -fi
 
-script: ./configure --enable-ssl --enable-mysql --enable-pgsql --enable-sqlite --enable-db --enable-ldap --enable-pam --enable-pipe --enable-anon --enable-fs --without-subst && make && make check
+script: ./configure --enable-ssl --enable-mysql --enable-pgsql --enable-sqlite --enable-db --enable-ldap --enable-pam --enable-pipe --enable-anon --enable-fs && make && make check
 
 addons:
   apt:
@@ -38,6 +38,6 @@ addons:
       name: "jabberd2/jabberd2"
       description: "Build submitted via Travis CI"
     notification_email: tomek@xiaoka.com
-    build_command_prepend: "./configure --enable-ssl --enable-mysql --enable-pgsql --enable-sqlite --enable-db --enable-ldap --enable-pam --enable-pipe --enable-anon --enable-fs --without-subst"
+    build_command_prepend: "./configure --enable-ssl --enable-mysql --enable-pgsql --enable-sqlite --enable-db --enable-ldap --enable-pam --enable-pipe --enable-anon --enable-fs"
     build_command: "make -j 4"
     branch_pattern: coverity_scan

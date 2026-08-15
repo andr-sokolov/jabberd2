@@ -184,7 +184,7 @@ static int _sm_router_connect(sm_t sm) {
     if(sm->fd == NULL) {
         if(errno == ECONNREFUSED)
             sm_lost_router = 1;
-        log_write(sm->log, LOG_NOTICE, "connection attempt to router failed: %s (%d)", MIO_STRERROR(MIO_ERROR), MIO_ERROR);
+        log_write(sm->log, LOG_NOTICE, "connection attempt to router failed: %s (%d)", strerror(errno), errno);
         return 1;
     }
 

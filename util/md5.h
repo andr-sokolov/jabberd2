@@ -52,19 +52,6 @@
 
 #include "util.h"
 
-/* jabberd2 Windows DLL */
-#ifndef JABBERD2_API
-# ifdef _WIN32
-#  ifdef JABBERD2_EXPORTS
-#   define JABBERD2_API  __declspec(dllexport)
-#  else /* JABBERD2_EXPORTS */
-#   define JABBERD2_API  __declspec(dllimport)
-#  endif /* JABBERD2_EXPORTS */
-# else /* _WIN32 */
-#  define JABBERD2_API extern
-# endif /* _WIN32 */
-#endif /* JABBERD2_API */
-
 /* use OpenSSL functions when available */
 #ifdef HAVE_SSL
 #include <openssl/md5.h>
@@ -101,13 +88,13 @@ extern "C"
 #endif
 
 /* Initialize the algorithm. */
-JABBERD2_API void md5_init(md5_state_t *pms);
+void md5_init(md5_state_t *pms);
 
 /* Append a string to the message. */
-JABBERD2_API void md5_append(md5_state_t *pms, const md5_byte_t *data, int nbytes);
+void md5_append(md5_state_t *pms, const md5_byte_t *data, int nbytes);
 
 /* Finish the message and return the digest. */
-JABBERD2_API void md5_finish(md5_state_t *pms, md5_byte_t digest[16]);
+void md5_finish(md5_state_t *pms, md5_byte_t digest[16]);
 
 #ifdef __cplusplus
 }  /* end extern "C" */

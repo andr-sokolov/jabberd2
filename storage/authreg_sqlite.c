@@ -33,15 +33,8 @@
 #include "c2s.h"
 #include <sqlite3.h>
 
-/* Windows does not have the crypt() function, let's take DES_crypt from OpenSSL instead */
-#if defined(HAVE_OPENSSL_CRYPTO_H) && defined(_WIN32)
-#include <openssl/des.h>
-#define crypt DES_crypt
-#define HAVE_CRYPT 1
-#else
 #ifdef HAVE_CRYPT
 #include <crypt.h>
-#endif
 #endif
 
 #ifdef HAVE_SSL
@@ -380,7 +373,7 @@ _ar_sqlite_free(authreg_t ar)
     free(data);
 }
 
-DLLEXPORT int
+int
 ar_init(authreg_t ar)
 {
 

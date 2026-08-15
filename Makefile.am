@@ -1,11 +1,8 @@
-EXTRA_DIST = Doxyfile.in README.md README.win32 README.protocol README.config contrib docs win32
+EXTRA_DIST = Doxyfile.in README.md README.protocol README.config contrib docs
 
 LIBTOOL += --quiet
 
 SUBDIRS = etc man
-if USE_LIBSUBST
-SUBDIRS += subst
-endif
 SUBDIRS += tools mio sx util c2s router storage sm proxy65
 if ENABLE_TESTS
 SUBDIRS += tests

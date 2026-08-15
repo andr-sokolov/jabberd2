@@ -45,131 +45,10 @@ void _iq_version_get_os_version(mod_iq_version_config_t config) {
 #if defined(HAVE_UNAME)
     struct utsname un;
 
-#elif defined(_WIN32)
-    char sysname[64];
-    char release[64];
-
-    OSVERSIONINFOEX osvi;
-    BOOL bOsVersionInfoEx;
-    BOOL bSomeError = FALSE;
-
-    sysname[0] = '\0';
-    release[0] = '\0';
-#endif
-
-    /* figure out the os type */
-#if defined(HAVE_UNAME)
     if(uname(&un) == 0) {
         config->os_name = strdup(un.sysname);
         config->os_release = strdup(un.machine);
-
-        return;
     }
-#elif defined(_WIN32)
-    ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
-    osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-    if( !(bOsVersionInfoEx = GetVersionEx ((OSVERSIONINFO *) &osvi)) )
-    {
-        /* If OSVERSIONINFOEX doesn't work, try OSVERSIONINFO. */
-
-        osvi.dwOSVersionInfoSize = sizeof (OSVERSIONINFO);
-        if (! GetVersionEx ( (OSVERSIONINFO *) &osvi) )
-        {
-            snprintf(sysname, 64, "unknown");
-            bSomeError = TRUE;
-        }
-    }
-    if (!bSomeError)
-    {
-        switch (osvi.dwPlatformId)
-        {
-        case VER_PLATFORM_WIN32_NT:
-            /* Test for the product. */
-            if ( osvi.dwMajorVersion <= 4 )
-                snprintf(sysname, 64, "Microsoft Windows NT");
-
-            if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0 )
-                snprintf(sysname, 64, "Microsoft Windows 2000");
-
-            if ( osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1 )
-                snprintf(sysname, 64, "Microsoft Windows XP");
-
-            /* Test for product type. */
-
-            if( bOsVersionInfoEx )
-            {
-                if ( osvi.wProductType == VER_NT_WORKSTATION )
-                {
-                    if( osvi.wSuiteMask & VER_SUITE_PERSONAL )
-                        snprintf(release, 64,  "Personal" );
-                    else
-                        snprintf(release, 64,  "Professional" );
-                }
-
-                else if ( osvi.wProductType == VER_NT_SERVER )
-                {
-                    if( osvi.wSuiteMask & VER_SUITE_DATACENTER )
-                        snprintf(release, 64,  "DataCenter Server" );
-                    else if( osvi.wSuiteMask & VER_SUITE_ENTERPRISE )
-                        snprintf(release, 64,  "Advanced Server" );
-                    else
-                        snprintf(release, 64,  "Server" );
-                }
-            }
-            else
-            {
-                HKEY hKey;
-                char szProductType[80];
-                DWORD dwBufLen;
-
-                RegOpenKeyEx( HKEY_LOCAL_MACHINE,
-                    "SYSTEM\\CurrentControlSet\\Control\\ProductOptions",
-                    0, KEY_QUERY_VALUE, &hKey );
-                RegQueryValueEx( hKey, "ProductType", NULL, NULL,
-                    (LPBYTE) szProductType, &dwBufLen);
-                RegCloseKey( hKey );
-                if ( lstrcmpi( "WINNT", szProductType) == 0 )
-                    snprintf(release, 64,  "Professional" );
-                if ( lstrcmpi( "LANMANNT", szProductType) == 0 )
-                    snprintf(release, 64, "Server" );
-                if ( lstrcmpi( "SERVERNT", szProductType) == 0 )
-                    snprintf(release, 64, "Advanced Server" );
-            }
-            break;
-
-        case VER_PLATFORM_WIN32_WINDOWS:
-
-            if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 0)
-            {
-                snprintf(sysname, 64, "Microsoft Windows 95");
-                if ( osvi.szCSDVersion[1] == 'C' || osvi.szCSDVersion[1] == 'B' )
-                    snprintf(release, 64, "OSR2" );
-            }
-
-            if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 10)
-            {
-                snprintf(sysname, 64, "Microsoft Windows 98");
-                if ( osvi.szCSDVersion[1] == 'A' )
-                    snprintf(release, 64, "SE" );
-            }
-
-            if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 90)
-            {
-                snprintf(sysname, 64, "Microsoft Windows Me");
-            }
-            break;
-
-        case VER_PLATFORM_WIN32s:
-
-            snprintf(sysname, 64, "Microsoft Win32s");
-            break;
-        }
-    }
-
-    config->os_name = strdup(sysname);
-    config->os_release = strdup(release);
-
-    return;
 #endif
 }
 
@@ -259,7 +138,7 @@ static void _iq_version_free(module_t mod) {
     free(config);
 }
 
-DLLEXPORT int module_init(mod_instance_t mi, const char *arg) {
+int module_init(mod_instance_t mi, const char *arg) {
     mod_iq_version_config_t config;
     module_t mod = mi->mod;
 

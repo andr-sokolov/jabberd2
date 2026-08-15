@@ -32,7 +32,7 @@ int proxy65_router_sx_callback(sx_t s, sx_event_t e, void *data, void *arg) {
                     buf->len = 0;
                     return 0;
                 }
-                log_write(p->log, LOG_NOTICE, "[%d] [router] read error: %s (%d)", p->fd->fd, MIO_STRERROR(MIO_ERROR), MIO_ERROR);
+                log_write(p->log, LOG_NOTICE, "[%d] [router] read error: %s (%d)", p->fd->fd, strerror(errno), errno);
                 sx_kill(s);
                 return -1;
             } else if(len == 0) {
@@ -52,7 +52,7 @@ int proxy65_router_sx_callback(sx_t s, sx_event_t e, void *data, void *arg) {
             if(MIO_WOULDBLOCK)
                 return 0;
 
-            log_write(p->log, LOG_NOTICE, "[%d] [router] write error: %s (%d)", p->fd->fd, MIO_STRERROR(MIO_ERROR), MIO_ERROR);
+            log_write(p->log, LOG_NOTICE, "[%d] [router] write error: %s (%d)", p->fd->fd, strerror(errno), errno);
             sx_kill(s);
             return -1;
         }

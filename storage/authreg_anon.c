@@ -32,7 +32,7 @@ static int _ar_anon_user_exists(authreg_t ar, sess_t sess, const char *username,
 }
 
 /** start me up */
-DLLEXPORT int ar_init(authreg_t ar)
+int ar_init(authreg_t ar)
 {
     ar->user_exists = _ar_anon_user_exists;
 

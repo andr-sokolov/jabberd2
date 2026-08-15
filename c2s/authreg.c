@@ -20,12 +20,7 @@
 
 #include "c2s.h"
 #include <stringprep.h>
-#ifdef _WIN32
-  #include <windows.h>
-  #define LIBRARY_DIR "."
-#else
-  #include <dlfcn.h>
-#endif
+#include <dlfcn.h>
 
 /* authreg module manager */
 
@@ -58,7 +53,6 @@ authreg_t authreg_init(c2s_t c2s, const char *name) {
         log_write(c2s->log, LOG_NOTICE, "modules search path undefined, using default: "LIBRARY_DIR);
 
     log_write(c2s->log, LOG_INFO, "loading '%s' authreg module", name);
-#ifndef _WIN32
     if (modules_path != NULL)
         snprintf(mod_fullpath, PATH_MAX, "%s/authreg_%s.so", modules_path, name);
     else
@@ -66,28 +60,13 @@ authreg_t authreg_init(c2s_t c2s, const char *name) {
     handle = dlopen(mod_fullpath, RTLD_LAZY);
     if (handle != NULL)
         init_fn = dlsym(handle, "ar_init");
-#else
-    if (modules_path != NULL)
-        snprintf(mod_fullpath, PATH_MAX, "%s\\authreg_%s.dll", modules_path, name);
-    else
-        snprintf(mod_fullpath, PATH_MAX, "authreg_%s.dll", name);
-    handle = (void*) LoadLibrary(mod_fullpath);
-    if (handle != NULL)
-        init_fn = (ar_module_init_fn)GetProcAddress((HMODULE) handle, "ar_init");
-#endif
 
     if (handle != NULL && init_fn != NULL) {
         log_debug(ZONE, "preloaded module '%s' (not initialized yet)", name);
     } else {
-#ifndef _WIN32
         log_write(c2s->log, LOG_ERR, "failed loading authreg module '%s' (%s)", name, dlerror());
         if (handle != NULL)
             dlclose(handle);
-#else
-        log_write(c2s->log, LOG_ERR, "failed loading authreg module '%s' (errcode: %x)", name, GetLastError());
-        if (handle != NULL)
-            FreeLibrary((HMODULE) handle);
-#endif
         return NULL;
     }
 

@@ -30,19 +30,6 @@
 #include <expat.h>
 #include <util/util.h>
 
-/* jabberd2 Windows DLL */
-#ifndef JABBERD2_API
-# ifdef _WIN32
-#  ifdef JABBERD2_EXPORTS
-#   define JABBERD2_API  __declspec(dllexport)
-#  else /* JABBERD2_EXPORTS */
-#   define JABBERD2_API  __declspec(dllimport)
-#  endif /* JABBERD2_EXPORTS */
-# else /* _WIN32 */
-#  define JABBERD2_API extern
-# endif /* _WIN32 */
-#endif /* JABBERD2_API */
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -151,51 +138,51 @@ struct _sx_buf_st {
 /* exported functions */
 
 /* make/break */
-JABBERD2_API sx_t                        sx_new(sx_env_t env, int tag, sx_callback_t cb, void *arg);
-JABBERD2_API void                        sx_free(sx_t s);
+sx_t                        sx_new(sx_env_t env, int tag, sx_callback_t cb, void *arg);
+void                        sx_free(sx_t s);
 
 /* get things ready */
-JABBERD2_API void                        sx_client_init(sx_t s, unsigned int flags, const char *ns, const char *to, const char *from, const char *version);
-JABBERD2_API void                        sx_server_init(sx_t s, unsigned int flags);
+void                        sx_client_init(sx_t s, unsigned int flags, const char *ns, const char *to, const char *from, const char *version);
+void                        sx_server_init(sx_t s, unsigned int flags);
 
 /* activity on socket, do stuff! (returns 1 if more read/write actions wanted, 0 otherwise) */
-JABBERD2_API int                         sx_can_read(sx_t s);
-JABBERD2_API int                         sx_can_write(sx_t s);
+int                         sx_can_read(sx_t s);
+int                         sx_can_write(sx_t s);
 
 /** sending a nad */
-JABBERD2_API void                        sx_nad_write_elem(sx_t s, nad_t nad, int elem);
+void                        sx_nad_write_elem(sx_t s, nad_t nad, int elem);
 #define sx_nad_write(s,nad) sx_nad_write_elem(s, nad, 0)
 
 /** sending raw data */
-JABBERD2_API void                        sx_raw_write(sx_t s, const char *buf, int len);
+void                        sx_raw_write(sx_t s, const char *buf, int len);
 
 /** authenticate the stream and move to the auth'd state */
-JABBERD2_API void                        sx_auth(sx_t s, const char *auth_method, const char *auth_id);
+void                        sx_auth(sx_t s, const char *auth_method, const char *auth_id);
 
 /* make/break an environment */
-JABBERD2_API sx_env_t                    sx_env_new(void);
-JABBERD2_API void                        sx_env_free(sx_env_t env);
+sx_env_t                    sx_env_new(void);
+void                        sx_env_free(sx_env_t env);
 
 /** load a plugin into the environment */
-JABBERD2_API sx_plugin_t                 sx_env_plugin(sx_env_t env, sx_plugin_init_t init, ...);
+sx_plugin_t                 sx_env_plugin(sx_env_t env, sx_plugin_init_t init, ...);
 
 /* send errors and close stuff */
-JABBERD2_API void                        sx_error(sx_t s, int err, const char *text);
-JABBERD2_API void                        sx_error_extended(sx_t s, int err, const char *content);
-JABBERD2_API void                        sx_close(sx_t s);
-JABBERD2_API void                        sx_kill(sx_t s);
+void                        sx_error(sx_t s, int err, const char *text);
+void                        sx_error_extended(sx_t s, int err, const char *content);
+void                        sx_close(sx_t s);
+void                        sx_kill(sx_t s);
 
 
 /* helper functions */
-JABBERD2_API char*                       _sx_flags(sx_t s);
+char*                       _sx_flags(sx_t s);
 
 /* primary expat callbacks */
-JABBERD2_API void                        _sx_element_start(void *arg, const char *name, const char **atts);
-JABBERD2_API void                        _sx_element_end(void *arg, const char *name);
-JABBERD2_API void                        _sx_cdata(void *arg, const char *str, int len);
-JABBERD2_API void                        _sx_namespace_start(void *arg, const char *prefix, const char *uri);
+void                        _sx_element_start(void *arg, const char *name, const char **atts);
+void                        _sx_element_end(void *arg, const char *name);
+void                        _sx_cdata(void *arg, const char *str, int len);
+void                        _sx_namespace_start(void *arg, const char *prefix, const char *uri);
 #ifdef HAVE_XML_STOPPARSER
-JABBERD2_API void                        _sx_entity_declaration(void *arg, const char *entityName,
+void                        _sx_entity_declaration(void *arg, const char *entityName,
                                                                 int is_parameter_entity, const char *value,
                                                                 int value_length, const char *base,
                                                                 const char *systemId, const char *publicId,
@@ -203,42 +190,42 @@ JABBERD2_API void                        _sx_entity_declaration(void *arg, const
 #endif
 
 /** processor for incoming wire data */
-JABBERD2_API void                        _sx_process_read(sx_t s, sx_buf_t buf);
+void                        _sx_process_read(sx_t s, sx_buf_t buf);
 
 /** main nad processor */
-JABBERD2_API void                        _sx_nad_process(sx_t s, nad_t nad);
+void                        _sx_nad_process(sx_t s, nad_t nad);
 
 /* chain management */
-JABBERD2_API void                        _sx_chain_io_plugin(sx_t s, sx_plugin_t p);
-JABBERD2_API void                        _sx_chain_nad_plugin(sx_t s, sx_plugin_t p);
+void                        _sx_chain_io_plugin(sx_t s, sx_plugin_t p);
+void                        _sx_chain_nad_plugin(sx_t s, sx_plugin_t p);
 
 /* chain running */
-JABBERD2_API int                         _sx_chain_io_write(sx_t s, sx_buf_t buf);
-JABBERD2_API int                         _sx_chain_io_read(sx_t s, sx_buf_t buf);
+int                         _sx_chain_io_write(sx_t s, sx_buf_t buf);
+int                         _sx_chain_io_read(sx_t s, sx_buf_t buf);
 
-JABBERD2_API int                         _sx_chain_nad_write(sx_t s, nad_t nad, int elem);
-JABBERD2_API int                         _sx_chain_nad_read(sx_t s, nad_t nad);
+int                         _sx_chain_nad_write(sx_t s, nad_t nad, int elem);
+int                         _sx_chain_nad_read(sx_t s, nad_t nad);
 
 /* buffer utilities */
-JABBERD2_API sx_buf_t                     _sx_buffer_new(const char *data, int len, _sx_notify_t notify, void *notify_arg);
-JABBERD2_API void                        _sx_buffer_free(sx_buf_t buf);
-JABBERD2_API void                        _sx_buffer_clear(sx_buf_t buf);
-JABBERD2_API void                        _sx_buffer_alloc_margin(sx_buf_t buf, int before, int after);
-JABBERD2_API void                        _sx_buffer_set(sx_buf_t buf, char *newdata, int newlength, char *newheap);
+sx_buf_t                     _sx_buffer_new(const char *data, int len, _sx_notify_t notify, void *notify_arg);
+void                        _sx_buffer_free(sx_buf_t buf);
+void                        _sx_buffer_clear(sx_buf_t buf);
+void                        _sx_buffer_alloc_margin(sx_buf_t buf, int before, int after);
+void                        _sx_buffer_set(sx_buf_t buf, char *newdata, int newlength, char *newheap);
 
 /** sending a nad (internal) */
-JABBERD2_API int                         _sx_nad_write(sx_t s, nad_t nad, int elem);
+int                         _sx_nad_write(sx_t s, nad_t nad, int elem);
 
 /** sending raw data (internal) */
-JABBERD2_API void                        sx_raw_write(sx_t s, const char *buf, int len);
+void                        sx_raw_write(sx_t s, const char *buf, int len);
 
 /** reset stream state without informing the app */
-JABBERD2_API void                        _sx_reset(sx_t s);
+void                        _sx_reset(sx_t s);
 
 /* send errors and close stuff */
-JABBERD2_API void                        _sx_error(sx_t s, int err, const char *text);
-JABBERD2_API void                        _sx_error_extended(sx_t s, int err, const char *content);
-JABBERD2_API void                        _sx_close(sx_t s);
+void                        _sx_error(sx_t s, int err, const char *text);
+void                        _sx_error_extended(sx_t s, int err, const char *content);
+void                        _sx_close(sx_t s);
 
 /** read/write plugin chain */
 typedef struct _sx_chain_st *_sx_chain_t;
@@ -388,10 +375,10 @@ struct _sx_env_st {
 #define ZONE __FILE__,__LINE__
 
 /** helper functions for macros when we're debugging */
-JABBERD2_API void        __sx_debug(const char *file, int line, const char *msgfmt, ...);
+void        __sx_debug(const char *file, int line, const char *msgfmt, ...);
 
 /** helper and internal macro for firing the callback */
-JABBERD2_API int         __sx_event(const char *file, int line, sx_t s, sx_event_t e, void *data);
+int         __sx_event(const char *file, int line, sx_t s, sx_event_t e, void *data);
 #define _sx_event(s,e,data) __sx_event(ZONE, s, e, data)
 
 #ifdef SX_DEBUG

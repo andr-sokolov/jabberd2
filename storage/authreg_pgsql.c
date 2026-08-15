@@ -24,15 +24,8 @@
 #include "c2s.h"
 #include <libpq-fe.h>
 
-/* Windows does not have the crypt() function, let's take DES_crypt from OpenSSL instead */
-#if defined(HAVE_OPENSSL_CRYPTO_H) && defined(_WIN32)
-#include <openssl/des.h>
-#define crypt DES_crypt
-#define HAVE_CRYPT 1
-#else
 #ifdef HAVE_CRYPT
 #include <unistd.h>
-#endif
 #endif
 
 #ifdef HAVE_SSL

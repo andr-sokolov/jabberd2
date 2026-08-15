@@ -126,7 +126,7 @@ static int _proxy65_router_connect(proxy65_t p) {
     if(p->fd == NULL) {
         if(errno == ECONNREFUSED)
             proxy65_lost_router = 1;
-        log_write(p->log, LOG_NOTICE, "connection attempt to router failed: %s (%d)", MIO_STRERROR(MIO_ERROR), MIO_ERROR);
+        log_write(p->log, LOG_NOTICE, "connection attempt to router failed: %s (%d)", strerror(errno), errno);
         return 1;
     }
 

@@ -53,19 +53,6 @@
 # include <sys/types.h>
 #endif
 
-/* jabberd2 Windows DLL */
-#ifndef JABBERD2_API
-# ifdef _WIN32
-#  ifdef JABBERD2_EXPORTS
-#   define JABBERD2_API  __declspec(dllexport)
-#  else /* JABBERD2_EXPORTS */
-#   define JABBERD2_API  __declspec(dllimport)
-#  endif /* JABBERD2_EXPORTS */
-# else /* _WIN32 */
-#  define JABBERD2_API extern
-# endif /* _WIN32 */
-#endif /* JABBERD2_API */
-
 struct nad_elem_st {
     int parent;
     int iname, lname;
@@ -109,26 +96,26 @@ typedef struct nad_st
 } *nad_t;
 
 /** create a new nad */
-JABBERD2_API nad_t nad_new(void);
+nad_t nad_new(void);
 
 /** copy a nad */
-JABBERD2_API nad_t nad_copy(nad_t nad);
+nad_t nad_copy(nad_t nad);
 
 /** free that nad */
-JABBERD2_API void nad_free(nad_t nad);
+void nad_free(nad_t nad);
 
 /** find the next element with this name/depth */
 /** 0 for siblings, 1 for children and so on */
-JABBERD2_API int nad_find_elem(nad_t nad, unsigned int elem, int ns, const char *name, int depth);
+int nad_find_elem(nad_t nad, unsigned int elem, int ns, const char *name, int depth);
 
 /** find the first matching attribute (and optionally value) */
-JABBERD2_API int nad_find_attr(nad_t nad, unsigned int elem, int ns, const char *name, const char *val);
+int nad_find_attr(nad_t nad, unsigned int elem, int ns, const char *name, const char *val);
 
 /** find the first matching namespace (and optionally prefix) */
-JABBERD2_API int nad_find_namespace(nad_t nad, unsigned int elem, const char *uri, const char *prefix);
+int nad_find_namespace(nad_t nad, unsigned int elem, const char *uri, const char *prefix);
 
 /** find a namespace in scope (and optionally prefix) */
-JABBERD2_API int nad_find_scoped_namespace(nad_t nad, const char *uri, const char *prefix);
+int nad_find_scoped_namespace(nad_t nad, const char *uri, const char *prefix);
 
 /** find elem using XPath like query
  *  name -- "name" for the child tag of that name
@@ -137,47 +124,47 @@ JABBERD2_API int nad_find_scoped_namespace(nad_t nad, const char *uri, const cha
  *          "?attrib=value" to match the first tag with that attrib and value
  *          or any combination: "name/name/?attrib", etc
  */
-JABBERD2_API int nad_find_elem_path(nad_t nad, unsigned int elem, int ns, const char *name);
+int nad_find_elem_path(nad_t nad, unsigned int elem, int ns, const char *name);
 
 /** reset or store the given attribute */
-JABBERD2_API void nad_set_attr(nad_t nad, unsigned int elem, int ns, const char *name, const char *val, int vallen);
+void nad_set_attr(nad_t nad, unsigned int elem, int ns, const char *name, const char *val, int vallen);
 
 /** insert and return a new element as a child of this one */
-JABBERD2_API int nad_insert_elem(nad_t nad, unsigned int parent, int ns, const char *name, const char *cdata);
+int nad_insert_elem(nad_t nad, unsigned int parent, int ns, const char *name, const char *cdata);
 
 /** remove an element (and its subelements) */
-JABBERD2_API void nad_drop_elem(nad_t nad, unsigned int elem);
+void nad_drop_elem(nad_t nad, unsigned int elem);
 
 /** wrap an element with another element */
-JABBERD2_API void nad_wrap_elem(nad_t nad, unsigned int elem, int ns, const char *name);
+void nad_wrap_elem(nad_t nad, unsigned int elem, int ns, const char *name);
 
 /** insert part of a nad into another nad */
-JABBERD2_API int nad_insert_nad(nad_t dest, int delem, nad_t src, int selem);
+int nad_insert_nad(nad_t dest, int delem, nad_t src, int selem);
 
 /** append and return a new element */
-JABBERD2_API int nad_append_elem(nad_t nad, int ns, const char *name, int depth);
+int nad_append_elem(nad_t nad, int ns, const char *name, int depth);
 
 /** append attribs to the last element */
-JABBERD2_API int nad_append_attr(nad_t nad, int ns, const char *name, const char *val);
+int nad_append_attr(nad_t nad, int ns, const char *name, const char *val);
 
 /** append more cdata to the last element */
-JABBERD2_API void nad_append_cdata(nad_t nad, const char *cdata, int len, int depth);
+void nad_append_cdata(nad_t nad, const char *cdata, int len, int depth);
 
 /** add a namespace to the next element (ie, called when the namespace comes into scope) */
-JABBERD2_API int nad_add_namespace(nad_t nad, const char *uri, const char *prefix);
+int nad_add_namespace(nad_t nad, const char *uri, const char *prefix);
 
 /** declare a namespace on an already existing element */
-JABBERD2_API int nad_append_namespace(nad_t nad, unsigned int elem, const char *uri, const char *prefix);
+int nad_append_namespace(nad_t nad, unsigned int elem, const char *uri, const char *prefix);
 
 /** create a string representation of the given element (and children), point references to it */
-JABBERD2_API void nad_print(nad_t nad, unsigned int elem, const char **xml, int *len);
+void nad_print(nad_t nad, unsigned int elem, const char **xml, int *len);
 
 /** serialize and deserialize a nad */
-JABBERD2_API void nad_serialize(nad_t nad, char **buf, int *len);
-JABBERD2_API nad_t nad_deserialize(const char *buf);
+void nad_serialize(nad_t nad, char **buf, int *len);
+nad_t nad_deserialize(const char *buf);
 
 /** create a nad from raw xml */
-JABBERD2_API nad_t nad_parse(const char *buf, int len);
+nad_t nad_parse(const char *buf, int len);
 
 /* these are some helpful macros */
 #define NAD_ENAME(N,E) (N->cdata + N->elems[E].iname)

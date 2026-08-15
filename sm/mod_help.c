@@ -168,7 +168,7 @@ static void _help_disco_extend(mod_instance_t mi, pkt_t pkt)
     }
 }
 
-DLLEXPORT int module_init(mod_instance_t mi, const char *arg) {
+int module_init(mod_instance_t mi, const char *arg) {
     module_t mod = mi->mod;
 
     if(mod->init) return 0;

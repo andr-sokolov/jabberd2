@@ -619,7 +619,7 @@ static void _st_sqlite_free (st_driver_t drv) {
     free (data);
 }
 
-DLLEXPORT st_ret_t st_init(st_driver_t drv) {
+st_ret_t st_init(st_driver_t drv) {
 
     const char *dbname;
     const char *sql_stmt;

@@ -25,18 +25,6 @@
 
 #include "util/inaddr.h"
 
-/* win32 wrappers around strerror */
-#ifdef _WIN32
-#define close(x) closesocket(x)
-JABBERD2_API char *mio_strerror(int code)
-{
-  static char buff[1024];
-  if(FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, 0, buff, sizeof(buff), NULL))
-    return buff;
-  return strerror(code);
-}
-#endif /* _WIN32 */
-
 /** our internal wrapper around a fd */
 typedef enum {
     type_CLOSED = 0x00,
@@ -236,7 +224,7 @@ static void _mio_run(mio_t m, int timeout)
     /* an error */
     if(retval < 0)
     {
-        mio_debug(ZONE, "MIO_CHECK returned an error (%d)", MIO_ERROR);
+        mio_debug(ZONE, "MIO_CHECK returned an error (%d)", errno);
 
         return;
     }
@@ -401,7 +389,7 @@ static mio_fd_t _mio_connect(mio_t m, int port, const char *hostip, const char *
 
     /* convert the hostip */
     if(j_inet_pton(hostip, &sa)<=0) {
-        MIO_SETERROR(EAFNOSUPPORT);
+        errno = EAFNOSUPPORT;
         return NULL;
     }
 
@@ -414,7 +402,7 @@ static mio_fd_t _mio_connect(mio_t m, int port, const char *hostip, const char *
     if (srcip != NULL) {
         /* convert the srcip */
         if(j_inet_pton(srcip, &src)<=0) {
-            MIO_SETERROR(EAFNOSUPPORT);
+            errno = EAFNOSUPPORT;
             close(fd);
             return NULL;
         }
@@ -448,7 +436,7 @@ static mio_fd_t _mio_connect(mio_t m, int port, const char *hostip, const char *
     /* try to connect */
     flag = connect(fd,(struct sockaddr*)&sa,j_inet_addrlen(&sa));
 
-    mio_debug(ZONE, "connect returned %d and %s", flag, MIO_STRERROR(MIO_ERROR));
+    mio_debug(ZONE, "connect returned %d and %s", flag, strerror(errno));
 
     /* already connected?  great! */
     if(flag == 0)
@@ -458,11 +446,7 @@ static mio_fd_t _mio_connect(mio_t m, int port, const char *hostip, const char *
     }
 
     /* gotta wait till later */
-#ifdef _WIN32
-    if(flag == -1 && WSAGetLastError() == WSAEWOULDBLOCK)
-#else
     if(flag == -1 && errno == EINPROGRESS)
-#endif
     {
         mio_fd = _mio_setup_fd(m,fd,app,arg);
         if(mio_fd != NULL)
@@ -501,13 +485,6 @@ static mio_t _mio_new(int maxfd)
         _mio_run
     };
     mio_t m;
-
-    /* init winsock if we are in Windows */
-#ifdef _WIN32
-    WSADATA wsaData;
-    if (WSAStartup(MAKEWORD( 1, 1 ), &wsaData))
-        return NULL;
-#endif
 
     /* allocate and zero out main memory */
     if((m = calloc(1, sizeof(struct mio_priv_st))) == NULL) {

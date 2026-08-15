@@ -23,19 +23,6 @@
 #ifndef INCL_SHA1_H
 #define INCL_SHA1_H
 
-/* jabberd2 Windows DLL */
-#ifndef JABBERD2_API
-# ifdef _WIN32
-#  ifdef JABBERD2_EXPORTS
-#   define JABBERD2_API  __declspec(dllexport)
-#  else /* JABBERD2_EXPORTS */
-#   define JABBERD2_API  __declspec(dllimport)
-#  endif /* JABBERD2_EXPORTS */
-# else /* _WIN32 */
-#  define JABBERD2_API extern
-# endif /* _WIN32 */
-#endif /* JABBERD2_API */
-
 /* use OpenSSL functions when available */
 #ifdef HAVE_SSL
 #include <openssl/sha.h>
@@ -57,10 +44,10 @@ typedef struct sha1_state_s {
   uint32_t sizeHi,sizeLo;
 } sha1_state_t;
 
-JABBERD2_API void sha1_init(sha1_state_t *ctx);
-JABBERD2_API void sha1_append(sha1_state_t *ctx, const unsigned char *dataIn, int len);
-JABBERD2_API void sha1_finish(sha1_state_t *ctx, unsigned char hashout[20]);
-JABBERD2_API void sha1_hash(const unsigned char *dataIn, int len, unsigned char hashout[20]);
+void sha1_init(sha1_state_t *ctx);
+void sha1_append(sha1_state_t *ctx, const unsigned char *dataIn, int len);
+void sha1_finish(sha1_state_t *ctx, unsigned char hashout[20]);
+void sha1_hash(const unsigned char *dataIn, int len, unsigned char hashout[20]);
 
 #endif
 

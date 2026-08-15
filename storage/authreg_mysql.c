@@ -26,15 +26,8 @@
 #include <stdlib.h>
 #include <openssl/rand.h>
 
-/* Windows does not have the crypt() function, let's take DES_crypt from OpenSSL instead */
-#if defined(HAVE_OPENSSL_CRYPTO_H) && defined(_WIN32)
-#include <openssl/des.h>
-#define crypt DES_crypt
-#define HAVE_CRYPT 1
-#else
 #ifdef HAVE_CRYPT
 #include <unistd.h>
-#endif
 #endif
 
 #ifdef HAVE_SSL
@@ -478,7 +471,7 @@ static int _ar_mysql_check_sql( authreg_t ar, const char * sql, const char * typ
 }
 
 /** start me up */
-DLLEXPORT int ar_init(authreg_t ar) {
+int ar_init(authreg_t ar) {
     const char *host, *port, *dbname, *user, *pass;
     char *create, *select, *setpassword, *delete;
     const char *table, *username, *realm;

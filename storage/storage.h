@@ -37,19 +37,6 @@
 #include <util/nad.h>
 #include <util/util.h>
 
-#ifdef _WIN32
-  #ifdef _USRDLL
-    #define DLLEXPORT  __declspec(dllexport)
-    #define ST_API     __declspec(dllimport)
-  #else
-    #define DLLEXPORT  __declspec(dllimport)
-    #define ST_API     __declspec(dllexport)
-  #endif
-#else
-  #define DLLEXPORT
-  #define ST_API
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -103,49 +90,49 @@ struct os_object_st {
 };
 
 /** create a new object set */
-ST_API os_t        os_new(void);
+os_t        os_new(void);
 /** free an object set */
-ST_API void        os_free(os_t os);
+void        os_free(os_t os);
 
 /** number of objects in a set */
-ST_API int         os_count(os_t os);
+int         os_count(os_t os);
 
 /** set iterator to first object (1 = exists, 0 = doesn't exist) */
-ST_API int         os_iter_first(os_t os);
+int         os_iter_first(os_t os);
 
 /** set iterator to next object (1 = exists, 0 = doesn't exist) */
-ST_API int         os_iter_next(os_t os);
+int         os_iter_next(os_t os);
 
 /** get the object currently under the iterator */
-ST_API os_object_t os_iter_object(os_t os);
+os_object_t os_iter_object(os_t os);
 
 /** create a new object in this set */
-ST_API os_object_t os_object_new(os_t os);
+os_object_t os_object_new(os_t os);
 /** free an object (remove it from its set) */
-ST_API void        os_object_free(os_object_t o);
+void        os_object_free(os_object_t o);
 
 /** add a field to the object */
-ST_API void        os_object_put(os_object_t o, const char *key, const void *val, os_type_t type);
+void        os_object_put(os_object_t o, const char *key, const void *val, os_type_t type);
 
 /** get a field from the object of type type (result in val), ret 0 == not found */
-ST_API int         os_object_get(os_t os, os_object_t o, const char *key, void **val, os_type_t type, os_type_t *ot);
+int         os_object_get(os_t os, os_object_t o, const char *key, void **val, os_type_t type, os_type_t *ot);
 
 /** wrappers for os_object_get to avoid breaking strict-aliasing rules in gcc3 */
-ST_API int         os_object_get_nad(os_t os, os_object_t o, const char *key, nad_t *val);
-ST_API int         os_object_get_str(os_t os, os_object_t o, const char *key, char **val);
-ST_API int         os_object_get_int(os_t os, os_object_t o, const char *key, int *val);
-ST_API int         os_object_get_bool(os_t os, os_object_t o, const char *key, int *val);
-ST_API int         os_object_get_time(os_t os, os_object_t o, const char *key, time_t *val);
+int         os_object_get_nad(os_t os, os_object_t o, const char *key, nad_t *val);
+int         os_object_get_str(os_t os, os_object_t o, const char *key, char **val);
+int         os_object_get_int(os_t os, os_object_t o, const char *key, int *val);
+int         os_object_get_bool(os_t os, os_object_t o, const char *key, int *val);
+int         os_object_get_time(os_t os, os_object_t o, const char *key, time_t *val);
 
 /** wrappers for os_object_put to avoid breaking strict-aliasing rules in gcc3 */
-ST_API void        os_object_put_time(os_object_t o, const char *key, const time_t *val);
+void        os_object_put_time(os_object_t o, const char *key, const time_t *val);
 
 /** set field iterator to first field (1 = exists, 0 = doesn't exist) */
-ST_API int         os_object_iter_first(os_object_t o);
+int         os_object_iter_first(os_object_t o);
 /** set field iterator to next field (1 = exists, 0 = doesn't exist) */
-ST_API int         os_object_iter_next(os_object_t o);
+int         os_object_iter_next(os_object_t o);
 /** extract field values from field currently under the iterator */
-ST_API void        os_object_iter_get(os_object_t o, char **key, void **val, os_type_t *type);
+void        os_object_iter_get(os_object_t o, char **key, void **val, os_type_t *type);
 
 
 /* storage manager */
@@ -207,25 +194,25 @@ struct st_driver_st {
 };
 
 /** allocate a storage manager instance */
-ST_API storage_t       storage_new(config_t config, log_t log);
+storage_t       storage_new(config_t config, log_t log);
 /** free a storage manager instance */
-ST_API void            storage_free(storage_t st);
+void            storage_free(storage_t st);
 
 /** associate this data type with this driver */
-ST_API st_ret_t        storage_add_type(storage_t st, const char *driver, const char *type);
+st_ret_t        storage_add_type(storage_t st, const char *driver, const char *type);
 
 /** store objects in this set */
-ST_API st_ret_t        storage_put(storage_t st, const char *type, const char *owner, os_t os);
+st_ret_t        storage_put(storage_t st, const char *type, const char *owner, os_t os);
 /** get objects matching this filter */
-ST_API st_ret_t        storage_get(storage_t st, const char *type, const char *owner, const char *filter, os_t *os);
+st_ret_t        storage_get(storage_t st, const char *type, const char *owner, const char *filter, os_t *os);
 /** get objects matching custom SQL query */
-ST_API st_ret_t        storage_get_custom_sql(storage_t st, const char *request, os_t *os, const char *type);
+st_ret_t        storage_get_custom_sql(storage_t st, const char *request, os_t *os, const char *type);
 /** count objects matching this filter */
-ST_API st_ret_t        storage_count(storage_t st, const char *type, const char *owner, const char *filter, int *count);
+st_ret_t        storage_count(storage_t st, const char *type, const char *owner, const char *filter, int *count);
 /** delete objects matching this filter */
-ST_API st_ret_t        storage_delete(storage_t st, const char *type, const char *owner, const char *filter);
+st_ret_t        storage_delete(storage_t st, const char *type, const char *owner, const char *filter);
 /** replace objects matching this filter with objects in this set (atomic delete + get) */
-ST_API st_ret_t        storage_replace(storage_t st, const char *type, const char *owner, const char *filter, os_t os);
+st_ret_t        storage_replace(storage_t st, const char *type, const char *owner, const char *filter, os_t os);
 
 /** type for the driver init function */
 typedef st_ret_t (*st_driver_init_fn)(st_driver_t);
@@ -255,10 +242,10 @@ struct st_filter_st {
 };
 
 /** create a filter abstraction from a LDAP-like filter string */
-ST_API st_filter_t     storage_filter(const char *filter);
+st_filter_t     storage_filter(const char *filter);
 
 /** see if the object matches the filter */
-ST_API int             storage_match(st_filter_t filter, os_object_t o, os_t os);
+int             storage_match(st_filter_t filter, os_object_t o, os_t os);
 
 #ifdef __cplusplus
 } // extern "C"

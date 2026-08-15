@@ -958,7 +958,7 @@ static void _ldapfull_free(authreg_t ar)
 }
 
 /** start me up */
-DLLEXPORT int ar_init(authreg_t ar)
+int ar_init(authreg_t ar)
 {
     moddata_t data;
     const char *uri, *realm, *srvtype_s;

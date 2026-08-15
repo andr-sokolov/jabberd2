@@ -63,13 +63,13 @@ extern "C" {
 
 
 /** init function */
-JABBERD2_API int                         sx_ssl_init(sx_env_t env, sx_plugin_t p, va_list args);
+int                         sx_ssl_init(sx_env_t env, sx_plugin_t p, va_list args);
 
 /** add cert function */
-JABBERD2_API int                         sx_ssl_server_addcert(sx_plugin_t p, const char *name, const char *pemfile, const char *cachain, int mode, const char *private_key_password, const char *ciphers);
+int                         sx_ssl_server_addcert(sx_plugin_t p, const char *name, const char *pemfile, const char *cachain, int mode, const char *private_key_password, const char *ciphers);
 
 /** trigger for client starttls */
-JABBERD2_API int                         sx_ssl_client_starttls(sx_plugin_t p, sx_t s, const char *pemfile, const char *private_key_password);
+int                         sx_ssl_client_starttls(sx_plugin_t p, sx_t s, const char *pemfile, const char *private_key_password);
 
 /* previous states */
 #define SX_SSL_STATE_NONE       (0)
@@ -101,7 +101,7 @@ typedef struct _sx_ssl_conn_st {
 /* SASL plugin */
 
 /** init function */
-JABBERD2_API int                         sx_sasl_init(sx_env_t env, sx_plugin_t p, va_list args);
+int                         sx_sasl_init(sx_env_t env, sx_plugin_t p, va_list args);
 
 /** the callback function */
 typedef int                 (*sx_sasl_callback_t)(int cb, void *arg, void **res, sx_t s, void *cbarg);
@@ -119,7 +119,7 @@ typedef int                 (*sx_sasl_callback_t)(int cb, void *arg, void **res,
 #define sx_sasl_ret_FAIL	    (1)
 
 /** trigger for client auth */
-JABBERD2_API int                         sx_sasl_auth(sx_plugin_t p, sx_t s, const char *appname, const char *mech, const char *user, const char *pass);
+int                         sx_sasl_auth(sx_plugin_t p, sx_t s, const char *appname, const char *mech, const char *user, const char *pass);
 
 /* for passing auth data to callback */
 typedef struct sx_sasl_creds_st {
@@ -136,7 +136,7 @@ typedef struct sx_sasl_creds_st {
 #include <zlib.h>
 
 /** init function */
-JABBERD2_API int                         sx_compress_init(sx_env_t env, sx_plugin_t p, va_list args);
+int                         sx_compress_init(sx_env_t env, sx_plugin_t p, va_list args);
 
 /* allocation chunk for decompression */
 #define SX_COMPRESS_CHUNK       16384
@@ -156,14 +156,14 @@ typedef struct _sx_compress_conn_st {
 
 /* Stanza Acknowledgements plugin */
 /** init function */
-JABBERD2_API int sx_ack_init(sx_env_t env, sx_plugin_t p, va_list args);
+int sx_ack_init(sx_env_t env, sx_plugin_t p, va_list args);
 
 /* websocket wrapper plugin */
 #ifdef USE_WEBSOCKET
 #include <http_parser.h>
 #include <util/util.h>
 
-JABBERD2_API int sx_websocket_init(sx_env_t env, sx_plugin_t p, va_list args);
+int sx_websocket_init(sx_env_t env, sx_plugin_t p, va_list args);
 
 /** websocket state */
 typedef enum {

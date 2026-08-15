@@ -277,7 +277,7 @@ static int _verify_user_load(mod_instance_t mi, user_t user)
     return 0;
 }
 
-DLLEXPORT int module_init(mod_instance_t mi, char *arg) {
+int module_init(mod_instance_t mi, char *arg) {
     module_t mod = mi->mod;
 
     if(mod->init) return 0;

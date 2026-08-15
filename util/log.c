@@ -228,7 +228,7 @@ void set_debug_log_from_config(config_t c)
     return set_debug_file(config_get_one(c, "log.debug", 0));
 }
 
-JABBERD2_API void set_debug_file(const char *filename)
+void set_debug_file(const char *filename)
 {
     // Close debug output file but not stderr
     if (debug_log_target != 0 &&

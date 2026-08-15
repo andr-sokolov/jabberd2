@@ -520,7 +520,7 @@ static void _roster_publish_free(module_t mod) {
     free(roster_publish);
 }
 
-DLLEXPORT int module_init(mod_instance_t mi, const char *arg) {
+int module_init(mod_instance_t mi, const char *arg) {
     module_t mod = mi->mod;
     roster_publish_t roster_publish;
 

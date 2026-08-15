@@ -35,19 +35,6 @@
 # include <sys/stat.h>
 #endif
 
-#ifdef _WIN32
-  #ifdef _USRDLL
-    #define DLLEXPORT  __declspec(dllexport)
-    #define C2S_API    __declspec(dllimport)
-  #else
-    #define DLLEXPORT  __declspec(dllimport)
-    #define C2S_API    __declspec(dllexport)
-  #endif
-#else
-  #define DLLEXPORT
-  #define C2S_API
-#endif
-
 /* forward declarations */
 typedef struct host_st      *host_t;
 typedef struct c2s_st       *c2s_t;
@@ -317,21 +304,21 @@ struct c2s_st {
 
 extern sig_atomic_t c2s_lost_router;
 
-C2S_API int         c2s_router_mio_callback(mio_t m, mio_action_t a, mio_fd_t fd, void *data, void *arg);
-C2S_API int         c2s_router_sx_callback(sx_t s, sx_event_t e, void *data, void *arg);
+int         c2s_router_mio_callback(mio_t m, mio_action_t a, mio_fd_t fd, void *data, void *arg);
+int         c2s_router_sx_callback(sx_t s, sx_event_t e, void *data, void *arg);
 
-C2S_API void        sm_start(sess_t sess, bres_t res);
-C2S_API void        sm_end(sess_t sess, bres_t res);
-C2S_API void        sm_create(sess_t sess, bres_t res);
-C2S_API void        sm_delete(sess_t sess, bres_t res);
-C2S_API void        sm_packet(sess_t sess, bres_t res, nad_t nad);
+void        sm_start(sess_t sess, bres_t res);
+void        sm_end(sess_t sess, bres_t res);
+void        sm_create(sess_t sess, bres_t res);
+void        sm_delete(sess_t sess, bres_t res);
+void        sm_packet(sess_t sess, bres_t res, nad_t nad);
 
-C2S_API int         bind_init(sx_env_t env, sx_plugin_t p, va_list args);
+int         bind_init(sx_env_t env, sx_plugin_t p, va_list args);
 
-C2S_API void        c2s_pbx_init(c2s_t c2s);
+void        c2s_pbx_init(c2s_t c2s);
 
 /* My IP Address plugin */
-JABBERD2_API int    address_init(sx_env_t env, sx_plugin_t p, va_list args);
+int    address_init(sx_env_t env, sx_plugin_t p, va_list args);
 
 struct authreg_st
 {
@@ -377,16 +364,16 @@ struct authreg_st
 };
 
 /** get a handle for a single module */
-C2S_API authreg_t   authreg_init(c2s_t c2s, const char *name);
+authreg_t   authreg_init(c2s_t c2s, const char *name);
 
 /** shut down */
-C2S_API void        authreg_free(authreg_t ar);
+void        authreg_free(authreg_t ar);
 
 /** type for the module init function */
 typedef int (*ar_module_init_fn)(authreg_t);
 
 /** the main authreg processor */
-C2S_API int         authreg_process(c2s_t c2s, sess_t sess, nad_t nad);
+int         authreg_process(c2s_t c2s, sess_t sess, nad_t nad);
 
 /*
 int     authreg_user_exists(authreg_t ar, const char *username, const char *realm);

@@ -558,7 +558,7 @@ static void _st_ldapvcard_free(st_driver_t drv) {
     free(data);
 }
 
-DLLEXPORT st_ret_t st_init(st_driver_t drv)
+st_ret_t st_init(st_driver_t drv)
 {
     drvdata_t data;
     const char *uri, *realm, *basedn, *srvtype_s;

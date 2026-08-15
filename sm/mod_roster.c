@@ -828,7 +828,7 @@ static void _roster_free(module_t mod)
     free(mroster);
 }
 
-DLLEXPORT int module_init(mod_instance_t mi, const char *arg) {
+int module_init(mod_instance_t mi, const char *arg) {
     module_t mod = mi->mod;
     mod_roster_t mroster;
 

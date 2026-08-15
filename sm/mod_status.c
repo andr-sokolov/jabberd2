@@ -224,7 +224,7 @@ static void _status_free(module_t mod) {
     free(mod->private);
 }
 
-DLLEXPORT int module_init(mod_instance_t mi, const char *arg) {
+int module_init(mod_instance_t mi, const char *arg) {
     module_t mod = mi->mod;
 
     status_t tr;

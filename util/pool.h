@@ -27,19 +27,6 @@
 # include <config.h>
 #endif
 
-/* jabberd2 Windows DLL */
-#ifndef JABBERD2_API
-# ifdef _WIN32
-#  ifdef JABBERD2_EXPORTS
-#   define JABBERD2_API  __declspec(dllexport)
-#  else /* JABBERD2_EXPORTS */
-#   define JABBERD2_API  __declspec(dllimport)
-#  endif /* JABBERD2_EXPORTS */
-# else /* _WIN32 */
-#  define JABBERD2_API extern
-# endif /* _WIN32 */
-#endif /* JABBERD2_API */
-
 #ifdef POOL_DEBUG
 /* prime number for top # of pools debugging */
 #define POOL_NUM 40009
@@ -97,17 +84,17 @@ typedef struct pool_struct
 # define pool_new() _pool_new(NULL,0)
 #endif
 
-JABBERD2_API pool_t _pool_new(const char *file, int line); /* new pool :) */
-JABBERD2_API pool_t _pool_new_heap(int size, const char *file, int line); /* creates a new memory pool with an initial heap size */
-JABBERD2_API void *pmalloc(pool_t, int size); /* wrapper around malloc, takes from the pool, cleaned up automatically */
-JABBERD2_API void *pmalloc_x(pool_t p, int size, char c); /* Wrapper around pmalloc which prefils buffer with c */
-JABBERD2_API void *pmalloco(pool_t p, int size); /* YAPW for zeroing the block */
-JABBERD2_API char *pstrdup(pool_t p, const char *src); /* wrapper around strdup, gains mem from pool */
-JABBERD2_API char *pstrdupx(pool_t p, const char *src, int len); /* use given len */
-JABBERD2_API void pool_stat(int full); /* print to stderr the changed pools and reset */
-JABBERD2_API void pool_cleanup(pool_t p, pool_cleanup_t fn, void *arg); /* calls f(arg) before the pool is freed during cleanup */
-JABBERD2_API void pool_free(pool_t p); /* calls the cleanup functions, frees all the data on the pool, and deletes the pool itself */
-JABBERD2_API int pool_size(pool_t p); /* returns total bytes allocated in this pool */
+pool_t _pool_new(const char *file, int line); /* new pool :) */
+pool_t _pool_new_heap(int size, const char *file, int line); /* creates a new memory pool with an initial heap size */
+void *pmalloc(pool_t, int size); /* wrapper around malloc, takes from the pool, cleaned up automatically */
+void *pmalloc_x(pool_t p, int size, char c); /* Wrapper around pmalloc which prefils buffer with c */
+void *pmalloco(pool_t p, int size); /* YAPW for zeroing the block */
+char *pstrdup(pool_t p, const char *src); /* wrapper around strdup, gains mem from pool */
+char *pstrdupx(pool_t p, const char *src, int len); /* use given len */
+void pool_stat(int full); /* print to stderr the changed pools and reset */
+void pool_cleanup(pool_t p, pool_cleanup_t fn, void *arg); /* calls f(arg) before the pool is freed during cleanup */
+void pool_free(pool_t p); /* calls the cleanup functions, frees all the data on the pool, and deletes the pool itself */
+int pool_size(pool_t p); /* returns total bytes allocated in this pool */
 
 
 #endif

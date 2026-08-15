@@ -439,11 +439,11 @@ JABBER_MAIN("jabberd2router", "Jabber 2 Router", "Jabber Open Source Server: Rou
 
     r->fd = mio_listen(r->mio, r->local_port, r->local_ip, router_mio_callback, (void *) r);
     if(r->fd == NULL) {
-        log_write(r->log, LOG_ERR, "[%s, port=%d] unable to listen (%s)", r->local_ip, r->local_port, MIO_STRERROR(MIO_ERROR));
+        log_write(r->log, LOG_ERR, "[%s, port=%d] unable to listen (%s)", r->local_ip, r->local_port, strerror(errno));
         exit(1);
     }
 
-    log_write(r->log, LOG_NOTICE, "[%s, port=%d] listening for incoming connections", r->local_ip, r->local_port, MIO_STRERROR(MIO_ERROR));
+    log_write(r->log, LOG_NOTICE, "[%s, port=%d] listening for incoming connections", r->local_ip, r->local_port, strerror(errno));
 
     while(!router_shutdown)
     {

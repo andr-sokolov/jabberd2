@@ -138,7 +138,7 @@ reporting problems - it will make helping you much easier.
     program with the OpenSSL library and distribute the resulting binary.
 
 
- subst/snprintf.c and util/base64.c were originally taken from the
+ util/base64.c was originally taken from the
  Apache web server project.
    Originally copyright (c) 1995-2003 Apache Software Foundation.
  
@@ -147,21 +147,3 @@ reporting problems - it will make helping you much easier.
  
  util/sha1.c was taken from Mozilla.
    Originally copyright (c) 1995-1999 Cryptography Research, Inc.
- 
- subst/getopt.[ch] was taken from GNU Libc.
-   Originally copyright (c) 1987-1993 Free Software Foundation, Inc.
- 
- subst/gettimeofday.c was taken from PostgreSQL.
-   Originally copyright (c) 2003 SRA, Inc. & SKC, Inc.
- 
- subst/syslog.[ch] was taken from Bind.
-   Originally copyright (c) 2001 Internet Software Consortium.
- 
- subst/inet_aton.c
-   Originally copyright (c) 1995-1997 Kungliga Teniska Hogskolan
- 
- subst/ip6_misc.h
-   Originally copyright (c) 1993,1994,1997 The Regents of the University of California.
- 
- subst/dirent.[ch]
-   Originally copyright (c) 1997,2003 Kevlin Henney.

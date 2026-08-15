@@ -278,7 +278,7 @@ static void _offline_free(module_t mod) {
     free(offline);
 }
 
-DLLEXPORT int module_init(mod_instance_t mi, const char *arg) {
+int module_init(mod_instance_t mi, const char *arg) {
     module_t mod = mi->mod;
     const char *configval;
     mod_offline_t offline;

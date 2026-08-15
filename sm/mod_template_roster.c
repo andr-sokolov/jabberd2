@@ -252,7 +252,7 @@ static void _template_roster_free(module_t mod) {
     free(tr);
 }
 
-DLLEXPORT int module_init(mod_instance_t mi, const char *arg) {
+int module_init(mod_instance_t mi, const char *arg) {
     module_t mod = mi->mod;
     const char *filename;
     template_roster_t tr;
