@@ -32,274 +32,61 @@
 
 storage_t storage_new(config_t config, log_t log) {
     storage_t st;
-    int i;
-    config_elem_t elem;
-    char *type;
-    st_ret_t ret;
 
     st = (storage_t) calloc(1, sizeof(struct storage_st));
 
     st->config = config;
     st->log = log;
-    st->drivers = xhash_new(101);
-    st->types = xhash_new(101);
 
-    /* register types declared in the config file */
-    elem = config_get(st->config, "storage.driver");
-    if(elem != NULL) {
-        for(i = 0; i < elem->nvalues; i++) {
-            type = j_attr((const char **) elem->attrs[i], "type"); 
-            ret = storage_add_type(st, elem->values[i], type);
-            /* Initialisation of storage type failed */
-            if (ret != st_SUCCESS) {
-              free(st);
-              return NULL;
-            }
-        }
+    if(st_init(st) == st_FAILED) {
+        free(st);
+        return NULL;
     }
 
     return st;
 }
 
-static void _st_driver_reaper(const char *driver, int driverlen, void *val, void *arg) {
-    st_driver_t drv = (st_driver_t) val;
-
-    st_sqlite_free(drv);
-
-    free(drv);
-}
-
 void storage_free(storage_t st) {
-    /* close down drivers */
-    xhash_walk(st->drivers, _st_driver_reaper, NULL);
-
-    xhash_free(st->drivers);
-    xhash_free(st->types);
+    st_sqlite_free(st);
     free(st);
 }
 
-st_ret_t storage_add_type(storage_t st, const char *driver, const char *type) {
-    st_driver_t drv;
-
-    /* startup, see if we've already registered this type */
-    if(type == NULL) {
-        log_debug(ZONE, "adding arbitrary types to driver '%s'", driver);
-
-        /* see if we already have one */
-        if(st->default_drv != NULL) {
-            log_debug(ZONE, "we already have a default handler, ignoring this one");
-            return st_FAILED;
-        }
-    } else {
-        log_debug(ZONE, "adding type '%s' to driver '%s'", type, driver);
-
-        /* see if we already have one */
-        if(xhash_get(st->types, type) != NULL) {
-            log_debug(ZONE, "we already have a handler for type '%s', ignoring this one", type);
-            return st_FAILED;
-        }
-    }
-
-    /* get the driver */
-    drv = xhash_get(st->drivers, driver);
-    if(drv == NULL) {
-        log_debug(ZONE, "driver not loaded, trying to init");
-
-        log_write(st->log, LOG_INFO, "initialising '%s' storage driver", driver);
-
-        /* make a new driver structure */
-        drv = (st_driver_t) calloc(1, sizeof(struct st_driver_st));
-
-        drv->st = st;
-
-        log_debug(ZONE, "calling driver initializer");
-
-        /* init */
-        if(st_init(drv) == st_FAILED) {
-            log_write(st->log, LOG_NOTICE, "initialisation of storage driver '%s' failed", driver);
-            free(drv);
-            return st_FAILED;
-        }
-
-        /* add it to the drivers hash so we can find it later */
-        drv->name = pstrdup(xhash_pool(st->drivers), driver);
-        xhash_put(st->drivers, drv->name, (void *) drv);
-
-        log_write(st->log, LOG_NOTICE, "initialised storage driver '%s'", driver);
-    }
-
-    /* if its a default, set it up as such */
-    if(type == NULL) {
-        st->default_drv = drv;
-        return st_SUCCESS;
-    }
-
-    /* register the type */
-    xhash_put(st->types, pstrdup(xhash_pool(st->types), type), (void *) drv);
-
-    return st_SUCCESS;
-}
-
 st_ret_t storage_put(storage_t st, const char *type, const char *owner, os_t os) {
-    st_driver_t drv;
-    st_ret_t ret;
-
     log_debug(ZONE, "storage_put: type=%s owner=%s os=%X", type, owner, os);
 
-    /* find the handler for this type */
-    drv = xhash_get(st->types, type);
-    if(drv == NULL) {
-        /* never seen it before, so it goes to the default driver */
-        drv = st->default_drv;
-        if(drv == NULL) {
-            log_debug(ZONE, "no driver associated with type, and no default driver");
-
-            return st_NOTIMPL;
-        }
-
-        /* register the type */
-        ret = storage_add_type(st, drv->name, type);
-        if(ret != st_SUCCESS)
-            return ret;
-    }
-
-    return st_sqlite_put(drv, type, owner, os);
+    return st_sqlite_put(st, type, owner, os);
 }
 
 st_ret_t storage_get(storage_t st, const char *type, const char *owner, const char *filter, os_t *os) {
-    st_driver_t drv;
-    st_ret_t ret;
-
     log_debug(ZONE, "storage_get: type=%s owner=%s filter=%s", type, owner, filter);
 
-    /* find the handler for this type */
-    drv = xhash_get(st->types, type);
-    if(drv == NULL) {
-        /* never seen it before, so it goes to the default driver */
-        drv = st->default_drv;
-        if(drv == NULL) {
-            log_debug(ZONE, "no driver associated with type, and no default driver");
-
-            return st_NOTIMPL;
-        }
-
-        /* register the type */
-        ret = storage_add_type(st, drv->name, type);
-        if(ret != st_SUCCESS)
-            return ret;
-    }
-
-    return st_sqlite_get(drv, type, owner, filter, os);
+    return st_sqlite_get(st, type, owner, filter, os);
 }
 
 st_ret_t storage_get_custom_sql(storage_t st, const char* request, os_t* os, const char *type /*= 0*/)
 {
-    st_driver_t drv;
-    st_ret_t ret;
-
     log_debug(ZONE, "storage_get_custom_sql: query='%s'", request);
-
-    if (type) {
-        /* find the handler for this type */
-        drv = xhash_get(st->types, type);
-    } else {
-        /* find the handler for this type */
-        drv = xhash_get(st->types, "custom_sql_query");
-    }
-    if(drv == NULL) {
-        /* never seen it before, so it goes to the default driver */
-        drv = st->default_drv;
-        if(drv == NULL) {
-            log_debug(ZONE, "no driver associated with type, and no default driver");
-
-            return st_NOTIMPL;
-        }
-
-        /* register the type */
-        ret = storage_add_type(st, drv->name, "custom_sql_query");
-        if(ret != st_SUCCESS)
-            return ret;
-    }
 
     return st_NOTIMPL;
 }
 
 st_ret_t storage_count(storage_t st, const char *type, const char *owner, const char *filter, int *count) {
-    st_driver_t drv;
-    st_ret_t ret;
-
     log_debug(ZONE, "storage_count: type=%s owner=%s filter=%s", type, owner, filter);
 
-    /* find the handler for this type */
-    drv = xhash_get(st->types, type);
-    if(drv == NULL) {
-        /* never seen it before, so it goes to the default driver */
-        drv = st->default_drv;
-        if(drv == NULL) {
-            log_debug(ZONE, "no driver associated with type, and no default driver");
-            return st_NOTIMPL;
-        }
-
-        /* register the type */
-        ret = storage_add_type(st, drv->name, type);
-        if(ret != st_SUCCESS)
-            return ret;
-    }
-
-    return st_sqlite_count(drv, type, owner, filter, count);
+    return st_sqlite_count(st, type, owner, filter, count);
 }
 
 
 st_ret_t storage_delete(storage_t st, const char *type, const char *owner, const char *filter) {
-    st_driver_t drv;
-    st_ret_t ret;
-
     log_debug(ZONE, "storage_zap: type=%s owner=%s filter=%s", type, owner, filter);
 
-    /* find the handler for this type */
-    drv = xhash_get(st->types, type);
-    if(drv == NULL) {
-        /* never seen it before, so it goes to the default driver */
-        drv = st->default_drv;
-        if(drv == NULL) {
-            log_debug(ZONE, "no driver associated with type, and no default driver");
-
-            return st_NOTIMPL;
-        }
-
-        /* register the type */
-        ret = storage_add_type(st, drv->name, type);
-        if(ret != st_SUCCESS)
-            return ret;
-    }
-
-    return st_sqlite_delete(drv, type, owner, filter);
+    return st_sqlite_delete(st, type, owner, filter);
 }
 
 st_ret_t storage_replace(storage_t st, const char *type, const char *owner, const char *filter, os_t os) {
-    st_driver_t drv;
-    st_ret_t ret;
-
     log_debug(ZONE, "storage_replace: type=%s owner=%s filter=%s os=%X", type, owner, filter, os);
 
-    /* find the handler for this type */
-    drv = xhash_get(st->types, type);
-    if(drv == NULL) {
-        /* never seen it before, so it goes to the default driver */
-        drv = st->default_drv;
-        if(drv == NULL) {
-            log_debug(ZONE, "no driver associated with type, and no default driver");
-
-            return st_NOTIMPL;
-        }
-
-        /* register the type */
-        ret = storage_add_type(st, drv->name, type);
-        if(ret != st_SUCCESS)
-            return ret;
-    }
-
-    return st_sqlite_replace(drv, type, owner, filter, os);
+    return st_sqlite_replace(st, type, owner, filter, os);
 }
 
 static st_filter_t _storage_filter(pool_t p, const char *f, int len) {

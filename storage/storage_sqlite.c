@@ -133,7 +133,7 @@ static void _st_sqlite_convert_filter_recursive (st_filter_t f, char **buf,
     }
 }
 
-static char *_st_sqlite_convert_filter (st_driver_t drv, const char *owner,
+static char *_st_sqlite_convert_filter (storage_t st, const char *owner,
 					const char *filter) {
 
     char *buf = NULL;
@@ -188,7 +188,7 @@ static void _st_sqlite_bind_filter_recursive (st_filter_t f,
     }
 }
 
-static void _st_sqlite_bind_filter (st_driver_t drv, const char *owner,
+static void _st_sqlite_bind_filter (storage_t st, const char *owner,
 				    const char *filter,
 				    sqlite3_stmt *stmt,
 				    unsigned int bind_off) {
@@ -209,10 +209,10 @@ static void _st_sqlite_bind_filter (st_driver_t drv, const char *owner,
     pool_free (f->p);
 }
 
-static st_ret_t _st_sqlite_put_guts (st_driver_t drv, const char *type,
+static st_ret_t _st_sqlite_put_guts (storage_t st, const char *type,
 				     const char *owner, os_t os) {
 
-    drvdata_t data = (drvdata_t) drv->private;
+    drvdata_t data = (drvdata_t) st->private;
     char *left = NULL, *right = NULL;
     unsigned int lleft = 0, lright = 0;
     os_object_t o;
@@ -276,7 +276,7 @@ static st_ret_t _st_sqlite_put_guts (st_driver_t drv, const char *type,
 	    left = NULL;
 	    lleft = 0;
 	    if (res != SQLITE_OK) {
-		log_write (drv->st->log, LOG_ERR,
+		log_write (st->log, LOG_ERR,
 			   "sqlite: sql insert failed: %s",
 			   sqlite3_errmsg (data->db));
 		return st_FAILED;
@@ -324,7 +324,7 @@ static st_ret_t _st_sqlite_put_guts (st_driver_t drv, const char *type,
 
 		     case os_type_UNKNOWN:
 		     default:
-		      log_write (drv->st->log, LOG_ERR, "sqlite: unknown value in query");
+		      log_write (st->log, LOG_ERR, "sqlite: unknown value in query");
 
 		    }
 
@@ -333,7 +333,7 @@ static st_ret_t _st_sqlite_put_guts (st_driver_t drv, const char *type,
 
 	    res = sqlite3_step (stmt);
 	    if (res != SQLITE_DONE) {
-		log_write (drv->st->log, LOG_ERR,
+		log_write (st->log, LOG_ERR,
 			   "sqlite: sql insert failed: %s",
 			   sqlite3_errmsg (data->db));
 		sqlite3_finalize (stmt);
@@ -347,10 +347,10 @@ static st_ret_t _st_sqlite_put_guts (st_driver_t drv, const char *type,
     return st_SUCCESS;
 }
 
-st_ret_t st_sqlite_put (st_driver_t drv, const char *type,
+st_ret_t st_sqlite_put (storage_t st, const char *type,
 				const char *owner, os_t os) {
 
-    drvdata_t data = (drvdata_t) drv->private;
+    drvdata_t data = (drvdata_t) st->private;
     int res;
     char *err_msg = NULL;
 
@@ -358,18 +358,18 @@ st_ret_t st_sqlite_put (st_driver_t drv, const char *type,
 	return st_SUCCESS;
     }
 
-    if (_st_sqlite_put_guts (drv, type, owner, os) != st_SUCCESS) {
+    if (_st_sqlite_put_guts (st, type, owner, os) != st_SUCCESS) {
 	return st_FAILED;
     }
 
     return st_SUCCESS;
 }
 
-st_ret_t st_sqlite_get (st_driver_t drv, const char *type,
+st_ret_t st_sqlite_get (storage_t st, const char *type,
 				const char *owner, const char *filter,
 				os_t *os) {
 
-    drvdata_t data = (drvdata_t) drv->private;
+    drvdata_t data = (drvdata_t) st->private;
     char *cond, *buf = NULL;
     unsigned int nbuf = 0;
     unsigned int buflen = 0;
@@ -389,7 +389,7 @@ st_ret_t st_sqlite_get (st_driver_t drv, const char *type,
 	type = tbuf;
     }
 
-    cond = _st_sqlite_convert_filter (drv, owner, filter);
+    cond = _st_sqlite_convert_filter (st, owner, filter);
 
     SQLITE_SAFE_CAT3 (buf, nbuf, buflen,
 		      "SELECT * FROM \"", type, "\" WHERE ");
@@ -405,7 +405,7 @@ st_ret_t st_sqlite_get (st_driver_t drv, const char *type,
 	return st_FAILED;
     }
 
-    _st_sqlite_bind_filter (drv, owner, filter, stmt, 1);
+    _st_sqlite_bind_filter (st, owner, filter, stmt, 1);
 
     *os = os_new ();
 
@@ -457,7 +457,7 @@ st_ret_t st_sqlite_get (st_driver_t drv, const char *type,
 		os_object_put (o, colname, val, ot);
 
 	    } else {
-		log_write (drv->st->log,
+		log_write (st->log,
 			   LOG_NOTICE,
 			   "sqlite: unknown field: %s:%d",
 			   colname, coltype);
@@ -479,10 +479,10 @@ st_ret_t st_sqlite_get (st_driver_t drv, const char *type,
     return st_SUCCESS;
 }
 
-st_ret_t st_sqlite_count (st_driver_t drv, const char *type,
+st_ret_t st_sqlite_count (storage_t st, const char *type,
 				   const char *owner, const char *filter, int *count) {
 
-    drvdata_t data = (drvdata_t) drv->private;
+    drvdata_t data = (drvdata_t) st->private;
     char *cond, *buf = NULL;
     unsigned int nbuf = 0;
     unsigned int buflen = 0;
@@ -495,7 +495,7 @@ st_ret_t st_sqlite_count (st_driver_t drv, const char *type,
 	type = tbuf;
     }
 
-    cond = _st_sqlite_convert_filter (drv, owner, filter);
+    cond = _st_sqlite_convert_filter (st, owner, filter);
     log_debug (ZONE, "generated filter: %s", cond);
 
     SQLITE_SAFE_CAT3 (buf, nbuf, buflen,
@@ -511,11 +511,11 @@ st_ret_t st_sqlite_count (st_driver_t drv, const char *type,
 	return st_FAILED;
     }
 
-    _st_sqlite_bind_filter (drv, owner, filter, stmt, 1);
+    _st_sqlite_bind_filter (st, owner, filter, stmt, 1);
 
     res = sqlite3_step (stmt);
     if (res != SQLITE_ROW) {
-	log_write (drv->st->log, LOG_ERR,
+	log_write (st->log, LOG_ERR,
 		   "sqlite: sql select failed: %s",
 		   sqlite3_errmsg (data->db));
 	sqlite3_finalize (stmt);
@@ -525,7 +525,7 @@ st_ret_t st_sqlite_count (st_driver_t drv, const char *type,
     coltype = sqlite3_column_type (stmt, 0);
 
     if (coltype != SQLITE_INTEGER) {
-	log_write (drv->st->log, LOG_ERR,
+	log_write (st->log, LOG_ERR,
 		   "sqlite: weird, count() returned non integer value: %s",
 		   sqlite3_errmsg (data->db));
 	sqlite3_finalize (stmt);
@@ -539,10 +539,10 @@ st_ret_t st_sqlite_count (st_driver_t drv, const char *type,
     return st_SUCCESS;
 }
 
-st_ret_t st_sqlite_delete (st_driver_t drv, const char *type,
+st_ret_t st_sqlite_delete (storage_t st, const char *type,
 				   const char *owner, const char *filter) {
 
-    drvdata_t data = (drvdata_t) drv->private;
+    drvdata_t data = (drvdata_t) st->private;
     char *cond, *buf = NULL;
     unsigned int nbuf = 0;
     unsigned int buflen = 0;
@@ -555,7 +555,7 @@ st_ret_t st_sqlite_delete (st_driver_t drv, const char *type,
 	type = tbuf;
     }
 
-    cond = _st_sqlite_convert_filter (drv, owner, filter);
+    cond = _st_sqlite_convert_filter (st, owner, filter);
     log_debug (ZONE, "generated filter: %s", cond);
 
     SQLITE_SAFE_CAT3 (buf, nbuf, buflen,
@@ -571,11 +571,11 @@ st_ret_t st_sqlite_delete (st_driver_t drv, const char *type,
 	return st_FAILED;
     }
 
-    _st_sqlite_bind_filter (drv, owner, filter, stmt, 1);
+    _st_sqlite_bind_filter (st, owner, filter, stmt, 1);
 
     res = sqlite3_step (stmt);
     if (res != SQLITE_DONE) {
-	log_write (drv->st->log, LOG_ERR,
+	log_write (st->log, LOG_ERR,
 		   "sqlite: sql delete failed: %s",
 		   sqlite3_errmsg (data->db));
 	sqlite3_finalize (stmt);
@@ -586,36 +586,36 @@ st_ret_t st_sqlite_delete (st_driver_t drv, const char *type,
     return st_SUCCESS;
 }
 
-st_ret_t st_sqlite_replace (st_driver_t drv, const char *type,
+st_ret_t st_sqlite_replace (storage_t st, const char *type,
 				    const char *owner, const char *filter,
 				    os_t os) {
 
-    drvdata_t data = (drvdata_t) drv->private;
+    drvdata_t data = (drvdata_t) st->private;
 
     int res;
     char *err_msg = NULL;
 
-    if (st_sqlite_delete (drv, type, owner, filter) == st_FAILED) {
+    if (st_sqlite_delete (st, type, owner, filter) == st_FAILED) {
 	return st_FAILED;
     }
 
-    if (_st_sqlite_put_guts (drv, type, owner, os) == st_FAILED) {
+    if (_st_sqlite_put_guts (st, type, owner, os) == st_FAILED) {
 	return st_FAILED;
     }
 
     return st_SUCCESS;
 }
 
-void st_sqlite_free (st_driver_t drv) {
+void st_sqlite_free (storage_t st) {
 
-    drvdata_t data = (drvdata_t) drv->private;
+    drvdata_t data = (drvdata_t) st->private;
 
     sqlite3_close (data->db);
 
     free (data);
 }
 
-st_ret_t st_init(st_driver_t drv) {
+st_ret_t st_init(storage_t st) {
 
     const char *dbname;
     const char *sql_stmt;
@@ -625,28 +625,28 @@ st_ret_t st_init(st_driver_t drv) {
     const char *busy_timeout;
     char *err_msg = NULL;
 
-    dbname = config_get_one (drv->st->config,
+    dbname = config_get_one (st->config,
 			     "storage.sqlite.dbname", 0);
-    sql_stmt = config_get_one (drv->st->config,
+    sql_stmt = config_get_one (st->config,
                              "storage.sqlite.sql", 0);
     if (dbname == NULL) {
-	log_write (drv->st->log, LOG_ERR,
+	log_write (st->log, LOG_ERR,
 		   "sqlite: invalid driver config");
 	return st_FAILED;
     }
 
     ret = sqlite3_open (dbname, &db);
     if (ret != SQLITE_OK) {
-	log_write (drv->st->log, LOG_ERR,
+	log_write (st->log, LOG_ERR,
 		   "sqlite: can't open database '%s'", dbname);
 	return st_FAILED;
     }
 
     if (sql_stmt != NULL) {
-	log_write (drv->st->log, LOG_INFO, "sqlite: %s", sql_stmt);
+	log_write (st->log, LOG_INFO, "sqlite: %s", sql_stmt);
     	ret = sqlite3_exec (db, sql_stmt, NULL, NULL, &err_msg);
 	if (ret != SQLITE_OK) {
-	    log_write (drv->st->log, LOG_ERR,
+	    log_write (st->log, LOG_ERR,
 			"sqlite: %s", err_msg);
 	    sqlite3_free(err_msg);
 	    return st_FAILED;
@@ -657,16 +657,16 @@ st_ret_t st_init(st_driver_t drv) {
 
     data->db = db;
 
-    busy_timeout = config_get_one (drv->st->config,
+    busy_timeout = config_get_one (st->config,
 				   "storage.sqlite.busy-timeout", 0);
     if (busy_timeout != NULL) {
 	sqlite3_busy_timeout (db, atoi (busy_timeout));
     }
 
-    data->prefix = config_get_one (drv->st->config,
+    data->prefix = config_get_one (st->config,
 				   "storage.sqlite.prefix", 0);
 
-    drv->private = (void *) data;
+    st->private = (void *) data;
 
     return st_SUCCESS;
 }

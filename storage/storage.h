@@ -145,36 +145,18 @@ typedef enum {
     st_NOTIMPL                  /**< call not implemented */
 } st_ret_t;
 
-typedef struct st_driver_st *st_driver_t;
-
 /** storage manager data */
 struct storage_st {
     config_t    config;         /**< config */
     log_t       log;            /**< log context */
 
-    xht         drivers;        /**< pointers to drivers (key is driver name) */
-    xht         types;          /**< pointers to drivers (key is type name) */
-
-    st_driver_t default_drv;    /**< default driver (used when there is no module
-                                     explicitly registered for a type) */
-};
-
-/** data for a single storage driver */
-struct st_driver_st {
-    storage_t   st;             /**< storage manager context */
-
-    char        *name;          /**< name of driver */
-
-    void        *private;       /**< driver private data */
+    void        *private;       /**< SQLite driver private data */
 };
 
 /** allocate a storage manager instance */
 storage_t       storage_new(config_t config, log_t log);
 /** free a storage manager instance */
 void            storage_free(storage_t st);
-
-/** associate this data type with this driver */
-st_ret_t        storage_add_type(storage_t st, const char *driver, const char *type);
 
 /** store objects in this set */
 st_ret_t        storage_put(storage_t st, const char *type, const char *owner, os_t os);
