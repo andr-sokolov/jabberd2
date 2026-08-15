@@ -63,13 +63,6 @@ st_ret_t storage_get(storage_t st, const char *type, const char *owner, const ch
     return st_sqlite_get(st, type, owner, filter, os);
 }
 
-st_ret_t storage_get_custom_sql(storage_t st, const char* request, os_t* os, const char *type /*= 0*/)
-{
-    log_debug(ZONE, "storage_get_custom_sql: query='%s'", request);
-
-    return st_NOTIMPL;
-}
-
 st_ret_t storage_count(storage_t st, const char *type, const char *owner, const char *filter, int *count) {
     log_debug(ZONE, "storage_count: type=%s owner=%s filter=%s", type, owner, filter);
 

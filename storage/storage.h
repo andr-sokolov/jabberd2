@@ -165,8 +165,6 @@ void            storage_free(storage_t st);
 st_ret_t        storage_put(storage_t st, const char *type, const char *owner, os_t os);
 /** get objects matching this filter */
 st_ret_t        storage_get(storage_t st, const char *type, const char *owner, const char *filter, os_t *os);
-/** get objects matching custom SQL query */
-st_ret_t        storage_get_custom_sql(storage_t st, const char *request, os_t *os, const char *type);
 /** count objects matching this filter */
 st_ret_t        storage_count(storage_t st, const char *type, const char *owner, const char *filter, int *count);
 /** delete objects matching this filter */
