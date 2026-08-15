@@ -31,13 +31,6 @@
 #include "storage_sqlite.h"
 #include <sqlite3.h>
 
-/** internal structure, holds our data */
-typedef struct drvdata_st {
-    sqlite3 *db;
-    const char *prefix;
-    int txn;
-} *drvdata_t;
-
 #define BLOCKSIZE (1024)
 
 
@@ -211,8 +204,6 @@ static void _st_sqlite_bind_filter (storage_t st, const char *owner,
 
 static st_ret_t _st_sqlite_put_guts (storage_t st, const char *type,
 				     const char *owner, os_t os) {
-
-    drvdata_t data = (drvdata_t) st->private;
     char *left = NULL, *right = NULL;
     unsigned int lleft = 0, lright = 0;
     os_object_t o;
@@ -228,8 +219,8 @@ static st_ret_t _st_sqlite_put_guts (storage_t st, const char *type,
 	return st_SUCCESS;
     }
 
-    if (data->prefix != NULL) {
-	snprintf (tbuf, sizeof (tbuf), "%s%s", data->prefix, type);
+    if (st->prefix != NULL) {
+	snprintf (tbuf, sizeof (tbuf), "%s%s", st->prefix, type);
 	type = tbuf;
     }
 
@@ -271,14 +262,14 @@ static st_ret_t _st_sqlite_put_guts (storage_t st, const char *type,
 
 	    log_debug (ZONE, "prepared sql: %s", left);
 
-	    res = sqlite3_prepare (data->db, left, strlen (left), &stmt, NULL);
+	    res = sqlite3_prepare (st->db, left, strlen (left), &stmt, NULL);
 	    free (left);
 	    left = NULL;
 	    lleft = 0;
 	    if (res != SQLITE_OK) {
 		log_write (st->log, LOG_ERR,
 			   "sqlite: sql insert failed: %s",
-			   sqlite3_errmsg (data->db));
+			   sqlite3_errmsg (st->db));
 		return st_FAILED;
 	    }
 
@@ -335,7 +326,7 @@ static st_ret_t _st_sqlite_put_guts (storage_t st, const char *type,
 	    if (res != SQLITE_DONE) {
 		log_write (st->log, LOG_ERR,
 			   "sqlite: sql insert failed: %s",
-			   sqlite3_errmsg (data->db));
+			   sqlite3_errmsg (st->db));
 		sqlite3_finalize (stmt);
 		return st_FAILED;
 	    }
@@ -349,8 +340,6 @@ static st_ret_t _st_sqlite_put_guts (storage_t st, const char *type,
 
 st_ret_t st_sqlite_put (storage_t st, const char *type,
 				const char *owner, os_t os) {
-
-    drvdata_t data = (drvdata_t) st->private;
     int res;
     char *err_msg = NULL;
 
@@ -368,8 +357,6 @@ st_ret_t st_sqlite_put (storage_t st, const char *type,
 st_ret_t st_sqlite_get (storage_t st, const char *type,
 				const char *owner, const char *filter,
 				os_t *os) {
-
-    drvdata_t data = (drvdata_t) st->private;
     char *cond, *buf = NULL;
     unsigned int nbuf = 0;
     unsigned int buflen = 0;
@@ -384,8 +371,8 @@ st_ret_t st_sqlite_get (storage_t st, const char *type,
     sqlite3_stmt *stmt;
     int result;
 
-    if (data->prefix != NULL) {
-	snprintf (tbuf, sizeof (tbuf), "%s%s", data->prefix, type);
+    if (st->prefix != NULL) {
+	snprintf (tbuf, sizeof (tbuf), "%s%s", st->prefix, type);
 	type = tbuf;
     }
 
@@ -399,7 +386,7 @@ st_ret_t st_sqlite_get (storage_t st, const char *type,
 
     log_debug (ZONE, "prepared sql: %s", buf);
 
-    result = sqlite3_prepare (data->db, buf, strlen (buf), &stmt, NULL);
+    result = sqlite3_prepare (st->db, buf, strlen (buf), &stmt, NULL);
     free (buf);
     if (result != SQLITE_OK) {
 	return st_FAILED;
@@ -481,8 +468,6 @@ st_ret_t st_sqlite_get (storage_t st, const char *type,
 
 st_ret_t st_sqlite_count (storage_t st, const char *type,
 				   const char *owner, const char *filter, int *count) {
-
-    drvdata_t data = (drvdata_t) st->private;
     char *cond, *buf = NULL;
     unsigned int nbuf = 0;
     unsigned int buflen = 0;
@@ -490,8 +475,8 @@ st_ret_t st_sqlite_count (storage_t st, const char *type,
     int res, coltype;
     sqlite3_stmt *stmt;
 
-    if (data->prefix != NULL) {
-	snprintf (tbuf, sizeof (tbuf), "%s%s", data->prefix, type);
+    if (st->prefix != NULL) {
+	snprintf (tbuf, sizeof (tbuf), "%s%s", st->prefix, type);
 	type = tbuf;
     }
 
@@ -505,7 +490,7 @@ st_ret_t st_sqlite_count (storage_t st, const char *type,
 
     log_debug (ZONE, "prepared sql: %s", buf);
 
-    res = sqlite3_prepare (data->db, buf, strlen (buf), &stmt, NULL);
+    res = sqlite3_prepare (st->db, buf, strlen (buf), &stmt, NULL);
     free (buf);
     if (res != SQLITE_OK) {
 	return st_FAILED;
@@ -517,7 +502,7 @@ st_ret_t st_sqlite_count (storage_t st, const char *type,
     if (res != SQLITE_ROW) {
 	log_write (st->log, LOG_ERR,
 		   "sqlite: sql select failed: %s",
-		   sqlite3_errmsg (data->db));
+		   sqlite3_errmsg (st->db));
 	sqlite3_finalize (stmt);
 	return st_FAILED;
     }
@@ -527,7 +512,7 @@ st_ret_t st_sqlite_count (storage_t st, const char *type,
     if (coltype != SQLITE_INTEGER) {
 	log_write (st->log, LOG_ERR,
 		   "sqlite: weird, count() returned non integer value: %s",
-		   sqlite3_errmsg (data->db));
+		   sqlite3_errmsg (st->db));
 	sqlite3_finalize (stmt);
 	return st_FAILED;
     }
@@ -541,8 +526,6 @@ st_ret_t st_sqlite_count (storage_t st, const char *type,
 
 st_ret_t st_sqlite_delete (storage_t st, const char *type,
 				   const char *owner, const char *filter) {
-
-    drvdata_t data = (drvdata_t) st->private;
     char *cond, *buf = NULL;
     unsigned int nbuf = 0;
     unsigned int buflen = 0;
@@ -550,8 +533,8 @@ st_ret_t st_sqlite_delete (storage_t st, const char *type,
     int res;
     sqlite3_stmt *stmt;
 
-    if (data->prefix != NULL) {
-	snprintf (tbuf, sizeof (tbuf), "%s%s", data->prefix, type);
+    if (st->prefix != NULL) {
+	snprintf (tbuf, sizeof (tbuf), "%s%s", st->prefix, type);
 	type = tbuf;
     }
 
@@ -565,7 +548,7 @@ st_ret_t st_sqlite_delete (storage_t st, const char *type,
 
     log_debug (ZONE, "prepared sql: %s", buf);
 
-    res = sqlite3_prepare (data->db, buf, strlen (buf), &stmt, NULL);
+    res = sqlite3_prepare (st->db, buf, strlen (buf), &stmt, NULL);
     free (buf);
     if (res != SQLITE_OK) {
 	return st_FAILED;
@@ -577,7 +560,7 @@ st_ret_t st_sqlite_delete (storage_t st, const char *type,
     if (res != SQLITE_DONE) {
 	log_write (st->log, LOG_ERR,
 		   "sqlite: sql delete failed: %s",
-		   sqlite3_errmsg (data->db));
+		   sqlite3_errmsg (st->db));
 	sqlite3_finalize (stmt);
 	return st_FAILED;
     }
@@ -589,9 +572,6 @@ st_ret_t st_sqlite_delete (storage_t st, const char *type,
 st_ret_t st_sqlite_replace (storage_t st, const char *type,
 				    const char *owner, const char *filter,
 				    os_t os) {
-
-    drvdata_t data = (drvdata_t) st->private;
-
     int res;
     char *err_msg = NULL;
 
@@ -607,20 +587,13 @@ st_ret_t st_sqlite_replace (storage_t st, const char *type,
 }
 
 void st_sqlite_free (storage_t st) {
-
-    drvdata_t data = (drvdata_t) st->private;
-
-    sqlite3_close (data->db);
-
-    free (data);
+    sqlite3_close (st->db);
 }
 
 st_ret_t st_init(storage_t st) {
 
     const char *dbname;
     const char *sql_stmt;
-    sqlite3 *db;
-    drvdata_t data;
     int ret;
     const char *busy_timeout;
     char *err_msg = NULL;
@@ -635,7 +608,7 @@ st_ret_t st_init(storage_t st) {
 	return st_FAILED;
     }
 
-    ret = sqlite3_open (dbname, &db);
+    ret = sqlite3_open (dbname, &st->db);
     if (ret != SQLITE_OK) {
 	log_write (st->log, LOG_ERR,
 		   "sqlite: can't open database '%s'", dbname);
@@ -644,7 +617,7 @@ st_ret_t st_init(storage_t st) {
 
     if (sql_stmt != NULL) {
 	log_write (st->log, LOG_INFO, "sqlite: %s", sql_stmt);
-    	ret = sqlite3_exec (db, sql_stmt, NULL, NULL, &err_msg);
+    	ret = sqlite3_exec (st->db, sql_stmt, NULL, NULL, &err_msg);
 	if (ret != SQLITE_OK) {
 	    log_write (st->log, LOG_ERR,
 			"sqlite: %s", err_msg);
@@ -653,20 +626,14 @@ st_ret_t st_init(storage_t st) {
 	}
     }
 
-    data = (drvdata_t) calloc (1, sizeof (struct drvdata_st));
-
-    data->db = db;
-
     busy_timeout = config_get_one (st->config,
 				   "storage.sqlite.busy-timeout", 0);
     if (busy_timeout != NULL) {
-	sqlite3_busy_timeout (db, atoi (busy_timeout));
+	sqlite3_busy_timeout (st->db, atoi (busy_timeout));
     }
 
-    data->prefix = config_get_one (st->config,
+    st->prefix = config_get_one (st->config,
 				   "storage.sqlite.prefix", 0);
-
-    st->private = (void *) data;
 
     return st_SUCCESS;
 }

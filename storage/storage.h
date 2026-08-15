@@ -36,6 +36,7 @@
 #include <util/xhash.h>
 #include <util/nad.h>
 #include <util/util.h>
+#include <sqlite3.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -150,7 +151,9 @@ struct storage_st {
     config_t    config;         /**< config */
     log_t       log;            /**< log context */
 
-    void        *private;       /**< SQLite driver private data */
+    sqlite3     *db;
+    const char  *prefix;
+    int         txn;
 };
 
 /** allocate a storage manager instance */
