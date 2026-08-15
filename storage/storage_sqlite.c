@@ -28,6 +28,7 @@
  */
 
 #include "storage.h"
+#include "storage_sqlite.h"
 #include <sqlite3.h>
 
 /** internal structure, holds our data */
@@ -208,11 +209,6 @@ static void _st_sqlite_bind_filter (st_driver_t drv, const char *owner,
     pool_free (f->p);
 }
 
-static st_ret_t _st_sqlite_add_type (st_driver_t drv, const char *type) {
-
-    return st_SUCCESS;
-}
-
 static st_ret_t _st_sqlite_put_guts (st_driver_t drv, const char *type,
 				     const char *owner, os_t os) {
 
@@ -351,7 +347,7 @@ static st_ret_t _st_sqlite_put_guts (st_driver_t drv, const char *type,
     return st_SUCCESS;
 }
 
-static st_ret_t _st_sqlite_put (st_driver_t drv, const char *type,
+st_ret_t st_sqlite_put (st_driver_t drv, const char *type,
 				const char *owner, os_t os) {
 
     drvdata_t data = (drvdata_t) drv->private;
@@ -369,7 +365,7 @@ static st_ret_t _st_sqlite_put (st_driver_t drv, const char *type,
     return st_SUCCESS;
 }
 
-static st_ret_t _st_sqlite_get (st_driver_t drv, const char *type,
+st_ret_t st_sqlite_get (st_driver_t drv, const char *type,
 				const char *owner, const char *filter,
 				os_t *os) {
 
@@ -483,7 +479,7 @@ static st_ret_t _st_sqlite_get (st_driver_t drv, const char *type,
     return st_SUCCESS;
 }
 
-static st_ret_t _st_sqlite_count (st_driver_t drv, const char *type,
+st_ret_t st_sqlite_count (st_driver_t drv, const char *type,
 				   const char *owner, const char *filter, int *count) {
 
     drvdata_t data = (drvdata_t) drv->private;
@@ -543,7 +539,7 @@ static st_ret_t _st_sqlite_count (st_driver_t drv, const char *type,
     return st_SUCCESS;
 }
 
-static st_ret_t _st_sqlite_delete (st_driver_t drv, const char *type,
+st_ret_t st_sqlite_delete (st_driver_t drv, const char *type,
 				   const char *owner, const char *filter) {
 
     drvdata_t data = (drvdata_t) drv->private;
@@ -590,7 +586,7 @@ static st_ret_t _st_sqlite_delete (st_driver_t drv, const char *type,
     return st_SUCCESS;
 }
 
-static st_ret_t _st_sqlite_replace (st_driver_t drv, const char *type,
+st_ret_t st_sqlite_replace (st_driver_t drv, const char *type,
 				    const char *owner, const char *filter,
 				    os_t os) {
 
@@ -599,7 +595,7 @@ static st_ret_t _st_sqlite_replace (st_driver_t drv, const char *type,
     int res;
     char *err_msg = NULL;
 
-    if (_st_sqlite_delete (drv, type, owner, filter) == st_FAILED) {
+    if (st_sqlite_delete (drv, type, owner, filter) == st_FAILED) {
 	return st_FAILED;
     }
 
@@ -610,7 +606,7 @@ static st_ret_t _st_sqlite_replace (st_driver_t drv, const char *type,
     return st_SUCCESS;
 }
 
-static void _st_sqlite_free (st_driver_t drv) {
+void st_sqlite_free (st_driver_t drv) {
 
     drvdata_t data = (drvdata_t) drv->private;
 
@@ -671,13 +667,6 @@ st_ret_t st_init(st_driver_t drv) {
 				   "storage.sqlite.prefix", 0);
 
     drv->private = (void *) data;
-    drv->add_type = _st_sqlite_add_type;
-    drv->put = _st_sqlite_put;
-    drv->count = _st_sqlite_count;
-    drv->get = _st_sqlite_get;
-    drv->delete = _st_sqlite_delete;
-    drv->replace = _st_sqlite_replace;
-    drv->free = _st_sqlite_free;
 
     return st_SUCCESS;
 }

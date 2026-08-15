@@ -26,8 +26,8 @@
   */
 
 #include "storage.h"
+#include "storage_sqlite.h"
 #include <ctype.h>
-#include <dlfcn.h>
 
 
 storage_t storage_new(config_t config, log_t log) {
@@ -64,7 +64,7 @@ storage_t storage_new(config_t config, log_t log) {
 static void _st_driver_reaper(const char *driver, int driverlen, void *val, void *arg) {
     st_driver_t drv = (st_driver_t) val;
 
-    (drv->free)(drv);
+    st_sqlite_free(drv);
 
     free(drv);
 }
@@ -80,11 +80,6 @@ void storage_free(storage_t st) {
 
 st_ret_t storage_add_type(storage_t st, const char *driver, const char *type) {
     st_driver_t drv;
-    st_driver_init_fn init_fn = NULL;
-    char mod_fullpath[PATH_MAX];
-    const char *modules_path;
-    st_ret_t ret;
-    void *handle;
 
     /* startup, see if we've already registered this type */
     if(type == NULL) {
@@ -105,42 +100,22 @@ st_ret_t storage_add_type(storage_t st, const char *driver, const char *type) {
         }
     }
 
-    /* set modules path */
-    modules_path = config_get_one(st->config, "storage.path", 0);
-
     /* get the driver */
     drv = xhash_get(st->drivers, driver);
     if(drv == NULL) {
         log_debug(ZONE, "driver not loaded, trying to init");
 
-        log_write(st->log, LOG_INFO, "loading '%s' storage module", driver);
-        if (modules_path != NULL)
-            snprintf(mod_fullpath, PATH_MAX, "%s/storage_%s.so", modules_path, driver);
-        else
-            snprintf(mod_fullpath, PATH_MAX, "%s/storage_%s.so", LIBRARY_DIR, driver);
-        handle = dlopen(mod_fullpath, RTLD_LAZY);
-        if (handle != NULL)
-            init_fn = dlsym(handle, "st_init");
-    
-        if (handle != NULL && init_fn != NULL) {
-            log_debug(ZONE, "preloaded module '%s' (not initialized yet)", driver);
-        } else {
-            log_write(st->log, LOG_ERR, "failed loading storage module '%s' (%s)", driver, dlerror());
-            if (handle != NULL)
-                dlclose(handle);
-            return st_FAILED;
-        }
+        log_write(st->log, LOG_INFO, "initialising '%s' storage driver", driver);
 
         /* make a new driver structure */
         drv = (st_driver_t) calloc(1, sizeof(struct st_driver_st));
 
-        drv->handle = handle;
         drv->st = st;
 
         log_debug(ZONE, "calling driver initializer");
 
         /* init */
-        if((init_fn)(drv) == st_FAILED) {
+        if(st_init(drv) == st_FAILED) {
             log_write(st->log, LOG_NOTICE, "initialisation of storage driver '%s' failed", driver);
             free(drv);
             return st_FAILED;
@@ -157,12 +132,6 @@ st_ret_t storage_add_type(storage_t st, const char *driver, const char *type) {
     if(type == NULL) {
         st->default_drv = drv;
         return st_SUCCESS;
-    }
-
-    /* its a real type, so let the driver know */
-    if(type != NULL && (ret = (drv->add_type)(drv, type)) != st_SUCCESS) {
-        log_debug(ZONE, "driver '%s' can't handle '%s' data", driver, type);
-        return ret;
     }
 
     /* register the type */
@@ -194,7 +163,7 @@ st_ret_t storage_put(storage_t st, const char *type, const char *owner, os_t os)
             return ret;
     }
 
-    return (drv->put)(drv, type, owner, os);
+    return st_sqlite_put(drv, type, owner, os);
 }
 
 st_ret_t storage_get(storage_t st, const char *type, const char *owner, const char *filter, os_t *os) {
@@ -220,7 +189,7 @@ st_ret_t storage_get(storage_t st, const char *type, const char *owner, const ch
             return ret;
     }
 
-    return (drv->get)(drv, type, owner, filter, os);
+    return st_sqlite_get(drv, type, owner, filter, os);
 }
 
 st_ret_t storage_get_custom_sql(storage_t st, const char* request, os_t* os, const char *type /*= 0*/)
@@ -252,11 +221,7 @@ st_ret_t storage_get_custom_sql(storage_t st, const char* request, os_t* os, con
             return ret;
     }
 
-    if (drv->get_custom_sql) {
-        return (drv->get_custom_sql)(drv, request, os);
-    } else {
-        return st_NOTIMPL;
-    }
+    return st_NOTIMPL;
 }
 
 st_ret_t storage_count(storage_t st, const char *type, const char *owner, const char *filter, int *count) {
@@ -281,7 +246,7 @@ st_ret_t storage_count(storage_t st, const char *type, const char *owner, const 
             return ret;
     }
 
-    return ((drv->count != NULL) ? (drv->count)(drv, type, owner, filter, count) : st_NOTIMPL);
+    return st_sqlite_count(drv, type, owner, filter, count);
 }
 
 
@@ -308,7 +273,7 @@ st_ret_t storage_delete(storage_t st, const char *type, const char *owner, const
             return ret;
     }
 
-    return (drv->delete)(drv, type, owner, filter);
+    return st_sqlite_delete(drv, type, owner, filter);
 }
 
 st_ret_t storage_replace(storage_t st, const char *type, const char *owner, const char *filter, os_t os) {
@@ -334,7 +299,7 @@ st_ret_t storage_replace(storage_t st, const char *type, const char *owner, cons
             return ret;
     }
 
-    return (drv->replace)(drv, type, owner, filter, os);
+    return st_sqlite_replace(drv, type, owner, filter, os);
 }
 
 static st_filter_t _storage_filter(pool_t p, const char *f, int len) {

@@ -468,24 +468,17 @@ fi
 AM_CONDITIONAL(HAVE_LIBZ, [test "$HAVE_LIBZ" = "1"])
 
 # SQLite 3
-AC_ARG_ENABLE([sqlite],
-        AS_HELP_STRING([--enable-sqlite], [enable SQLite3 auth/reg/storage support (no)]),
-        [enable_sqlite=$enableval have_sqlite=no],
-        [enable_sqlite=no         have_sqlite=no])
-if test "x-$enable_sqlite" = "x-yes" ; then
-    AC_CHECK_HEADERS([sqlite3.h], [
-                AC_CHECK_LIB([sqlite3], [sqlite3_open], [
-                        have_sqlite=yes
-                        SQLITE_LIBS="-lsqlite3"
-                        AC_DEFINE(STORAGE_SQLITE, 1, [Define to 1 if you want to use SQLite 3 for storage.])
-                ])
+have_sqlite=no
+AC_CHECK_HEADERS([sqlite3.h], [
+        AC_CHECK_LIB([sqlite3], [sqlite3_open], [
+                have_sqlite=yes
+                SQLITE_LIBS="-lsqlite3"
         ])
-        if test "x-$have_sqlite" != "x-yes" ; then
-                AC_MSG_ERROR([SQLite3 support requested, but headers/libraries not found.])
-        fi
+])
+if test "x-$have_sqlite" != "x-yes" ; then
+        AC_MSG_ERROR([SQLite3 headers/libraries not found.])
 fi
 AC_SUBST(SQLITE_LIBS)
-AM_CONDITIONAL(STORAGE_SQLITE, [test "x-$have_sqlite" = "x-yes"])
 
 # WebSocket support
 AC_ARG_ENABLE(websocket, AC_HELP_STRING([--enable-websocket], [enable WebSocket support on C2S port (no)]),

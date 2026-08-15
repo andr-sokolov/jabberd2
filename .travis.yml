@@ -14,7 +14,7 @@ env:
 
 before_script: autoreconf -fi
 
-script: ./configure --enable-ssl --enable-sqlite && make && make check
+script: ./configure --enable-ssl && make && make check
 
 addons:
   apt:
@@ -38,6 +38,6 @@ addons:
       name: "jabberd2/jabberd2"
       description: "Build submitted via Travis CI"
     notification_email: tomek@xiaoka.com
-    build_command_prepend: "./configure --enable-ssl --enable-sqlite"
+    build_command_prepend: "./configure --enable-ssl"
     build_command: "make -j 4"
     branch_pattern: coverity_scan

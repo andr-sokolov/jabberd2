@@ -165,32 +165,7 @@ struct st_driver_st {
 
     char        *name;          /**< name of driver */
 
-    void        *handle;        /**< loaded module handle */
-
     void        *private;       /**< driver private data */
-
-    /** called to find out if this driver can handle a particular type */
-    st_ret_t    (*add_type)(st_driver_t drv, const char *type);
-
-    /** put handler */
-    st_ret_t    (*put)(st_driver_t drv, const char *type, const char *owner, os_t os);
-    /** get handler */
-    st_ret_t    (*get)(st_driver_t drv, const char *type, const char *owner, const char *filter, os_t *os);
-    /** get custom SQL request */
-    st_ret_t    (*get_custom_sql)(st_driver_t drv, const char *request, os_t *os);
-    /** count handler */
-    st_ret_t    (*count)(st_driver_t drv, const char *type, const char *owner, const char *filter, int *count);
-    /** delete handler */
-#ifdef __cplusplus
-    st_ret_t    (*_delete)(st_driver_t drv, const char *type, const char *owner, const char *filter);
-#else
-    st_ret_t    (*delete)(st_driver_t drv, const char *type, const char *owner, const char *filter);
-#endif
-    /** replace handler */
-    st_ret_t    (*replace)(st_driver_t drv, const char *type, const char *owner, const char *filter, os_t os);
-
-    /** called when driver is freed */
-    void        (*free)(st_driver_t drv);
 };
 
 /** allocate a storage manager instance */
@@ -213,10 +188,6 @@ st_ret_t        storage_count(storage_t st, const char *type, const char *owner,
 st_ret_t        storage_delete(storage_t st, const char *type, const char *owner, const char *filter);
 /** replace objects matching this filter with objects in this set (atomic delete + get) */
 st_ret_t        storage_replace(storage_t st, const char *type, const char *owner, const char *filter, os_t os);
-
-/** type for the driver init function */
-typedef st_ret_t (*st_driver_init_fn)(st_driver_t);
-
 
 /** storage filter types */
 typedef enum {
