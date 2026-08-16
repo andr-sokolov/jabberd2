@@ -334,20 +334,8 @@ struct authreg_st
     /** check the given password against the stored password, 0 if equal, !0 if not equal (password auth) */
     int         (*check_password)(authreg_t ar, sess_t sess, const char *username, const char *realm, char password[257]);
 
-    /** called prior to session being closed, to cleanup session specific private data */
-    void        (*sess_end)(authreg_t ar, sess_t sess);
-
     /** called prior to authreg shutdown */
     void        (*free)(authreg_t ar);
-
-    /* Additions at the end - to preserve offsets for existing modules */
-
-    /** returns 1 if the user is permitted to authorize as the requested_user, 0 if not. requested_user is a JID */
-    int         (*user_authz_allowed)(authreg_t ar, sess_t sess, const char *username, const char *realm, const char *requested_user);
-
-    /** Apple extensions for challenge/response authentication methods */
-    int         (*create_challenge)(authreg_t ar, sess_t sess, const char *username, const char *realm, char *challenge, int maxlen);
-    int         (*check_response)(authreg_t ar, sess_t sess, const char *username, const char *realm, const char *challenge, const char *response);
 };
 
 /** get a handle for a single module */

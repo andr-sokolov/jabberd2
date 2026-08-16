@@ -201,20 +201,6 @@ static void _authreg_auth_get(c2s_t c2s, sess_t sess, nad_t nad) {
     if(ar_mechs & AR_MECH_TRAD_DIGEST && sess->host->ar->get_password != NULL)
         nad_append_elem(nad, ns, "digest", 2);
 
-    if (ar_mechs & AR_MECH_TRAD_CRAMMD5 && sess->host->ar->create_challenge != NULL) {
-        err = (sess->host->ar->create_challenge)(sess->host->ar, sess, (char *) username, sess->host->realm,
-                (char *) sess->auth_challenge, sizeof(sess->auth_challenge));
-        if (0 == err) { /* operation failed */
-            sx_nad_write(sess->s, stanza_tofrom(stanza_error(nad, 0, stanza_err_INTERNAL_SERVER_ERROR), 0));
-            return;
-        }
-        else if (1 == err) { /* operation succeeded */
-            nad_append_elem(nad, ns, "crammd5", 2);
-            nad_append_attr(nad, -1, "challenge", sess->auth_challenge);
-        }
-        else ; /* auth method unsupported for user */
-    }
-
     /* give it back to the client */
     sx_nad_write(sess->s, nad);
 
@@ -285,24 +271,6 @@ static void _authreg_auth_set(c2s_t c2s, sess_t sess, nad_t nad) {
     if((sess->host->ar->user_exists)(sess->host->ar, sess, username, sess->host->realm) == 0) {
         sx_nad_write(sess->s, stanza_tofrom(stanza_error(nad, 0, stanza_err_OLD_UNAUTH), 0));
         return;
-    }
-    
-    /* handle CRAM-MD5 response */
-    if(!authd && ar_mechs & AR_MECH_TRAD_CRAMMD5 && sess->host->ar->check_response != NULL)
-    {
-        elem = nad_find_elem(nad, 1, ns, "crammd5", 1);
-        if(elem >= 0)
-        {
-            snprintf(str, 1024, "%.*s", NAD_CDATA_L(nad, elem), NAD_CDATA(nad, elem));
-            if((sess->host->ar->check_response)(sess->host->ar, sess, username, sess->host->realm, sess->auth_challenge, str) == 0)
-            {
-                log_debug(ZONE, "crammd5 auth (check) succeded");
-                authd = 1;
-                _authreg_auth_log(c2s, sess, "traditional.cram-md5", username, resource, TRUE);
-            } else {
-                _authreg_auth_log(c2s, sess, "traditional.cram-md5", username, resource, FALSE);
-            }
-        }
     }
 
     /* digest auth */

@@ -515,15 +515,9 @@ static int _c2s_sx_sasl_callback(int cb, void *arg, void **res, sx_t s, void *cb
             if(jid.resource[0] != '\0')
                 return sx_sasl_ret_FAIL;
 
-            /* and user has right to authorize as */
-            if (sess->host->ar->user_authz_allowed) {
-                if (sess->host->ar->user_authz_allowed(sess->host->ar, sess, (char *)creds->authnid, (char *)creds->realm, (char *)creds->authzid))
-                        return sx_sasl_ret_OK;
-            } else {
-                if (strcmp(creds->authnid, jid.node) == 0 &&
-                    (sess->host->ar->user_exists)(sess->host->ar, sess, jid.node, jid.domain))
-                    return sx_sasl_ret_OK;
-            }
+            if (strcmp(creds->authnid, jid.node) == 0 &&
+                (sess->host->ar->user_exists)(sess->host->ar, sess, jid.node, jid.domain))
+                return sx_sasl_ret_OK;
 
             return sx_sasl_ret_FAIL;
 
