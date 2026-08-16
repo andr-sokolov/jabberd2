@@ -345,7 +345,6 @@ struct authreg_st
 
     /** make or break the user (register / register remove) */
     int         (*create_user)(authreg_t ar, sess_t sess, const char *username, const char *realm);
-    int         (*delete_user)(authreg_t ar, sess_t sess, const char *username, const char *realm);
 
     /** called prior to session being closed, to cleanup session specific private data */
     void        (*sess_end)(authreg_t ar, sess_t sess);
@@ -381,7 +380,6 @@ int     authreg_get_password(authreg_t ar, const char *username, const char *rea
 int     authreg_check_password(authreg_t ar, const char *username, const char *realm, char password[257]);
 int     authreg_set_password(authreg_t ar, const char *username, const char *realm, char password[257]);
 int     authreg_create_user(authreg_t ar, const char *username, const char *realm);
-int     authreg_delete_user(authreg_t ar, const char *username, const char *realm);
 void    authreg_free(authreg_t ar);
 */
 

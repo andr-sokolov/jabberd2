@@ -479,52 +479,7 @@ static void _authreg_register_set(c2s_t c2s, sess_t sess, nad_t nad)
 
     /* removals */
     if(sess->active && nad_find_elem(nad, 1, ns, "remove", 1) >= 0) {
-        /* only if full reg is enabled */
-        if(!sess->host->ar_register_enable) {
-            sx_nad_write(sess->s, stanza_tofrom(stanza_error(nad, 0, stanza_err_NOT_ALLOWED), 0));
-            return;
-        }
-
-        log_debug(ZONE, "user remove requested");
-
-        /* make sure we can delete them */
-        if(sess->host->ar->delete_user == NULL) {
-            sx_nad_write(sess->s, stanza_tofrom(stanza_error(nad, 0, stanza_err_NOT_ALLOWED), 0));
-            return;
-        }
-
-        /* otherwise, delete them */
-        if((sess->host->ar->delete_user)(sess->host->ar, sess, sess->resources->jid->node, sess->host->realm) != 0) {
-            log_debug(ZONE, "user delete failed");
-            sx_nad_write(sess->s, stanza_tofrom(stanza_error(nad, 0, stanza_err_INTERNAL_SERVER_ERROR), 0));
-            return;
-        }
-
-        log_write(c2s->log, LOG_NOTICE, "[%d] deleted user: user=%s; realm=%s", sess->s->tag, sess->resources->jid->node, sess->host->realm);
-
-        log_write(c2s->log, LOG_NOTICE, "[%d] registration remove succeeded, requesting user deletion: jid=%s", sess->s->tag, jid_user(sess->resources->jid));
-
-        /* make a result nad */
-        sess->result = nad_new();
-
-        ns = nad_add_namespace(sess->result, uri_CLIENT, NULL);
-
-        nad_append_elem(sess->result, ns, "iq", 0);
-        nad_set_attr(sess->result, 0, -1, "type", "result", 6);
-
-        /* extract the id */
-        attr = nad_find_attr(nad, 0, -1, "id", NULL);
-        if(attr >= 0)
-            nad_set_attr(sess->result, 0, -1, "id", NAD_AVAL(nad, attr), NAD_AVAL_L(nad, attr));
-
-        nad_free(nad);
-
-        sx_nad_write(sess->s, sess->result);
-        sess->result = NULL;
-
-        /* get the sm to delete them (it will force their sessions to end) */
-        sm_delete(sess, sess->resources);
-
+        sx_nad_write(sess->s, stanza_tofrom(stanza_error(nad, 0, stanza_err_NOT_ALLOWED), 0));
         return;
     }
 

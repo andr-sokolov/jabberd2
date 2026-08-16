@@ -1198,14 +1198,6 @@ int c2s_router_sx_callback(sx_t s, sx_event_t e, void *data, void *arg) {
                     if((NAD_AVAL_L(nad, action) == 5 && strncmp("start", NAD_AVAL(nad, action), 5) == 0) ||
                        (NAD_AVAL_L(nad, action) == 6 && strncmp("create", NAD_AVAL(nad, action), 6) == 0)) {
 
-                        /* create failed, so we need to remove them from authreg */
-                        if(NAD_AVAL_L(nad, action) == 6 && sess->host->ar->delete_user != NULL) {
-                            if((sess->host->ar->delete_user)(sess->host->ar, sess, bres->jid->node, sess->host->realm) != 0)
-                                log_write(c2s->log, LOG_NOTICE, "[%d] user creation failed, and unable to delete user credentials: user=%s, realm=%s", sess->s->tag, bres->jid->node, sess->host->realm);
-                            else
-                                log_write(c2s->log, LOG_NOTICE, "[%d] user creation failed, so deleted user credentials: user=%s, realm=%s", sess->s->tag, bres->jid->node, sess->host->realm);
-                        }
-
                         /* error the result and return it to the client */
                         sx_nad_write(sess->s, stanza_error(sess->result, 0, stanza_err_INTERNAL_SERVER_ERROR));
                         sess->result = NULL;

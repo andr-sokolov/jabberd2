@@ -68,7 +68,6 @@ typedef struct moddata_st {
     sqlite3_stmt *check_password_stmt;
     sqlite3_stmt *set_password_stmt;
     sqlite3_stmt *create_user_stmt;
-    sqlite3_stmt *delete_user_stmt;
     enum sqlite3_pws_crypt password_type;
 } *moddata_t;
 
@@ -320,38 +319,6 @@ _ar_sqlite_create_user(authreg_t ar, sess_t sess, const char *username, const ch
 }
 
 /**
- * @return 0 if user is deleted, 1 if not
- */
-static int
-_ar_sqlite_delete_user(authreg_t ar, sess_t sess, const char *username, const char *realm)
-{
-    sqlite3_stmt *stmt;
-    moddata_t data = (moddata_t) ar->private;
-    int res, ret = 0;
-
-    char *sql = "DELETE FROM authreg WHERE username = ? AND realm = ?";
-
-    log_debug(ZONE, "sqlite (authreg): %s", sql);
-
-    stmt = _get_stmt(ar, data->db, &data->delete_user_stmt, sql);
-    if (stmt == NULL) {
-    return 1;
-    }
-
-    sqlite3_bind_text(stmt, 1, username, -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, 2, realm, -1, SQLITE_STATIC);
-
-    res = sqlite3_step(stmt);
-    if (res != SQLITE_DONE) {
-    log_write(ar->c2s->log, LOG_ERR, "sqlite (authreg): %s", sqlite3_errmsg (data->db));
-    ret = 1;
-    }
-    sqlite3_reset(stmt);
-
-    return ret;
-}
-
-/**
  * @return does not return
  */
 static void
@@ -366,7 +333,6 @@ _ar_sqlite_free(authreg_t ar)
     sqlite3_finalize(data->check_password_stmt);
     sqlite3_finalize(data->set_password_stmt);
     sqlite3_finalize(data->create_user_stmt);
-    sqlite3_finalize(data->delete_user_stmt);
 
     sqlite3_close(data->db);
 
@@ -450,7 +416,6 @@ ar_init(authreg_t ar)
     ar->check_password = _ar_sqlite_check_password;
     ar->set_password = _ar_sqlite_set_password;
     ar->create_user = _ar_sqlite_create_user;
-    ar->delete_user = _ar_sqlite_delete_user;
     ar->free = _ar_sqlite_free;
 
     log_debug(ZONE, "sqlite (authreg): finish init");
