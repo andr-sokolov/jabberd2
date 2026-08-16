@@ -36,13 +36,10 @@
 #include <util/xhash.h>
 #include <util/nad.h>
 #include <util/util.h>
-#include <sqlite3.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-/* Forward declarations */
-typedef struct storage_st   *storage_t;
 
 
 /* object sets */
@@ -147,14 +144,8 @@ typedef enum {
 } st_ret_t;
 
 /** storage manager data */
-struct storage_st {
-    config_t    config;         /**< config */
-    log_t       log;            /**< log context */
-
-    sqlite3     *db;
-    const char  *prefix;
-    int         txn;
-};
+struct storage_st;
+typedef struct storage_st   *storage_t;
 
 /** allocate a storage manager instance */
 storage_t       storage_new(config_t config, log_t log);
@@ -172,34 +163,6 @@ st_ret_t        storage_delete(storage_t st, const char *type, const char *owner
 /** replace objects matching this filter with objects in this set (atomic delete + get) */
 st_ret_t        storage_replace(storage_t st, const char *type, const char *owner, const char *filter, os_t os);
 
-/** storage filter types */
-typedef enum {
-    st_filter_type_PAIR,        /**< key=value pair */
-    st_filter_type_AND,         /**< and operator */
-    st_filter_type_OR,          /**< or operator */
-    st_filter_type_NOT          /**< not operator */
-} st_filter_type_t;
-
-typedef struct st_filter_st *st_filter_t;
-/** filter abstraction */
-struct st_filter_st {
-    pool_t              p;      /**< pool that filter is allocated from */
-
-    st_filter_type_t    type;   /**< type of this filter */
-
-    char                *key;   /**< key for PAIR filters */
-    char                *val;   /**< value for PAIR filters */
-
-    st_filter_t         sub;    /**< sub-filter for operator filters */
-
-    st_filter_t         next;   /**< next filter in a group */
-};
-
-/** create a filter abstraction from a LDAP-like filter string */
-st_filter_t     storage_filter(const char *filter);
-
-/** see if the object matches the filter */
-int             storage_match(st_filter_t filter, os_object_t o, os_t os);
 
 #ifdef __cplusplus
 } // extern "C"
