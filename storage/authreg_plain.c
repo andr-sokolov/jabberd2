@@ -41,7 +41,7 @@
 #define PLAIN_LR   256   /* maximum length of realm */
 #define PLAIN_LP   256   /* maximum length of password */
 
-enum sqlite3_pws_crypt {
+enum pws_crypt {
     MPC_PLAIN,
 #ifdef HAVE_CRYPT
     MPC_CRYPT,
@@ -57,7 +57,7 @@ static char salter[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRST
 
 typedef struct moddata_st {
     char *filename;
-    enum sqlite3_pws_crypt password_type;
+    enum pws_crypt password_type;
 } *moddata_t;
 
 #ifdef HAVE_SSL
@@ -254,20 +254,20 @@ _ar_plain_free(authreg_t ar)
 int
 ar_init(authreg_t ar)
 {
-    const char *dbname = config_get_one(ar->c2s->config, "authreg.sqlite.dbname", 0);
+    const char *filename = config_get_one(ar->c2s->config, "authreg.plain.filename", 0);
 
     log_debug(ZONE, "plain (authreg): start init");
 
-    if (dbname == NULL) {
+    if (filename == NULL) {
         log_write(ar->c2s->log, LOG_ERR,
               "plain (authreg): invalid driver config.");
         return 1;
     }
 
-    FILE *fp = fopen(dbname, "r");
+    FILE *fp = fopen(filename, "r");
     if (fp == NULL) {
         log_write(ar->c2s->log, LOG_ERR,
-              "plain (authreg): can't open %s", dbname);
+              "plain (authreg): can't open %s", filename);
         return 1;
     }
     fclose(fp);
@@ -279,7 +279,7 @@ ar_init(authreg_t ar)
         return 1;
     }
 
-    data->filename = strdup(dbname);
+    data->filename = strdup(filename);
     if (data->filename == NULL) {
         log_write(ar->c2s->log, LOG_ERR,
               "plain (authreg): memory error.");
@@ -288,14 +288,14 @@ ar_init(authreg_t ar)
     }
 
     /* get encryption type used in the password file */
-    if (config_get_one(ar->c2s->config, "authreg.sqlite.password_type.plaintext", 0)) {
+    if (config_get_one(ar->c2s->config, "authreg.plain.password_type.plaintext", 0)) {
         data->password_type = MPC_PLAIN;
 #ifdef HAVE_CRYPT
-    } else if (config_get_one(ar->c2s->config, "authreg.sqlite.password_type.crypt", 0)) {
+    } else if (config_get_one(ar->c2s->config, "authreg.plain.password_type.crypt", 0)) {
         data->password_type = MPC_CRYPT;
 #endif
 #ifdef HAVE_SSL
-    } else if (config_get_one(ar->c2s->config, "authreg.sqlite.password_type.a1hash", 0)) {
+    } else if (config_get_one(ar->c2s->config, "authreg.plain.password_type.a1hash", 0)) {
         data->password_type = MPC_A1HASH;
 #endif
     } else {
