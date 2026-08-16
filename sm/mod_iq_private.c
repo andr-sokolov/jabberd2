@@ -192,12 +192,6 @@ static mod_ret_t _iq_private_in_sess(mod_instance_t mi, sess_t sess, pkt_t pkt) 
     return 0;
 }
 
-static void _iq_private_user_delete(mod_instance_t mi, jid_t jid) {
-    log_debug(ZONE, "deleting private xml storage for %s", jid_user(jid));
-
-    storage_delete(mi->sm->st, "private", jid_user(jid), NULL);
-}
-
 static void _iq_private_free(module_t mod) {
      sm_unregister_ns(mod->mm->sm, uri_PRIVATE);
      feature_unregister(mod->mm->sm, uri_PRIVATE);
@@ -209,7 +203,6 @@ int module_init(mod_instance_t mi, const char *arg) {
     if (mod->init) return 0;
 
     mod->in_sess = _iq_private_in_sess;
-    mod->user_delete = _iq_private_user_delete;
     mod->free = _iq_private_free;
 
     ns_PRIVATE = sm_register_ns(mod->mm->sm, uri_PRIVATE);

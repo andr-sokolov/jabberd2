@@ -134,12 +134,6 @@ static void _iq_last_sess_end(mod_instance_t mi, sess_t sess) {
     os_free(os);
 }
 
-static void _iq_last_user_delete(mod_instance_t mi, jid_t jid) {
-    log_debug(ZONE, "deleting logout time for %s", jid_user(jid));
-
-    storage_delete(mi->sm->st, "logout", jid_user(jid), NULL);
-}
-
 static void _iq_last_free(module_t mod) {
     sm_unregister_ns(mod->mm->sm, uri_LAST);
     feature_unregister(mod->mm->sm, uri_LAST);
@@ -153,7 +147,6 @@ int module_init(mod_instance_t mi, const char *arg) {
     mod->sess_end = _iq_last_sess_end;
     mod->pkt_user = _iq_last_pkt_user;
     mod->pkt_sm = _iq_last_pkt_sm;
-    mod->user_delete = _iq_last_user_delete;
     mod->free = _iq_last_free;
 
     /* startup time */

@@ -130,16 +130,6 @@ mm_t mm_new(sm_t sm) {
             list = &mm->user_unload;
             nlist = &mm->nuser_unload;
         }
-        else if(strcmp(id, "user-create") == 0) {
-            chain = chain_USER_CREATE;
-            list = &mm->user_create;
-            nlist = &mm->nuser_create;
-        }
-        else if(strcmp(id, "user-delete") == 0) {
-            chain = chain_USER_DELETE;
-            list = &mm->user_delete;
-            nlist = &mm->nuser_delete;
-        }
         else if(strcmp(id, "disco-extend") == 0) {
             chain = chain_DISCO_EXTEND;
             list = &mm->disco_extend;
@@ -268,7 +258,7 @@ void mm_free(mm_t mm) {
     xhash_walk(mm->modules, _mm_reaper, NULL);
 
     /* free instances */
-    for(i = 0; i < 13; i++) {
+    for(i = 0; i <= 10; i++) {
         switch(i) {
             case 0:
                 list = &mm->sess_start;
@@ -311,14 +301,6 @@ void mm_free(mm_t mm) {
                 nlist = &mm->nuser_load;
                 break;
             case 10:
-                list = &mm->user_create;
-                nlist = &mm->nuser_create;
-                break;
-            case 11:
-                list = &mm->user_delete;
-                nlist = &mm->nuser_delete;
-                break;
-            case 12:
                 list = &mm->disco_extend;
                 nlist = &mm->ndisco_extend;
                 break;
@@ -343,8 +325,6 @@ void mm_free(mm_t mm) {
     free(mm->pkt_user);
     free(mm->pkt_router);
     free(mm->user_load);
-    free(mm->user_create);
-    free(mm->user_delete);
     free(mm->disco_extend);
 
     xhash_free(mm->modules);
@@ -687,63 +667,6 @@ int mm_user_unload(mm_t mm, user_t user) {
     log_debug(ZONE, "user-unload chain returning %d", ret);
 
     return ret;
-}
-
-/** create user */
-int mm_user_create(mm_t mm, jid_t jid) {
-    int n;
-    mod_instance_t mi;
-    int ret = 0;
-
-    log_debug(ZONE, "dispatching user-create chain");
-
-    for(n = 0; n < mm->nuser_create; n++) {
-        mi = mm->user_create[n];
-        if(mi == NULL) {
-            log_debug(ZONE, "module at index %d is not loaded yet", n);
-            continue;
-        }
-        if(mi->mod->user_create == NULL) {
-            log_debug(ZONE, "module %s has no handler for this chain", mi->mod->name);
-            continue;
-        }
-
-        log_debug(ZONE, "calling module %s", mi->mod->name);
-
-        ret = (mi->mod->user_create)(mi, jid);
-        if(ret != 0)
-            break;
-    }
-
-    log_debug(ZONE, "user-create chain returning %d", ret);
-
-    return ret;
-}
-
-/** delete user */
-void mm_user_delete(mm_t mm, jid_t jid) {
-    int n;
-    mod_instance_t mi;
-
-    log_debug(ZONE, "dispatching user-delete chain");
-
-    for(n = 0; n < mm->nuser_delete; n++) {
-        mi = mm->user_delete[n];
-        if(mi == NULL) {
-            log_debug(ZONE, "module at index %d is not loaded yet", n);
-            continue;
-        }
-        if(mi->mod->user_delete == NULL) {
-            log_debug(ZONE, "module %s has no handler for this chain", mi->mod->name);
-            continue;
-        }
-
-        log_debug(ZONE, "calling module %s", mi->mod->name);
-
-        (mi->mod->user_delete)(mi, jid);
-    }
-
-    log_debug(ZONE, "user-delete chain returning");
 }
 
 /** disco extend */

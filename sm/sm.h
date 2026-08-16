@@ -95,8 +95,6 @@ typedef enum {
     pkt_IQ_RESULT = 0x82,       /**< info/query (result) */
     pkt_SESS = 0x100,           /**< session start request */
     pkt_SESS_END = 0x101,       /**< session end request */
-    pkt_SESS_CREATE = 0x102,    /**< session create request */
-    pkt_SESS_DELETE = 0x104,    /**< session delete request */
     pkt_SESS_FAILED = 0x08,     /**< session request failed (mask) */
     pkt_SESS_MASK = 0x10f,      /**< session request (mask) */
     pkt_ERROR = 0x200           /**< packet error */
@@ -312,8 +310,6 @@ sess_t          sess_match(user_t user, const char *resource);
 
 user_t          user_load(sm_t sm, jid_t jid);
 void            user_free(user_t user);
-int             user_create(sm_t sm, jid_t jid);
-void            user_delete(sm_t sm, jid_t jid);
 
 void            feature_register(sm_t sm, const char *feature);
 void            feature_unregister(sm_t sm, const char *feature);
@@ -339,8 +335,6 @@ typedef enum {
     chain_PKT_USER,             /**< packet for a user */
     chain_PKT_ROUTER,           /**< packet from the router (special purpose) */
     chain_USER_LOAD,            /**< user loaded, load per-user data */
-    chain_USER_CREATE,          /**< user creation, generate and save per-user data */
-    chain_USER_DELETE,          /**< user deletion, delete saved per-user data */
     chain_USER_UNLOAD,          /**< user is about to be unloaded */
     chain_DISCO_EXTEND          /**< disco request, extend sm disco#info */
 } mod_chain_t;
@@ -376,10 +370,6 @@ struct mm_st {
     mod_instance_t      *pkt_router;    int npkt_router;
     /** user-load chain */
     mod_instance_t      *user_load;     int nuser_load;
-    /** user-create chain */
-    mod_instance_t      *user_create;   int nuser_create;
-    /** user-delete chain */
-    mod_instance_t      *user_delete;   int nuser_delete;
     /** disco-extend chain */
     mod_instance_t      *disco_extend;  int ndisco_extend;
     /** user-unload chain */
@@ -420,9 +410,6 @@ struct module_st {
 
     int                 (*user_load)(mod_instance_t mi, user_t user);               /**< user-load handler */
     int                 (*user_unload)(mod_instance_t mi, user_t user);               /**< user-load handler */
-
-    int                 (*user_create)(mod_instance_t mi, jid_t jid);               /**< user-create handler */
-    void                (*user_delete)(mod_instance_t mi, jid_t jid);               /**< user-delete handler */
 
     void                (*disco_extend)(mod_instance_t mi, pkt_t pkt);              /**< disco-extend handler */
 
@@ -475,11 +462,6 @@ int                     mm_user_load(mm_t mm, user_t user);
 
 /** fire user-unload chain */
 int                     mm_user_unload(mm_t mm, user_t user);
-
-/** fire user-create chain */
-int                     mm_user_create(mm_t mm, jid_t jid);
-/** fire user-delete chain */
-void                    mm_user_delete(mm_t mm, jid_t jid);
 
 /** fire disco-extend chain */
 void                    mm_disco_extend(mm_t mm, pkt_t pkt);

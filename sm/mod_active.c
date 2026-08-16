@@ -43,38 +43,12 @@ static int _active_user_load(mod_instance_t mi, user_t user) {
     return 0;
 }
 
-static int _active_user_create(mod_instance_t mi, jid_t jid) {
-    time_t t;
-    os_t os;
-    os_object_t o;
-
-    log_debug(ZONE, "activating user %s", jid_user(jid));
-
-    t = time(NULL);
-
-    os = os_new();
-    o = os_object_new(os);
-    os_object_put_time(o, "time", &t);
-    storage_put(mi->sm->st, "active", jid_user(jid), os);
-    os_free(os);
-
-    return 0;
-}
-
-static void _active_user_delete(mod_instance_t mi, jid_t jid) {
-    log_debug(ZONE, "deactivating user %s", jid_user(jid));
-
-    storage_delete(mi->sm->st, "active", jid_user(jid), NULL);
-}
-
 int module_init(mod_instance_t mi, const char *arg) {
     module_t mod = mi->mod;
 
     if(mod->init) return 0;
 
     mod->user_load = _active_user_load;
-    mod->user_create = _active_user_create;
-    mod->user_delete = _active_user_delete;
 
     return 0;
 }

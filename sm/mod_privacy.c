@@ -1306,13 +1306,6 @@ static mod_ret_t _privacy_in_sess(mod_instance_t mi, sess_t sess, pkt_t pkt) {
     return mod_HANDLED;
 }
 
-static void _privacy_user_delete(mod_instance_t mi, jid_t jid) {
-    log_debug(ZONE, "deleting privacy data for %s", jid_user(jid));
-
-    storage_delete(mi->sm->st, "privacy-items", jid_user(jid), NULL);
-    storage_delete(mi->sm->st, "privacy-default", jid_user(jid), NULL);
-}
-
 static void _privacy_free(module_t mod) {
      sm_unregister_ns(mod->mm->sm, uri_PRIVACY);
      feature_unregister(mod->mm->sm, uri_PRIVACY);
@@ -1327,7 +1320,6 @@ int module_init(mod_instance_t mi, const char *arg) {
     mod->in_router = _privacy_in_router;
     mod->out_router = _privacy_out_router;
     mod->in_sess = _privacy_in_sess;
-    mod->user_delete = _privacy_user_delete;
     mod->free = _privacy_free;
 
     ns_PRIVACY = sm_register_ns(mod->mm->sm, uri_PRIVACY);

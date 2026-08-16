@@ -262,18 +262,10 @@ pkt_t pkt_new(sm_t sm, nad_t nad) {
                         pkt->type = pkt_SESS;
                     else if(NAD_AVAL_L(pkt->nad, attr) == 3 && strncmp("end", NAD_AVAL(pkt->nad, attr), 3) >= 0)
                         pkt->type = pkt_SESS_END;
-                    else if(NAD_AVAL_L(pkt->nad, attr) == 6 && strncmp("create", NAD_AVAL(pkt->nad, attr), 6) >= 0)
-                        pkt->type = pkt_SESS_CREATE;
-                    else if(NAD_AVAL_L(pkt->nad, attr) == 6 && strncmp("delete", NAD_AVAL(pkt->nad, attr), 6) >= 0)
-                        pkt->type = pkt_SESS_DELETE;
                     else if(NAD_AVAL_L(pkt->nad, attr) == 7 && strncmp("started", NAD_AVAL(pkt->nad, attr), 7) >= 0)
                         pkt->type = pkt_SESS | pkt_SESS_FAILED;
                     else if(NAD_AVAL_L(pkt->nad, attr) == 5 && strncmp("ended", NAD_AVAL(pkt->nad, attr), 5) >= 0)
                         pkt->type = pkt_SESS_END | pkt_SESS_FAILED;
-                    else if(NAD_AVAL_L(pkt->nad, attr) == 7 && strncmp("created", NAD_AVAL(pkt->nad, attr), 7) >= 0)
-                        pkt->type = pkt_SESS_CREATE | pkt_SESS_FAILED;
-                    else if(NAD_AVAL_L(pkt->nad, attr) == 7 && strncmp("deleted", NAD_AVAL(pkt->nad, attr), 7) >= 0)
-                        pkt->type = pkt_SESS_DELETE | pkt_SESS_FAILED;
 
                     return pkt;
                 } else {

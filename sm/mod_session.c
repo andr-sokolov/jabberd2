@@ -134,54 +134,6 @@ static mod_ret_t _session_in_router(mod_instance_t mi, pkt_t pkt) {
             return mod_HANDLED;
         }
 
-        /* user create */
-        if(pkt->type == pkt_SESS_CREATE) {
-            jid = jid_new(NAD_AVAL(pkt->nad, attr), NAD_AVAL_L(pkt->nad, attr));
-
-            if(jid == NULL || user_create(sm, jid) != 0) {
-                nad_set_attr(pkt->nad, 1, ns, "failed", "1", 1);
-                sx_nad_write(sm->router, stanza_tofrom(pkt->nad, 0));
-
-                pkt->nad = NULL;
-                pkt_free(pkt);
-                if(jid != NULL)
-                    jid_free(jid);
-
-                return mod_HANDLED;
-            }
-
-            /* inform c2s */
-            nad_set_attr(pkt->nad, 1, -1, "action", "created", 7);
-            sx_nad_write(sm->router, stanza_tofrom(pkt->nad, 0));
-
-            pkt->nad = NULL;
-            pkt_free(pkt);
-            jid_free(jid);
-
-            return mod_HANDLED;
-        }
-
-        /* user delete */
-        if(pkt->type == pkt_SESS_DELETE) {
-            jid = jid_new(NAD_AVAL(pkt->nad, attr), NAD_AVAL_L(pkt->nad, attr));
-            if(jid == NULL) {
-                pkt_free(pkt);
-                return mod_HANDLED;
-            }
-
-            user_delete(sm, jid);
-
-            /* inform c2s */
-            nad_set_attr(pkt->nad, 1, -1, "action", "deleted", 7);
-            sx_nad_write(sm->router, stanza_tofrom(pkt->nad, 0));
-
-            pkt->nad = NULL;
-            pkt_free(pkt);
-            jid_free(jid);
-
-            return mod_HANDLED;
-        }
-
         /* get the session id */
         attr = nad_find_attr(pkt->nad, 1, ns, "sm", NULL);
         if(attr < 0) {

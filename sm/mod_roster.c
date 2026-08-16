@@ -815,13 +815,6 @@ static int _roster_user_load(mod_instance_t mi, user_t user) {
     return 0;
 }
 
-static void _roster_user_delete(mod_instance_t mi, jid_t jid) {
-    log_debug(ZONE, "deleting roster data for %s", jid_user(jid));
-
-    storage_delete(mi->sm->st, "roster-items", jid_user(jid), NULL);
-    storage_delete(mi->sm->st, "roster-groups", jid_user(jid), NULL);
-}
-
 static void _roster_free(module_t mod)
 {
     mod_roster_t mroster = (mod_roster_t) mod->private;
@@ -843,7 +836,6 @@ int module_init(mod_instance_t mi, const char *arg) {
     mod->in_sess = _roster_in_sess;
     mod->pkt_user = _roster_pkt_user;
     mod->user_load = _roster_user_load;
-    mod->user_delete = _roster_user_delete;
     mod->free = _roster_free;
 
     feature_register(mod->mm->sm, uri_ROSTER);

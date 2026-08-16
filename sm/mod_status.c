@@ -214,12 +214,6 @@ static mod_ret_t _status_pkt_sm(mod_instance_t mi, pkt_t pkt) {
 
 }
 
-static void _status_user_delete(mod_instance_t mi, jid_t jid) {
-    log_debug(ZONE, "deleting status information of %s", jid_user(jid));
-
-    storage_delete(mi->sm->st, "status", jid_user(jid), NULL);
-}
-
 static void _status_free(module_t mod) {
     free(mod->private);
 }
@@ -242,7 +236,6 @@ int module_init(mod_instance_t mi, const char *arg) {
     mod->sess_end = _status_sess_end;
     mod->in_sess = _status_in_sess;
     mod->pkt_sm = _status_pkt_sm;
-    mod->user_delete = _status_user_delete;
     mod->free = _status_free;
 
     return 0;

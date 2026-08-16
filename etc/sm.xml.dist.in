@@ -522,33 +522,6 @@
     <chain id='user-unload'>
     </chain>
 
-    <!-- user-create. The modules in this chain are called when a user
-         creation request is received (usually from c2s as part of a
-         registration request). This initialises any per-user data. -->
-    <chain id='user-create'>
-      <module>active</module>           <!-- activate new users -->
-      <module>template-roster</module>  <!-- populate roster from template -->
-    </chain>
-
-    <!-- user-delete. The modules in this chain are called when a user
-         deletion request is received (usually from c2s as part of a
-         registration removal request). This deletes all data that may
-         have been previously created for the user during normal
-         operation. -->
-    <chain id='user-delete'>
-      <module>active</module>           <!-- deactivate users -->
-      <module>announce</module>         <!-- delete motd data -->
-      <module>offline</module>          <!-- bounce queued messages -->
-      <module>privacy</module>          <!-- delete privacy lists -->
-      <module>roster</module>           <!-- delete roster -->
-      <module>vacation</module>         <!-- delete vacation settings -->
-      <module>status</module>           <!-- delete status information -->
-      <module>iq-last</module>          <!-- delete last logout time -->
-      <module>iq-private</module>       <!-- delete private data -->
-      <module>iq-vcard</module>         <!-- delete vcard -->
-      <!-- <module>verify</module>      <!- - verify user by e-mail -->
-    </chain>
-
     <!-- disco-extend. The modules in this chain are called when a disco
          info request is send to session manager. It implements XEP-0128
      Service Discovery Extensions mechanizm to add additional

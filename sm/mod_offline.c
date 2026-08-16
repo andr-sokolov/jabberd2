@@ -216,62 +216,6 @@ static mod_ret_t _offline_pkt_user(mod_instance_t mi, user_t user, pkt_t pkt) {
     return mod_PASS;
 }
 
-static void _offline_user_delete(mod_instance_t mi, jid_t jid) {
-    os_t os;
-    os_object_t o;
-    nad_t nad;
-    pkt_t queued;
-    int ns, elem, attr;
-    char cttl[15], cstamp[18];
-    time_t ttl, stamp;
-
-    log_debug(ZONE, "deleting queue for %s", jid_user(jid));
-
-    /* bounce the queue */
-    if(storage_get(mi->mod->mm->sm->st, "queue", jid_user(jid), NULL, &os) == st_SUCCESS) {
-        if(os_iter_first(os))
-            do {
-                o = os_iter_object(os);
-
-                if(os_object_get_nad(os, o, "xml", &nad)) {
-                    queued = pkt_new(mi->mod->mm->sm, nad_copy(nad));
-                    if(queued == NULL) {
-                        log_debug(ZONE, "invalid queued packet, not delivering");
-                    } else {
-                        /* check expiry as necessary */
-                        if((ns = nad_find_scoped_namespace(queued->nad, uri_EXPIRE, NULL)) >= 0 &&
-                           (elem = nad_find_elem(queued->nad, 1, ns, "x", 1)) >= 0 &&
-                           (attr = nad_find_attr(queued->nad, elem, -1, "seconds", NULL)) >= 0) {
-                            snprintf(cttl, 15, "%.*s", NAD_AVAL_L(queued->nad, attr), NAD_AVAL(queued->nad, attr));
-                            ttl = atoi(cttl);
-
-                            /* it should have a x:delay stamp, because we stamp everything we store */
-                            if((ns = nad_find_scoped_namespace(queued->nad, uri_DELAY, NULL)) >= 0 &&
-                               (elem = nad_find_elem(queued->nad, 1, ns, "x", 1)) >= 0 &&
-                               (attr = nad_find_attr(queued->nad, elem, -1, "stamp", NULL)) >= 0) {
-                                snprintf(cstamp, 18, "%.*s", NAD_AVAL_L(queued->nad, attr), NAD_AVAL(queued->nad, attr));
-                                stamp = datetime_in(cstamp);
-
-                                if(stamp + ttl <= time(NULL)) {
-                                    log_debug(ZONE, "queued packet has expired, dropping");
-                                    pkt_free(queued);
-                                    continue;
-                                }
-                            }
-                        }
-
-                        log_debug(ZONE, "bouncing queued packet from %s", jid_full(queued->from));
-                        pkt_router(pkt_error(queued, stanza_err_ITEM_NOT_FOUND));
-                    }
-                }
-            } while(os_iter_next(os));
-
-        os_free(os);
-    }
-    
-    storage_delete(mi->sm->st, "queue", jid_user(jid), NULL);
-}
-
 static void _offline_free(module_t mod) {
     mod_offline_t offline = (mod_offline_t) mod->private;
 
@@ -305,7 +249,6 @@ int module_init(mod_instance_t mi, const char *arg) {
 
     mod->in_sess = _offline_in_sess;
     mod->pkt_user = _offline_pkt_user;
-    mod->user_delete = _offline_user_delete;
     mod->free = _offline_free;
 
     feature_register(mod->mm->sm, "msgoffline");

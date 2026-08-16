@@ -309,12 +309,6 @@ static mod_ret_t _announce_pkt_sm(mod_instance_t mi, pkt_t pkt) {
     return mod_HANDLED;
 }
 
-static void _announce_user_delete(mod_instance_t mi, jid_t jid) {
-    log_debug(ZONE, "deleting motd time for %s", jid_user(jid));
-
-    storage_delete(mi->sm->st, "motd-times", jid_user(jid), NULL);
-}
-
 static void _announce_free(module_t mod) {
     moddata_t data = (moddata_t) mod->private;
 
@@ -340,7 +334,6 @@ int module_init(mod_instance_t mi, const char *arg) {
 
     mod->in_sess = _announce_in_sess;
     mod->pkt_sm = _announce_pkt_sm;
-    mod->user_delete = _announce_user_delete;
     mod->free = _announce_free;
 
     return 0;

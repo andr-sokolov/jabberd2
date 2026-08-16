@@ -386,12 +386,6 @@ static mod_ret_t _iq_vcard_pkt_user(mod_instance_t mi, user_t user, pkt_t pkt) {
     return mod_HANDLED;
 }
 
-static void _iq_vcard_user_delete(mod_instance_t mi, jid_t jid) {
-    log_debug(ZONE, "deleting vcard for %s", jid_user(jid));
-
-    storage_delete(mi->sm->st, "vcard", jid_user(jid), NULL);
-}
-
 static void _iq_vcard_free(module_t mod) {
     sm_unregister_ns(mod->mm->sm, uri_VCARD);
     feature_unregister(mod->mm->sm, uri_VCARD);
@@ -407,7 +401,6 @@ int module_init(mod_instance_t mi, const char *arg) {
     mod->pkt_sm = _iq_vcard_pkt_sm;
     mod->in_sess = _iq_vcard_in_sess;
     mod->pkt_user = _iq_vcard_pkt_user;
-    mod->user_delete = _iq_vcard_user_delete;
     mod->free = _iq_vcard_free;
 
     ns_VCARD = sm_register_ns(mod->mm->sm, uri_VCARD);

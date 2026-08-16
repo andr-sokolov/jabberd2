@@ -239,12 +239,6 @@ static void _verify_user_free(verify_t *v)
     free(v);
 }
 
-static void _verify_user_delete(mod_instance_t mi, jid_t jid)
-{
-    log_debug(ZONE, "deleting email verification for %s", jid_user(jid));
-    storage_delete(mi->sm->st, "verify", jid_user(jid), NULL);
-}
-
 static int _verify_user_load(mod_instance_t mi, user_t user)
 {
     verify_t *v;
@@ -285,7 +279,6 @@ int module_init(mod_instance_t mi, char *arg) {
     log_debug(ZONE, "mod_verify:init: %p", mi);
     mod->in_sess = _verify_in_sess;
     mod->user_load = _verify_user_load;
-    mod->user_delete = _verify_user_delete;
 
     return 0;
 }
