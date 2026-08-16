@@ -363,19 +363,6 @@ static void _c2s_hosts_expand(c2s_t c2s)
         } else
             host->ar = c2s->ar;
 
-        host->ar_register_enable = (j_attr((const char **) elem->attrs[i], "register-enable") != NULL);
-        host->ar_register_oob = j_attr((const char **) elem->attrs[i], "register-oob");
-        if(host->ar_register_enable || host->ar_register_oob) {
-            host->ar_register_instructions = j_attr((const char **) elem->attrs[i], "instructions");
-            if(host->ar_register_instructions == NULL) {
-                if(host->ar_register_oob)
-                    host->ar_register_instructions = "Only web based registration is possible with this server.";
-                else
-                    host->ar_register_instructions = "Enter a username and password to register with this server.";
-            }
-        } else
-            host->ar_register_password = (j_attr((const char **) elem->attrs[i], "password-change") != NULL);
-
         /* check for empty <id/> CDATA - XXX this "1" is VERY config.c dependant !!! */
         if(! strcmp(id, "1")) {
             /* remove the realm even if set */
@@ -392,10 +379,9 @@ static void _c2s_hosts_expand(c2s_t c2s)
             xhash_put(c2s->hosts, pstrdup(xhash_pool(c2s->hosts), id), host);
         }
 
-        log_write(c2s->log, LOG_NOTICE, "[%s] configured; realm=%s, authreg=%s, registration %s, using PEM:%s",
+        log_write(c2s->log, LOG_NOTICE, "[%s] configured; realm=%s, authreg=%s, using PEM:%s",
                   id, (host->realm != NULL ? host->realm : "no realm set"),
                   (host->ar_module_name ? host->ar_module_name : c2s->ar_module_name),
-                  (host->ar_register_enable ? "enabled" : "disabled"),
                   (host->host_pemfile ? host->host_pemfile : "Default"));
     }
 }

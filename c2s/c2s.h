@@ -133,12 +133,6 @@ struct host_st {
     /* authreg module if different than default */
     const char          *ar_module_name;
     authreg_t           ar;
-
-    /** registration */
-    int                 ar_register_enable;
-    const char          *ar_register_instructions;
-    const char          *ar_register_oob;
-    int                 ar_register_password;
 };
 
 struct c2s_st {
@@ -340,12 +334,6 @@ struct authreg_st
     /** check the given password against the stored password, 0 if equal, !0 if not equal (password auth) */
     int         (*check_password)(authreg_t ar, sess_t sess, const char *username, const char *realm, char password[257]);
 
-    /** store this password (register) */
-    int         (*set_password)(authreg_t ar, sess_t sess, const char *username, const char *realm, char password[257]);
-
-    /** make or break the user (register / register remove) */
-    int         (*create_user)(authreg_t ar, sess_t sess, const char *username, const char *realm);
-
     /** called prior to session being closed, to cleanup session specific private data */
     void        (*sess_end)(authreg_t ar, sess_t sess);
 
@@ -378,8 +366,6 @@ int         authreg_process(c2s_t c2s, sess_t sess, nad_t nad);
 int     authreg_user_exists(authreg_t ar, const char *username, const char *realm);
 int     authreg_get_password(authreg_t ar, const char *username, const char *realm, char password[257]);
 int     authreg_check_password(authreg_t ar, const char *username, const char *realm, char password[257]);
-int     authreg_set_password(authreg_t ar, const char *username, const char *realm, char password[257]);
-int     authreg_create_user(authreg_t ar, const char *username, const char *realm);
 void    authreg_free(authreg_t ar);
 */
 
