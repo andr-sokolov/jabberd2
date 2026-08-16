@@ -23,18 +23,6 @@ CREATE INDEX i_authreg_realm ON "authreg"("realm");
 --
 
 --
--- Active (seen) users
--- Used by: core
---
-CREATE TABLE "active" (
-    "collection-owner" TEXT NOT NULL,
-    "object-sequence" INTEGER PRIMARY KEY,
-    "time" INTEGER NOT NULL DEFAULT 0 );
-
-CREATE INDEX IF NOT EXISTS i_active_collection_owner
-    ON "active"("collection-owner");
-
---
 -- Logout times
 -- Used by: mod_iq_last
 --

@@ -509,7 +509,6 @@
          per-user data. This will happen before a user can be used (ie
          before a session is created). -->
     <chain id='user-load'>
-      <module>active</module>           <!-- get active status -->
       <module>roster</module>           <!-- load the roster and trust list -->
       <module>roster-publish</module>   <!-- load the published roster -->
       <module>privacy</module>          <!-- load privacy lists -->
