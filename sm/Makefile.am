@@ -13,7 +13,6 @@ pkglib_LTLIBRARIES = mod_announce.la \
                   mod_iq-ping.la \
                   mod_iq-private.la \
                   mod_iq-time.la \
-                  mod_iq-vcard.la \
                   mod_iq-version.la \
                   mod_offline.la \
                   mod_pep.la \
@@ -76,9 +75,6 @@ mod_iq_private_la_LDFLAGS = -module -export-dynamic
 
 mod_iq_time_la_SOURCES = mod_iq_time.c
 mod_iq_time_la_LDFLAGS = -module -export-dynamic
-
-mod_iq_vcard_la_SOURCES = mod_iq_vcard.c
-mod_iq_vcard_la_LDFLAGS = -module -export-dynamic
 
 mod_iq_version_la_SOURCES = mod_iq_version.c
 mod_iq_version_la_LDFLAGS = -module -export-dynamic

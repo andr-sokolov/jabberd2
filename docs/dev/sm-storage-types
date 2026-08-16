@@ -39,32 +39,6 @@ fields: jid             os_type_STRING
 This stores the groups associated with each of a user's roster items.
 
 
-type: vcard
-user: mod_iq_vcard
-fields:
-        fn              os_type_STRING
-        nickname        os_type_STRING
-        url             os_type_STRING
-        tel             os_type_STRING
-        email           os_type_STRING
-        title           os_type_STRING
-        role            os_type_STRING
-        bday            os_type_STRING
-        desc            os_type_STRING
-        n-given         os_type_STRING
-        n-family        os_type_STRING
-        adr-street      os_type_STRING
-        adr-extadd      os_type_STRING
-        adr-locality    os_type_STRING
-        adr-region      os_type_STRING
-        adr-pcode       os_type_STRING
-        adr-country     os_type_STRING
-        org-orgname     os_type_STRING
-        org-orgunit     os_type_STRING
-
-Stores the various fields the make up the user's vcard.
-
-
 type: queue
 user: mod_offline
 fields: xml             os_type_NAD

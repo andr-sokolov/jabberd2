@@ -32,7 +32,6 @@ XEP-0045	Multi-User Chat				(by add-on)
 XEP-0048	Bookmark Storage			supported
 XEP-0049	Private XML Storage			supported
 XEP-0050	Ad-Hoc Commands				-
-XEP-0054	vcard-temp				supported
 XEP-0055	Jabber Search				(by add-on)
 XEP-0059	Result Set Management			-
 XEP-0060	Publish-Subscribe			(by add-on)
@@ -57,7 +56,6 @@ XEP-0138	Stream Compression			supported
 XEP-0142	Workgroups				-
 XEP-0145	Annotations				supported
 XEP-0150	Use of Entity Tags in XMPP Extensions	-
-XEP-0153	vCard-Based Avatars			supported
 XEP-0154	User Profile				-
 XEP-0157	Contact Addresses for XMPP Services	supported
 XEP-0159	SPIM-Blocking Control			-
@@ -157,10 +155,6 @@ Service Discovery (XEP-0030)
 Private XML Storage (XEP-0049)
 
  Implemented by the session manager (mod_iq_private).
-
-vcard-temp (XEP-0054)
-
- Implemented by the session manager (mod_iq_vcard).
 
 In-band Registration (XEP-0077)
 
