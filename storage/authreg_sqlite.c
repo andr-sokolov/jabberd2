@@ -65,7 +65,6 @@ typedef struct moddata_st {
     int txn;
     sqlite3_stmt *user_exists_stmt;
     sqlite3_stmt *get_password_stmt;
-    sqlite3_stmt *check_password_stmt;
     enum sqlite3_pws_crypt password_type;
 } *moddata_t;
 
@@ -243,7 +242,6 @@ _ar_sqlite_free(authreg_t ar)
 
     sqlite3_finalize(data->user_exists_stmt);
     sqlite3_finalize(data->get_password_stmt);
-    sqlite3_finalize(data->check_password_stmt);
 
     sqlite3_close(data->db);
 
