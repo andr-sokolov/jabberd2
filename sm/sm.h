@@ -251,7 +251,6 @@ struct sess_st {
 
     int                 available;          /**< true if this session is available */
     int                 pri;                /**< current priority of this session */
-    int                 fake;               /**< true if session is fake (ie. PBX) */
 
     jid_t               A;                  /**< list of jids that this session has sent directed presence to */
     jid_t               E;                  /**< list of jids that bounced presence updates we sent them */

@@ -352,21 +352,6 @@
     -->
   </stats>
 
-  <!-- PBX integration -->
-  <pbx>
-    <!-- Commands named pipe path. Allows creating "fake" sessions
-         with given resource and status -->
-    <!--
-    <pipe>@localstatedir@/@package@/run/pbx</pipe>
-    -->
-    <!-- Available commands:
-          START jid/resource [[priority ]status] [description]
-          STOP jid/resource [description]
-          where priority is integer between -128 and +127
-          and status is one of: CHAT, ONLINE, DND, AWAY, XA
-    -->
-  </pbx>
-
   <!-- see-other-host error stream redirection support
        This will redirect connections to specified domains to other host:port
        Usefull when migrating service and DNS change did not propagate yet.

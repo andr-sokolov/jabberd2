@@ -49,8 +49,8 @@ static void _pres_top(user_t user) {
         if(scan->available)
             user->available = 1;
 
-        /* non available and/or negative presence and/or fake can't become top session */
-        if(!scan->available || scan->pri < 0 || scan->fake) continue;
+        /* non available and/or negative presence can't become top session */
+        if(!scan->available || scan->pri < 0) continue;
 
         /* if we don't have one, then this is it */
         if(user->top == NULL)
@@ -117,7 +117,7 @@ void pres_update(sess_t sess, pkt_t pkt) {
 
             /* forward to our active sessions */
             for(sscan = sess->user->sessions; sscan != NULL; sscan = sscan->next) {
-                if(sscan != sess && sscan->available && !sscan->fake) {
+                if(sscan != sess && sscan->available) {
                     log_debug(ZONE, "forwarding available to our session %s", jid_full(sscan->jid));
                     pkt_router(pkt_dup(pkt, jid_full(sscan->jid), jid_full(sess->jid)));
                 }
@@ -167,7 +167,7 @@ void pres_update(sess_t sess, pkt_t pkt) {
 
             /* forward to our active sessions */
             for(sscan = sess->user->sessions; sscan != NULL; sscan = sscan->next) {
-                if(sscan != sess && sscan->available && !sscan->fake) {
+                if(sscan != sess && sscan->available) {
                     log_debug(ZONE, "forwarding available to our session %s", jid_full(sscan->jid));
                     pkt_router(pkt_dup(pkt, jid_full(sscan->jid), jid_full(sess->jid)));
                 }
@@ -263,7 +263,7 @@ void pres_in(user_t user, pkt_t pkt) {
     /* loop over each session */
     for(scan = user->sessions; scan != NULL; scan = scan->next) {
         /* don't deliver to unavailable sessions: B4(a) */
-        if(!scan->available || scan->fake)
+        if(!scan->available)
             continue;
 
         /* don't deliver to ourselves, lest we presence-bomb ourselves ;) */

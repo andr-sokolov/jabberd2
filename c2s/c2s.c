@@ -865,18 +865,14 @@ int c2s_router_sx_callback(sx_t s, sx_event_t e, void *data, void *arg) {
                 }
 
 #ifdef HAVE_SSL
-                if(c2s->server_fd == NULL && c2s->server_ssl_fd == NULL && c2s->pbx_pipe == NULL) {
+                if(c2s->server_fd == NULL && c2s->server_ssl_fd == NULL) {
                     log_write(c2s->log, LOG_ERR, "both normal and SSL ports are disabled, nothing to do!");
 #else
-                if(c2s->server_fd == NULL && c2s->pbx_pipe == NULL) {
+                if(c2s->server_fd == NULL) {
                     log_write(c2s->log, LOG_ERR, "server port is disabled, nothing to do!");
 #endif
                     exit(1);
                 }
-
-                /* open PBX integration FIFO */
-                if(c2s->pbx_pipe != NULL)
-                    c2s_pbx_init(c2s);
 
                 /* we're online */
                 c2s->online = c2s->started = 1;

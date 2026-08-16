@@ -221,11 +221,6 @@ struct c2s_st {
     /** websocket support */
     int                 websocket;
 
-    /** PBX integration named pipe */
-    const char          *pbx_pipe;
-    int                 pbx_pipe_fd;
-    mio_fd_t            pbx_pipe_mio_fd;
-
     /** stream redirection (see-other-host) on session connect */
     xht                 stream_redirects;
 
@@ -308,8 +303,6 @@ void        sm_delete(sess_t sess, bres_t res);
 void        sm_packet(sess_t sess, bres_t res, nad_t nad);
 
 int         bind_init(sx_env_t env, sx_plugin_t p, va_list args);
-
-void        c2s_pbx_init(c2s_t c2s);
 
 /* My IP Address plugin */
 int    address_init(sx_env_t env, sx_plugin_t p, va_list args);

@@ -168,8 +168,6 @@ static void _c2s_config_expand(c2s_t c2s)
     c2s->io_check_idle = j_atoi(config_get_one(c2s->config, "io.check.idle", 0), 0);
     c2s->io_check_keepalive = j_atoi(config_get_one(c2s->config, "io.check.keepalive", 0), 0);
 
-    c2s->pbx_pipe = config_get_one(c2s->config, "pbx.pipe", 0);
-
     elem = config_get(c2s->config, "stream_redirect.redirect");
     if(elem != NULL)
     {
