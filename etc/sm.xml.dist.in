@@ -179,7 +179,7 @@
        of the following modules:
          active announce amp offline
          roster template-roster roster-publish pep
-         iq-private iq-vcard
+         iq-vcard
        and do not enable auto-create option. -->
   <modules>
     <!-- Dynamic sm modules path -->
@@ -206,7 +206,6 @@
       <module>roster</module>           <!-- handle roster get/sets and s10ns -->
       <!-- <module>pep</module>         <!- - personal eventing -->
       <module>iq-ping</module>          <!-- return the server ping -->
-      <module>iq-private</module>       <!-- manage the user's private data store -->
       <module>disco</module>            <!-- respond to agents requests from sessions -->
       <module>amp</module>              <!-- advanced message processing -->
       <module>offline</module>          <!-- if we're coming online for the first time, deliver queued messages -->

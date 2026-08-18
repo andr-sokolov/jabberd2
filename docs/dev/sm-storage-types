@@ -36,13 +36,3 @@ fields: xml             os_type_NAD
 
 This stores messages and s10n requests that are waiting to be delivered
 to the user. Each DB row contains a single complete packet.
-
-
-type: private
-user: mod_iq_private
-fields: ns              os_type_STRING
-        xml             os_type_NAD
-
-This stores user private data (iq:private). ns holds the namespace (for
-fast lookup), and xml holds the complete packet (actually a copy of the
-original IQ set that stored the packet).

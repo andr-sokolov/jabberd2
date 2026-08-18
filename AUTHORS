@@ -34,7 +34,6 @@ Other people who chipped in:
 
   Casey Crabb           <crabbkw@nafai.dyndns.org>
     - Original DB4.1 support
-    - Original private XML storage module
 
   Matthias Wimmer       <m@tthias.net>
     - IPv6 support

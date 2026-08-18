@@ -77,16 +77,4 @@ CREATE TABLE "queue" (
 
 CREATE INDEX i_queue_owner ON "queue"("collection-owner");
 
---
--- Private XML storage
--- Used by: mod_iq_private
---
-CREATE TABLE "private" (
-    "collection-owner" TEXT NOT NULL,
-    "object-sequence" INTEGER PRIMARY KEY,
-    "ns" TEXT,
-    "xml" TEXT );
-
-CREATE INDEX i_private_owner ON "private"("collection-owner");
-
 COMMIT;

@@ -9,7 +9,6 @@ pkglib_LTLIBRARIES = mod_amp.la \
                   mod_echo.la \
                   mod_help.la \
                   mod_iq-ping.la \
-                  mod_iq-private.la \
                   mod_iq-time.la \
                   mod_iq-version.la \
                   mod_offline.la \
@@ -58,9 +57,6 @@ mod_help_la_LDFLAGS = -module -export-dynamic
 
 mod_iq_ping_la_SOURCES = mod_iq_ping.c
 mod_iq_ping_la_LDFLAGS = -module -export-dynamic
-
-mod_iq_private_la_SOURCES = mod_iq_private.c
-mod_iq_private_la_LDFLAGS = -module -export-dynamic
 
 mod_iq_time_la_SOURCES = mod_iq_time.c
 mod_iq_time_la_LDFLAGS = -module -export-dynamic

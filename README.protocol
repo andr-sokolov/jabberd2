@@ -29,7 +29,6 @@ XEP-0030	Service Discovery			supported
 XEP-0033	Extended Stanza Addressing		-
 XEP-0045	Multi-User Chat				(by add-on)
 XEP-0048	Bookmark Storage			supported
-XEP-0049	Private XML Storage			supported
 XEP-0050	Ad-Hoc Commands				-
 XEP-0055	Jabber Search				(by add-on)
 XEP-0059	Result Set Management			-
@@ -150,10 +149,6 @@ Service Discovery (XEP-0030)
  available are probed automatically, and if they are disco-aware, their
  information is added to the service list. Sub-entity item publishing is
  implemented seperately by mod_disco_publish.
-
-Private XML Storage (XEP-0049)
-
- Implemented by the session manager (mod_iq_private).
 
 In-band Registration (XEP-0077)
 
