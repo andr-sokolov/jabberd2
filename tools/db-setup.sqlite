@@ -125,17 +125,4 @@ CREATE TABLE "vacation-settings" (
     "end" INTEGER,
     "message" TEXT );
 
---
--- User status information
--- Used by: mod_status
---
-CREATE TABLE "status" (
-    "collection-owner" text NOT NULL,
-    "object-sequence" INTEGER PRIMARY KEY,
-    "status" TEXT NOT NULL,
-    "show" TEXT,
-    "last-login" INTEGER DEFAULT '0',
-    "last-logout" INTEGER DEFAULT '0',
-    "xml" TEXT );
-
 COMMIT;

@@ -178,7 +178,7 @@
        When configuring sm for ANONYMOUS access, remove all instances
        of the following modules:
          active announce amp offline privacy
-         roster template-roster roster-publish pep vacation status
+         roster template-roster roster-publish pep vacation
          iq-private iq-vcard
        and do not enable auto-create option. -->
   <modules>
@@ -190,13 +190,11 @@
          authentication process). This is normally used to load
          per-session data. -->
     <chain id='sess-start'>
-      <module>status</module>           <!-- record status information -->
     </chain>
 
     <!-- sess-end. The modules in this chain are called just before a
          session is destroyed (after the client has disconnected). -->
     <chain id='sess-end'>
-      <module>status</module>           <!-- update status information -->
     </chain>
 
     <!-- in-sess. The modules in this chain are called when a packet
@@ -205,7 +203,6 @@
          this is usually handled by the "deliver" module. -->
     <chain id='in-sess'>
       <module>validate</module>         <!-- validate packet type -->
-      <module>status</module>           <!-- update status information -->
       <module>privacy</module>          <!-- manage privacy lists -->
       <module>roster</module>           <!-- handle roster get/sets and s10ns -->
       <module>vacation</module>         <!-- manage vacation settings -->
@@ -256,7 +253,6 @@
       <module>disco</module>            <!-- build the disco list; respond to disco queries -->
       <module>help</module>             <!-- resend sm messages to administrators -->
       <module>echo</module>             <!-- echo messages sent to /echo -->
-      <module>status</module>           <!-- track status information -->
       <module>presence</module>         <!-- proces server presence subscriptions -->
     </chain>
 
@@ -555,15 +551,6 @@
     <maxitems>100</maxitems>
     -->
   </roster>
-
-  <!-- status module configuration -->
-  <status>
-    <!-- presence service resource
-         disabled when commented out -->
-    <!--
-    <resource>webstatus</resource>
-    -->
-  </status>
 
 </sm>
 <!--

@@ -19,7 +19,6 @@ pkglib_LTLIBRARIES = mod_amp.la \
                   mod_roster.la \
                   mod_roster-publish.la \
                   mod_session.la \
-                  mod_status.la \
                   mod_template-roster.la \
                   mod_vacation.la \
                   mod_validate.la
@@ -91,9 +90,6 @@ mod_roster_publish_la_LDFLAGS = -module -export-dynamic
 
 mod_session_la_SOURCES = mod_session.c
 mod_session_la_LDFLAGS = -module -export-dynamic
-
-mod_status_la_SOURCES = mod_status.c
-mod_status_la_LDFLAGS = -module -export-dynamic
 
 mod_template_roster_la_SOURCES = mod_template_roster.c
 mod_template_roster_la_LDFLAGS = -module -export-dynamic

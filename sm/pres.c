@@ -235,26 +235,6 @@ void pres_in(user_t user, pkt_t pkt) {
 
         /* respond with last unavailable presence if no available session */
         if(!user->available) {
-            os_t os;
-            os_object_t o;
-            nad_t nad;
-            pkt_t pres;
-
-            /* get user last presence stanza */
-            if(storage_get(user->sm->st, "status", jid_user(user->jid), NULL, &os) == st_SUCCESS && os_iter_first(os)) {
-                o = os_iter_object(os);
-                os_object_get_nad(os, o, "xml", &nad);
-                if(nad != NULL) {
-                    pres = pkt_new(pkt->sm, nad_copy(nad));
-                    nad_set_attr(pres->nad, 1, -1, "type", "unavailable", 11);
-                    pkt_router(pkt_dup(pres, jid_full(pkt->from), jid_user(user->jid)));
-                    pkt_free(pres);
-                }
-                else {
-                    pkt_router(pkt_create(user->sm, "presence", "unavailable", jid_full(pkt->from), jid_full(pkt->to)));
-                }
-                os_free(os);
-            }
             pkt_free(pkt);
             return;
         }
