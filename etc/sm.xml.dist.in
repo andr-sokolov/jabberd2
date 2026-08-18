@@ -179,7 +179,7 @@
        of the following modules:
          active announce amp offline privacy
          roster template-roster roster-publish pep vacation status
-         iq-last iq-private iq-vcard
+         iq-private iq-vcard
        and do not enable auto-create option. -->
   <modules>
     <!-- Dynamic sm modules path -->
@@ -197,7 +197,6 @@
          session is destroyed (after the client has disconnected). -->
     <chain id='sess-end'>
       <module>status</module>           <!-- update status information -->
-      <module>iq-last</module>          <!-- update logout time -->
     </chain>
 
     <!-- in-sess. The modules in this chain are called when a packet
@@ -250,7 +249,6 @@
          to JID has no node part). This is normally used to provide
          session-manager-wide services (like service discovery). -->
     <chain id='pkt-sm'>
-      <module>iq-last</module>          <!-- return the server uptime -->
       <module>iq-ping</module>          <!-- return the server ping -->
       <module>iq-time</module>          <!-- return the current server time -->
       <module>iq-version</module>       <!-- return the server name and version -->
@@ -275,7 +273,6 @@
       <module>deliver</module>          <!-- deliver the packet to an active session if we can -->
       <module>vacation</module>         <!-- send vacation messages -->
       <module>offline</module>          <!-- save messages and s10ns for later -->
-      <module>iq-last</module>          <!-- return time since last logout -->
     </chain>
 
     <!-- pkt-router. The modules in this chain are called when a

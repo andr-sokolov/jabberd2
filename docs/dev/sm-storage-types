@@ -11,15 +11,6 @@ is used by mod_offline and mod_roster to determine if it should bother
 processing messages and subscription requests.
 
 
-type: logout
-user: mod_iq_last
-fields: time            os_type_INTEGER
-
-This stores the time (in seconds since the epoch) of the last session that
-logged out. This is used to provide an iq:last response when there are no
-sessions online.
-
-
 type: roster-items
 user: mod_roster
 fields: jid             os_type_STRING

@@ -12,15 +12,6 @@ BEGIN;
 --
 
 --
--- Logout times
--- Used by: mod_iq_last
---
-CREATE TABLE "logout" (
-    "collection-owner" TEXT NOT NULL,
-    "object-sequence" INTEGER PRIMARY KEY,
-    "time" INTEGER NOT NULL DEFAULT 0 );
-
---
 -- Roster items
 -- Used by: mod_roster
 --
