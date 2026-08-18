@@ -22,7 +22,6 @@ XEP-0004	Data Forms				-
 XEP-0011	Jabber Browsing				supported
 XEP-0012	Last Activity				supported
 XEP-0013	Flexible Offline Message Retrieval	-
-XEP-0016	Privacy Lists				supported
 XEP-0018	Invisible Presence			removed
 XEP-0022	Message Events				supported
 XEP-0023	Message Expiration			supported

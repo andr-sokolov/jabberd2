@@ -71,7 +71,6 @@
 #define uri_EVENT       "jabber:x:event"
 #define uri_GATEWAY     "jabber:iq:gateway"
 #define uri_EXPIRE      "jabber:x:expire"
-#define uri_PRIVACY     "jabber:iq:privacy"
 #define urn_BLOCKING    "urn:xmpp:blocking"
 #define urn_BLOCKING_ERR "urn:xmpp:blocking:errors"
 #define uri_SEARCH      "jabber:iq:search"

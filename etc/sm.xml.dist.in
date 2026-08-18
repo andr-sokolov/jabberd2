@@ -177,7 +177,7 @@
 
        When configuring sm for ANONYMOUS access, remove all instances
        of the following modules:
-         active announce amp offline privacy
+         active announce amp offline
          roster template-roster roster-publish pep
          iq-private iq-vcard
        and do not enable auto-create option. -->
@@ -203,7 +203,6 @@
          this is usually handled by the "deliver" module. -->
     <chain id='in-sess'>
       <module>validate</module>         <!-- validate packet type -->
-      <module>privacy</module>          <!-- manage privacy lists -->
       <module>roster</module>           <!-- handle roster get/sets and s10ns -->
       <!-- <module>pep</module>         <!- - personal eventing -->
       <module>iq-ping</module>          <!-- return the server ping -->
@@ -229,7 +228,6 @@
       <module>session</module>          <!-- perform session actions as required by c2s -->
       <module>validate</module>         <!-- validate packet type -->
       <module>presence</module>         <!-- drop incoming presence if user not online -->
-      <module>privacy</module>          <!-- filter incoming packets based on privacy rules -->
     </chain>
 
     <!-- out-router. The modules in this chain are called just before a
@@ -237,7 +235,6 @@
          component or s2s). This is a good place to filter outgoing
          packets. -->
     <chain id='out-router'>
-      <module>privacy</module>          <!-- filter outgoing packets based on privacy rules -->
     </chain>
 
     <!-- pkt-sm. The modules in this chain are called when a packet
@@ -283,7 +280,6 @@
     <chain id='user-load'>
       <module>roster</module>           <!-- load the roster and trust list -->
       <module>roster-publish</module>   <!-- load the published roster -->
-      <module>privacy</module>          <!-- load privacy lists -->
     </chain>
 
     <!-- user-unload. The modules in this chain are called right

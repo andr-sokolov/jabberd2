@@ -68,9 +68,6 @@ Other people who chipped in:
   Magnus Henoch         <mange@freemail.hu>
     - Patch for proper router connect retry on OpenBSD
 
-  Dudley Carr           <dudley@cs.stanford.edu>
-    - Patches to bring mod_privacy in line with XMPP-IM
-
   Patrick Bihan-Faou    <patrick@mindstep.com>
     - Patch to use PAM account management functions
 

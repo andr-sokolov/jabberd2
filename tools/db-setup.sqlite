@@ -89,29 +89,4 @@ CREATE TABLE "private" (
 
 CREATE INDEX i_private_owner ON "private"("collection-owner");
 
---
--- Default privacy list
--- Used by: mod_privacy
---
-CREATE TABLE "privacy-default" (
-    "collection-owner" TEXT NOT NULL,
-    "object-sequence" INTEGER PRIMARY KEY,
-    "default" TEXT );
-
---
--- Privacy lists
--- Used by: mod_privacy
---
-CREATE TABLE "privacy-items" (
-    "collection-owner" TEXT NOT NULL,
-    "object-sequence" INTEGER PRIMARY KEY,
-    "list" TEXT NOT NULL,
-    "type" TEXT,
-    "value" TEXT,
-    "deny" BOOL,
-    "order" INTEGER,
-    "block" INTEGER );
-
-CREATE INDEX i_privacyi_owner ON "privacy-items"("collection-owner");
-
 COMMIT;

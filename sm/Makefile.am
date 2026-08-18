@@ -15,7 +15,6 @@ pkglib_LTLIBRARIES = mod_amp.la \
                   mod_offline.la \
                   mod_pep.la \
                   mod_presence.la \
-                  mod_privacy.la \
                   mod_roster.la \
                   mod_roster-publish.la \
                   mod_session.la \
@@ -77,9 +76,6 @@ mod_pep_la_LDFLAGS = -module -export-dynamic
 
 mod_presence_la_SOURCES = mod_presence.c
 mod_presence_la_LDFLAGS = -module -export-dynamic
-
-mod_privacy_la_SOURCES = mod_privacy.c
-mod_privacy_la_LDFLAGS = -module -export-dynamic
 
 mod_roster_la_SOURCES = mod_roster.c
 mod_roster_la_LDFLAGS = -module -export-dynamic
