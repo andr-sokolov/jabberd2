@@ -40,6 +40,7 @@
 #define PLAIN_LU  1024   /* maximum length of username */
 #define PLAIN_LR   256   /* maximum length of realm */
 #define PLAIN_LP   256   /* maximum length of password */
+#define PLAIN_MAX_INDENT  64   /* leading tabs for group nesting */
 
 enum pws_crypt {
     MPC_PLAIN,
@@ -79,14 +80,17 @@ static void calc_a1hash(const char *username, const char *realm, const char *pas
 #endif
 
 /**
- * Look up username in the text file (login\\tpassword, no realm).
+ * Look up username in a tab-indented hierarchy file.
+ * Leading tabs are nesting indent. After indent: two columns (tab-separated)
+ * are login and password; one column is a group at that level (skipped).
+ * Nesting depth is arbitrary; groups may be omitted entirely.
  * @return 1 if found, 0 if not
  */
 static int
 _ar_plain_lookup(authreg_t ar, const char *username, char *password_out)
 {
     FILE *fp;
-    char line[PLAIN_LU + 1 + PLAIN_LP + 8];
+    char line[PLAIN_MAX_INDENT + PLAIN_LU + 1 + PLAIN_LP + 8];
     moddata_t data = (moddata_t) ar->private;
     size_t userlen;
     int found = 0;
@@ -103,6 +107,7 @@ _ar_plain_lookup(authreg_t ar, const char *username, char *password_out)
     userlen = strlen(username);
 
     while (fgets(line, sizeof(line), fp) != NULL) {
+        char *p;
         char *tab;
         char *nl;
         size_t login_len;
@@ -114,15 +119,22 @@ _ar_plain_lookup(authreg_t ar, const char *username, char *password_out)
         if (nl)
             *nl = '\0';
 
-        if (line[0] == '\0')
+        p = line;
+        while (*p == '\t')
+            p++;
+
+        if (*p == '\0')
             continue;
 
-        tab = strchr(line, '\t');
+        tab = strchr(p, '\t');
         if (tab == NULL)
             continue;
 
-        login_len = (size_t)(tab - line);
-        if (login_len != userlen || strncmp(line, username, userlen) != 0)
+        login_len = (size_t)(tab - p);
+        if (login_len == 0)
+            continue;
+
+        if (login_len != userlen || strncmp(p, username, userlen) != 0)
             continue;
 
         found = 1;
