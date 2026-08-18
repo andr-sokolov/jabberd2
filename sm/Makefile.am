@@ -20,7 +20,6 @@ pkglib_LTLIBRARIES = mod_amp.la \
                   mod_roster-publish.la \
                   mod_session.la \
                   mod_template-roster.la \
-                  mod_vacation.la \
                   mod_validate.la
 
 noinst_HEADERS = sm.h
@@ -93,9 +92,6 @@ mod_session_la_LDFLAGS = -module -export-dynamic
 
 mod_template_roster_la_SOURCES = mod_template_roster.c
 mod_template_roster_la_LDFLAGS = -module -export-dynamic
-
-mod_vacation_la_SOURCES = mod_vacation.c
-mod_vacation_la_LDFLAGS = -module -export-dynamic
 
 mod_validate_la_SOURCES = mod_validate.c
 mod_validate_la_LDFLAGS = -module -export-dynamic

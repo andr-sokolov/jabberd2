@@ -114,15 +114,4 @@ CREATE TABLE "privacy-items" (
 
 CREATE INDEX i_privacyi_owner ON "privacy-items"("collection-owner");
 
---
--- Vacation settings
--- Used by: mod_vacation
---
-CREATE TABLE "vacation-settings" (
-    "collection-owner" TEXT NOT NULL,
-    "object-sequence" INTEGER PRIMARY KEY,
-    "start" INTEGER,
-    "end" INTEGER,
-    "message" TEXT );
-
 COMMIT;
