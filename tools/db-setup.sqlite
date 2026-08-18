@@ -99,24 +99,6 @@ CREATE TABLE "private" (
 CREATE INDEX i_private_owner ON "private"("collection-owner");
 
 --
--- Message Of The Day (MOTD) messages (announcements)
--- Used by: mod_announce
---
-CREATE TABLE "motd-message" (
-    "collection-owner" TEXT NOT NULL,
-    "object-sequence" INTEGER PRIMARY KEY,
-    "xml" TEXT NOT NULL );
-
---
--- Times of last MOTD message for each user
--- Used by: mod_announce
---
-CREATE TABLE "motd-times" (
-    "collection-owner" TEXT NOT NULL,
-    "object-sequence" INTEGER PRIMARY KEY,
-    "time" INTEGER NOT NULL );
-
---
 -- Default privacy list
 -- Used by: mod_privacy
 --

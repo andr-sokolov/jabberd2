@@ -3,8 +3,7 @@ AM_CPPFLAGS = -I@top_srcdir@
 
 bin_PROGRAMS = sm
 
-pkglib_LTLIBRARIES = mod_announce.la \
-                  mod_amp.la \
+pkglib_LTLIBRARIES = mod_amp.la \
                   mod_deliver.la \
                   mod_disco.la \
                   mod_echo.la \
@@ -45,9 +44,6 @@ sm_LDADD = $(top_builddir)/sx/libsx.la \
            $(top_builddir)/mio/libmio.la \
            $(top_builddir)/util/libutil.la \
            $(top_builddir)/storage/libstorage.la
-
-mod_announce_la_SOURCES = mod_announce.c
-mod_announce_la_LDFLAGS = -module -export-dynamic
 
 mod_amp_la_SOURCES = mod_amp.c
 mod_amp_la_LDFLAGS = -module -export-dynamic

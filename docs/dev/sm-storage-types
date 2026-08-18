@@ -55,19 +55,3 @@ fields: ns              os_type_STRING
 This stores user private data (iq:private). ns holds the namespace (for
 fast lookup), and xml holds the complete packet (actually a copy of the
 original IQ set that stored the packet).
-
-
-type: motd-messages
-user: mod_announce
-fields: xml             os_type_NAD
-
-This stores the current "message of the day" message. There is only one
-motd at any one time.
-
-
-type: motd-times
-user: mod_announce
-fields: time            os_type_INTEGER
-
-This stores the time of the last motd message that a user received. It
-is used to determine whether to send the current motd to the user.

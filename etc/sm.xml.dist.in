@@ -216,7 +216,6 @@
       <module>disco</module>            <!-- respond to agents requests from sessions -->
       <module>amp</module>              <!-- advanced message processing -->
       <module>offline</module>          <!-- if we're coming online for the first time, deliver queued messages -->
-      <module>announce</module>         <!-- deliver motd -->
       <module>presence</module>         <!-- process and distribute presence updates -->
       <module>deliver</module>          <!-- deliver packets with full jids directly -->
     </chain>
@@ -257,7 +256,6 @@
       <module>iq-version</module>       <!-- return the server name and version -->
       <module>amp</module>              <!-- advanced message processing -->
       <module>disco</module>            <!-- build the disco list; respond to disco queries -->
-      <module>announce</module>         <!-- send broadcast messages (announce, motd, etc) -->
       <module>help</module>             <!-- resend sm messages to administrators -->
       <module>echo</module>             <!-- echo messages sent to /echo -->
       <module>status</module>           <!-- track status information -->
