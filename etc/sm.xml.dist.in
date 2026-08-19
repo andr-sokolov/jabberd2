@@ -50,7 +50,7 @@
   </router>
 
   <!-- Log configuration - type is "syslog", "file" or "stdout" -->
-  <log type='syslog'>
+  <log type='file'>
     <!-- If logging to syslog, this is the log ident -->
     <ident>jabberd/sm</ident>
 
@@ -59,9 +59,7 @@
     <facility>local3</facility>
 
     <!-- If logging to file, this is the filename of the logfile -->
-    <!--
     <file>@localstatedir@/@package@/log/sm.log</file>
-    -->
 
     <!-- Filename of the debug logfile -->
     <!--
