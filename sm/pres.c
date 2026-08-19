@@ -93,7 +93,7 @@ void pres_update(sess_t sess, pkt_t pkt) {
                 xhash_iter_get(sess->user->roster, NULL, NULL, (void *) &item);
 
                 /* if we're coming available, and we can see them, we need to probe them */
-                if(!sess->available && item->to) {
+                if(!sess->available) {
                     log_debug(ZONE, "probing %s", jid_full(item->jid));
                     pkt_router(pkt_create(sess->user->sm, "presence", "probe", jid_full(item->jid), jid_user(sess->jid)));
 
@@ -103,7 +103,7 @@ void pres_update(sess_t sess, pkt_t pkt) {
                 }
 
                 /* if they can see us, forward */
-                if(item->from && !jid_search(sess->E, item->jid)) {
+                if(!jid_search(sess->E, item->jid)) {
                     log_debug(ZONE, "forwarding available to %s", jid_full(item->jid));
                     pkt_router(pkt_dup(pkt, jid_full(item->jid), jid_full(sess->jid)));
                 }
@@ -151,7 +151,7 @@ void pres_update(sess_t sess, pkt_t pkt) {
                 xhash_iter_get(sess->user->roster, NULL, NULL, (void *) &item);
 
                 /* forward if they're trusted and they're not E */
-                if(item->from && !jid_search(sess->E, item->jid)) {
+                if(!jid_search(sess->E, item->jid)) {
 
                     log_debug(ZONE, "forwarding unavailable to %s", jid_full(item->jid));
                     pkt_router(pkt_dup(pkt, jid_full(item->jid), jid_full(sess->jid)));
@@ -344,7 +344,7 @@ int pres_trust(user_t user, jid_t jid) {
         item = xhash_get(user->roster, jid_full(jid));
 
     /* trusted if they're in the roster and they can see us */
-    if(item != NULL && item->from)
+    if(item != NULL)
         return 1;
 
     /* always trust ourselves */
@@ -360,17 +360,9 @@ void pres_roster(sess_t sess, item_t item) {
     if(!sess->available)
         return;
 
-    /* if they were trusted previously, but aren't anymore, and we haven't
-     * explicitly sent them presence, then make them forget */
-    if(!item->from && !jid_search(sess->A, item->jid) && !jid_search(sess->E, item->jid)) {
-        log_debug(ZONE, "forcing unavailable to %s after roster change", jid_full(item->jid));
-        pkt_router(pkt_create(sess->user->sm, "presence", "unavailable", jid_full(item->jid), jid_full(sess->jid)));
-        return;
-    }
-
     /* if they're now trusted and we haven't sent
      * them directed presence, then they get to see us for the first time */
-    if(item->from && !jid_search(sess->A, item->jid) && !jid_search(sess->E, item->jid)) {
+    if(!jid_search(sess->A, item->jid) && !jid_search(sess->E, item->jid)) {
         log_debug(ZONE, "forcing available to %s after roster change", jid_full(item->jid));
         pkt_router(pkt_dup(sess->pres, jid_full(item->jid), jid_full(sess->jid)));
     }
@@ -387,9 +379,7 @@ void pres_probe(user_t user) {
         xhash_iter_get(user->roster, NULL, NULL, (void *) &item);
 
         /* don't probe unless they trust us */
-        if(item->to) {
-            log_debug(ZONE, "probing %s", jid_full(item->jid));
-            pkt_router(pkt_create(user->sm, "presence", "probe", jid_full(item->jid), jid_user(user->jid)));
-        }
+        log_debug(ZONE, "probing %s", jid_full(item->jid));
+        pkt_router(pkt_create(user->sm, "presence", "probe", jid_full(item->jid), jid_user(user->jid)));
     } while(xhash_iter_next(user->roster));
 }

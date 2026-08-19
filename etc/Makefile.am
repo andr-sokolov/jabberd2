@@ -8,8 +8,6 @@ systemd_DATA = jabberd-sm.service jabberd.service jabberd-router.service jabberd
 configs = $(sysconf_DATA) $(init_DATA) $(systemd_DATA)
 EXTRA_DIST = $(sysconf_DATA:%.dist=%.dist.in) $(init_DATA:%.conf=%.conf.in) $(systemd_DATA:%.service=%.service.in)
 
-SUBDIRS = templates
-
 jabberd_bin = router sm c2s proxy65
 
 edit = sed \

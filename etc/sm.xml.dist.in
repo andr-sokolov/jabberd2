@@ -474,12 +474,6 @@
       </publish>
       -->
 
-      <!-- If defined, the contents of these files will be
-           stored in the users data store when they are created. -->
-      <!-- If you defined publish, you should comment-out <roster> -->
-      <!--
-      <roster>@sysconfdir@/templates/roster.xml</roster>
-      -->
     </template>
   </user>
 
@@ -536,10 +530,10 @@
 
   <!-- roster module configuration -->
   <roster>
-    <!-- maximum items per user roster -->
-    <!--
-    <maxitems>100</maxitems>
-    -->
+    <!-- Shared users file (same as c2s authreg.plain.filename).
+         Tab-indented hierarchy: one column is a group, two columns are
+         login and password. Nested groups are sent as Group::Subgroup. -->
+    <filename>@localstatedir@/jabberd/db/users.txt</filename>
   </roster>
 
 </sm>

@@ -11,25 +11,6 @@ is used by mod_offline and mod_roster to determine if it should bother
 processing messages and subscription requests.
 
 
-type: roster-items
-user: mod_roster
-fields: jid             os_type_STRING
-        name            os_type_STRING
-        to              os_type_BOOLEAN
-        from            os_type_BOOLEAN
-        ask             os_type_BOOLEAN
-
-This stores the roster items that make a user's roster.
-        
-
-type: roster-groups
-user: mod_roster
-fields: jid             os_type_STRING
-        group           os_type_STRING
-
-This stores the groups associated with each of a user's roster items.
-
-
 type: queue
 user: mod_offline
 fields: xml             os_type_NAD

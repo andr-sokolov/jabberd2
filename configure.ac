@@ -634,7 +634,6 @@ AC_ARG_ENABLE([werror], AC_HELP_STRING([--enable-werror], [Treat all warnings as
 AC_CONFIG_FILES([Doxyfile
                  Makefile
                  etc/Makefile
-                 etc/templates/Makefile
                  man/Makefile
                  util/Makefile
                  mio/Makefile

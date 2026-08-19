@@ -379,9 +379,7 @@ int sm_storage_rate_limit(sm_t sm, const char *owner) {
             if(xhash_iter_first(user->roster))
                 do {
                     xhash_iter_get(user->roster, NULL, NULL, (void *) &item);
-                    if(item->to) {
-                        pkt_router(pkt_create(user->sm, "presence", "unavailable", jid_full(item->jid), jid_full(user->jid)));
-                    }
+                    pkt_router(pkt_create(user->sm, "presence", "unavailable", jid_full(item->jid), jid_full(user->jid)));
                 } while(xhash_iter_next(user->roster));
             return TRUE;
             } else {
