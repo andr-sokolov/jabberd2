@@ -308,13 +308,6 @@ JABBER_MAIN("jabberd2sm", "Jabber 2 Session Manager", "Jabber Open Source Server
 
     sm_signature(sm, PACKAGE " sm " VERSION);
 
-    /* start storage */
-    sm->st = storage_new(sm->config, sm->log);
-    if (sm->st == NULL) {
-        log_write(sm->log, LOG_ERR, "failed to initialise one or more storage drivers, aborting");
-        exit(1);
-    }
-
     /* pre-index known namespaces */
     sm->xmlns = xhash_new(101);
     xhash_put(sm->xmlns, uri_AUTH, (void *) ns_AUTH);
@@ -441,7 +434,6 @@ JABBER_MAIN("jabberd2sm", "Jabber 2 Session Manager", "Jabber Open Source Server
     mio_free(sm->mio);
 
     mm_free(sm->mm);
-    storage_free(sm->st);
 
     aci_unload(sm->acls);
     xhash_free(sm->acls);

@@ -28,7 +28,6 @@ addons:
       - libmysqlclient-dev
       - libpq-dev
       - libldap2-dev
-      - libsqlite3-dev
       - libidn11-dev
       - libexpat1-dev
       - libudns-dev

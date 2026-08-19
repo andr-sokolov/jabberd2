@@ -1,7 +1,7 @@
 LIBTOOL += --quiet
 
 bin_SCRIPTS = jabberd
-EXTRA_DIST = db-setup.sqlite jabberd.in jabberd.rc
+EXTRA_DIST = jabberd.in jabberd.rc
 
 edit = sed \
 	-e 's,@sysconfdir\@,$(sysconfdir),g' \

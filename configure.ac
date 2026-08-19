@@ -467,19 +467,6 @@ else
 fi
 AM_CONDITIONAL(HAVE_LIBZ, [test "$HAVE_LIBZ" = "1"])
 
-# SQLite 3
-have_sqlite=no
-AC_CHECK_HEADERS([sqlite3.h], [
-        AC_CHECK_LIB([sqlite3], [sqlite3_open], [
-                have_sqlite=yes
-                SQLITE_LIBS="-lsqlite3"
-        ])
-])
-if test "x-$have_sqlite" != "x-yes" ; then
-        AC_MSG_ERROR([SQLite3 headers/libraries not found.])
-fi
-AC_SUBST(SQLITE_LIBS)
-
 # WebSocket support
 AC_ARG_ENABLE(websocket, AC_HELP_STRING([--enable-websocket], [enable WebSocket support on C2S port (no)]),
               want_websocket=$enableval, want_websocket=no)

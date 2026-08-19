@@ -19,6 +19,10 @@
  */
 
 #include "sm.h"
+#include <errno.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 /** @file sm/mod_offline.c
   * @brief offline storage
@@ -27,74 +31,171 @@
   * $Revision: 1.26 $
   */
 
+#define OFFLINE_PATH_MAX    1024
+#define OFFLINE_LINE_MAX    65536
+
 typedef struct _mod_offline_st {
     int dropmessages;
     int storeheadlines;
     int dropsubscriptions;
-    int userquota;
+    const char *spooldir;
 } *mod_offline_t;
 
+/** \ -> \\, newline/CR -> \n (process each original char once) */
+static char *_offline_escape(const char *in, int inlen) {
+    if(in == NULL || inlen < 0)
+        inlen = 0;
+
+    int outlen = 0;
+    for(int i = 0; i < inlen; i++) {
+        if(in[i] == '\\' || in[i] == '\n' || in[i] == '\r')
+            outlen += 2;
+        else
+            outlen++;
+    }
+
+    char *out = malloc(outlen + 1);
+    if(out == NULL)
+        return NULL;
+
+    int j = 0;
+    for(int i = 0; i < inlen; i++) {
+        if(in[i] == '\\') {
+            out[j++] = '\\';
+            out[j++] = '\\';
+        } else if(in[i] == '\n' || in[i] == '\r') {
+            out[j++] = '\\';
+            out[j++] = 'n';
+        } else {
+            out[j++] = in[i];
+        }
+    }
+    out[j] = '\0';
+    return out;
+}
+
+static char *_offline_unescape(const char *in) {
+    if(in == NULL)
+        return NULL;
+
+    int inlen = strlen(in);
+    char* out = malloc(inlen + 1);
+    if(out == NULL)
+        return NULL;
+
+    int j = 0;
+    for(int i = 0; i < inlen; i++) {
+        if(in[i] == '\\' && i + 1 < inlen) {
+            i++;
+            if(in[i] == 'n')
+                out[j++] = '\n';
+            else if(in[i] == '\\')
+                out[j++] = '\\';
+            else
+                out[j++] = in[i];
+        } else {
+            out[j++] = in[i];
+        }
+    }
+    out[j] = '\0';
+    return out;
+}
+
+/** 0 = ok (including skip), -1 = I/O error */
+static int _offline_save_to_file(mod_offline_t offline, user_t user, pkt_t pkt) {
+    if(!(pkt->type & pkt_MESSAGE))
+        return 0;
+
+    int elem = nad_find_elem(pkt->nad, 1, -1, "body", 1);
+    if(elem < 0 || NAD_CDATA_L(pkt->nad, elem) <= 0)
+        return 0;
+
+    char path[OFFLINE_PATH_MAX];
+    snprintf(path, sizeof(path), "%s/%s", offline->spooldir, user->jid->node);
+
+    FILE *fp = fopen(path, "a");
+    if(fp == NULL) {
+        log_write(user->sm->log, LOG_ERR, "offline: can't open %s for writing: %s", path, strerror(errno));
+        return -1;
+    }
+
+    char *escaped = _offline_escape(NAD_CDATA(pkt->nad, elem), NAD_CDATA_L(pkt->nad, elem));
+    if(escaped == NULL) {
+        fclose(fp);
+        return -1;
+    }
+
+    const char *from = (pkt->from != NULL) ? jid_full(pkt->from) : "";
+    if(fprintf(fp, "%s\t%s\n", from, escaped) < 0) {
+        log_write(user->sm->log, LOG_ERR, "offline: write to %s failed: %s", path, strerror(errno));
+        free(escaped);
+        fclose(fp);
+        return -1;
+    }
+
+    free(escaped);
+    fclose(fp);
+    return 0;
+}
+
+static void _offline_deliver_from_file(mod_offline_t offline, sess_t sess) {
+    char path[OFFLINE_PATH_MAX];
+    snprintf(path, sizeof(path), "%s/%s", offline->spooldir, sess->jid->node);
+
+    FILE* fp = fopen(path, "r");
+    if(fp == NULL)
+        return;
+
+    char line[OFFLINE_LINE_MAX];
+    while(fgets(line, sizeof(line), fp) != NULL) {
+        char *nl = strchr(line, '\n');
+        if(nl)
+            *nl = '\0';
+        nl = strchr(line, '\r');
+        if(nl)
+            *nl = '\0';
+
+        if(line[0] == '\0')
+            continue;
+
+        char *tab = strchr(line, '\t');
+        if(tab == NULL) {
+            log_debug(ZONE, "offline: skipping malformed spool line for %s", jid_full(sess->jid));
+            continue;
+        }
+        *tab = '\0';
+
+        char *body = _offline_unescape(tab + 1);
+        if(body == NULL)
+            continue;
+
+        pkt_t queued = pkt_create(sess->user->sm, "message", "chat", jid_full(sess->jid), line);
+        if(queued == NULL) {
+            log_debug(ZONE, "offline: could not rebuild queued packet for %s", jid_full(sess->jid));
+            free(body);
+            continue;
+        }
+
+        nad_append_elem(queued->nad, -1, "body", 2);
+        if(body[0] != '\0')
+            nad_append_cdata(queued->nad, body, strlen(body), 3);
+
+        log_debug(ZONE, "delivering queued packet to %s", jid_full(sess->jid));
+        pkt_sess(queued, sess);
+        free(body);
+    }
+
+    fclose(fp);
+    if(unlink(path) < 0 && errno != ENOENT)
+        log_write(sess->user->sm->log, LOG_ERR, "offline: can't remove %s: %s", path, strerror(errno));
+}
+
 static mod_ret_t _offline_in_sess(mod_instance_t mi, sess_t sess, pkt_t pkt) {
-    st_ret_t ret;
-    os_t os;
-    os_object_t o;
-    nad_t nad;
-    pkt_t queued;
-    int ns, elem, attr;
-    char cttl[15], cstamp[18];
-    time_t ttl, stamp;
+    mod_offline_t offline = (mod_offline_t) mi->mod->private;
 
     /* if they're becoming available for the first time */
-    if(pkt->type == pkt_PRESENCE && sess->pri >= 0 && pkt->to == NULL && sess->user->top == NULL) {
-
-        ret = storage_get(pkt->sm->st, "queue", jid_user(sess->jid), NULL, &os);
-        if(ret != st_SUCCESS) {
-            log_debug(ZONE, "storage_get returned %d", ret);
-            return mod_PASS;
-        }
-        
-        if(os_iter_first(os))
-            do {
-                o = os_iter_object(os);
-
-                if(os_object_get_nad(os, o, "xml", &nad)) {
-                    queued = pkt_new(pkt->sm, nad_copy(nad));
-                    if(queued == NULL) {
-                        log_debug(ZONE, "invalid queued packet, not delivering");
-                    } else {
-                        /* check expiry as necessary */
-                        if((ns = nad_find_scoped_namespace(queued->nad, uri_EXPIRE, NULL)) >= 0 &&
-                           (elem = nad_find_elem(queued->nad, 1, ns, "x", 1)) >= 0 &&
-                           (attr = nad_find_attr(queued->nad, elem, -1, "seconds", NULL)) >= 0) {
-                            snprintf(cttl, 15, "%.*s", NAD_AVAL_L(queued->nad, attr), NAD_AVAL(queued->nad, attr));
-                            ttl = atoi(cttl);
-
-                            /* it should have a x:delay stamp, because we stamp everything we store */
-                            if((ns = nad_find_scoped_namespace(queued->nad, uri_DELAY, NULL)) >= 0 &&
-                               (elem = nad_find_elem(queued->nad, 1, ns, "x", 1)) >= 0 &&
-                               (attr = nad_find_attr(queued->nad, elem, -1, "stamp", NULL)) >= 0) {
-                                snprintf(cstamp, 18, "%.*s", NAD_AVAL_L(queued->nad, attr), NAD_AVAL(queued->nad, attr));
-                                stamp = datetime_in(cstamp);
-
-                                if(stamp + ttl <= time(NULL)) {
-                                    log_debug(ZONE, "queued packet has expired, dropping");
-                                    pkt_free(queued);
-                                    continue;
-                                }
-                            }
-                        }
-
-                        log_debug(ZONE, "delivering queued packet to %s", jid_full(sess->jid));
-                        pkt_sess(queued, sess);
-                    }
-                }
-            } while(os_iter_next(os));
-
-        os_free(os);
-
-        /* drop the spool */
-        storage_delete(pkt->sm->st, "queue", jid_user(sess->jid), NULL);
-    }
+    if(pkt->type == pkt_PRESENCE && sess->pri >= 0 && pkt->to == NULL && sess->user->top == NULL)
+        _offline_deliver_from_file(offline, sess);
 
     /* pass it so that other modules and mod_presence can get it */
     return mod_PASS;
@@ -103,11 +204,7 @@ static mod_ret_t _offline_in_sess(mod_instance_t mi, sess_t sess, pkt_t pkt) {
 static mod_ret_t _offline_pkt_user(mod_instance_t mi, user_t user, pkt_t pkt) {
     mod_offline_t offline = (mod_offline_t) mi->mod->private;
     int ns, elem, attr;
-    os_t os;
-    os_object_t o;
     pkt_t event;
-    st_ret_t ret;
-    int queuesize;
 
     /* send messages to the top sessions */
     if(user->top != NULL && (pkt->type & pkt_MESSAGE || pkt->type & pkt_S10N)) {
@@ -136,18 +233,7 @@ static mod_ret_t _offline_pkt_user(mod_instance_t mi, user_t user, pkt_t pkt) {
         return mod_HANDLED;
     }
 
-    /* if user quotas are enabled, count the number of offline messages this user has in the queue */
-    if(offline->userquota > 0) {
-        ret = storage_count(user->sm->st, "queue", jid_user(user->jid), NULL, &queuesize);
-
-        log_debug(ZONE, "storage_count ret is %i queue size is %i", ret, queuesize);
-
-        /* if the user's quota is exceeded, return an error */
-        if (ret == st_SUCCESS && (pkt->type & pkt_MESSAGE) && queuesize >= offline->userquota)
-           return -stanza_err_SERVICE_UNAVAILABLE;
-    }
-
-    /* save messages and s10ns for later */
+    /* save messages and s10ns for later (s10ns are not written to files) */
     if((pkt->type & pkt_MESSAGE && !offline->dropmessages) ||
        (pkt->type & pkt_S10N && !offline->dropsubscriptions)) {
 
@@ -159,58 +245,41 @@ static mod_ret_t _offline_pkt_user(mod_instance_t mi, user_t user, pkt_t pkt) {
             return mod_HANDLED;
         }
 
-	log_debug(ZONE, "saving packet for later");
+        log_debug(ZONE, "saving packet for later");
 
         pkt_delay(pkt, time(NULL), user->jid->domain);
 
-        /* new object */
-        os = os_new();
-        o = os_object_new(os);
+        if(_offline_save_to_file(offline, user, pkt) < 0)
+            return -stanza_err_INTERNAL_SERVER_ERROR;
 
-        os_object_put(o, "xml", pkt->nad, os_type_NAD);
+        /* XEP-0022 - send offline events if they asked for it */
+        /* if there's an id element, then this is a notification, not a request, so ignore it */
 
-        /* store it */
-        switch(storage_put(user->sm->st, "queue", jid_user(user->jid), os)) {
-            case st_FAILED:
-                os_free(os);
-                return -stanza_err_INTERNAL_SERVER_ERROR;
+        if((ns = nad_find_scoped_namespace(pkt->nad, uri_EVENT, NULL)) >= 0 &&
+           (elem = nad_find_elem(pkt->nad, 1, ns, "x", 1)) >= 0 &&
+           nad_find_elem(pkt->nad, elem, ns, "offline", 1) >= 0 && 
+           nad_find_elem(pkt->nad, elem, ns, "id", 1) < 0) {
 
-            case st_NOTIMPL:
-                os_free(os);
-                return -stanza_err_SERVICE_UNAVAILABLE;     /* xmpp-im 9.5#4 */
+            event = pkt_create(user->sm, "message", NULL, jid_full(pkt->from), jid_full(pkt->to));
 
-            default:
-                os_free(os);
+            attr = nad_find_attr(pkt->nad, 1, -1, "type", NULL);
+            if(attr >= 0)
+                nad_set_attr(event->nad, 1, -1, "type", NAD_AVAL(pkt->nad, attr), NAD_AVAL_L(pkt->nad, attr));
 
-                /* XEP-0022 - send offline events if they asked for it */
-                /* if there's an id element, then this is a notification, not a request, so ignore it */
+            ns = nad_add_namespace(event->nad, uri_EVENT, NULL);
+            nad_append_elem(event->nad, ns, "x", 2);
+            nad_append_elem(event->nad, ns, "offline", 3);
 
-                if((ns = nad_find_scoped_namespace(pkt->nad, uri_EVENT, NULL)) >= 0 &&
-                   (elem = nad_find_elem(pkt->nad, 1, ns, "x", 1)) >= 0 &&
-                   nad_find_elem(pkt->nad, elem, ns, "offline", 1) >= 0 && 
-                   nad_find_elem(pkt->nad, elem, ns, "id", 1) < 0) {
+            nad_append_elem(event->nad, ns, "id", 3);
+            attr = nad_find_attr(pkt->nad, 1, -1, "id", NULL);
+            if(attr >= 0)
+                nad_append_cdata(event->nad, NAD_AVAL(pkt->nad, attr), NAD_AVAL_L(pkt->nad, attr), 4);
 
-                    event = pkt_create(user->sm, "message", NULL, jid_full(pkt->from), jid_full(pkt->to));
-
-                    attr = nad_find_attr(pkt->nad, 1, -1, "type", NULL);
-                    if(attr >= 0)
-                        nad_set_attr(event->nad, 1, -1, "type", NAD_AVAL(pkt->nad, attr), NAD_AVAL_L(pkt->nad, attr));
-
-                    ns = nad_add_namespace(event->nad, uri_EVENT, NULL);
-                    nad_append_elem(event->nad, ns, "x", 2);
-                    nad_append_elem(event->nad, ns, "offline", 3);
-
-                    nad_append_elem(event->nad, ns, "id", 3);
-                    attr = nad_find_attr(pkt->nad, 1, -1, "id", NULL);
-                    if(attr >= 0)
-                        nad_append_cdata(event->nad, NAD_AVAL(pkt->nad, attr), NAD_AVAL_L(pkt->nad, attr), 4);
-
-                    pkt_router(event);
-                }
-
-                pkt_free(pkt);
-                return mod_HANDLED;
+            pkt_router(event);
         }
+
+        pkt_free(pkt);
+        return mod_HANDLED;
     }
 
     return mod_PASS;
@@ -243,7 +312,14 @@ int module_init(mod_instance_t mi, const char *arg) {
     if (configval != NULL)
         offline->dropsubscriptions = 1;
 
-    offline->userquota = j_atoi(config_get_one(mod->mm->sm->config, "offline.userquota", 0), 0);
+    offline->spooldir = config_get_one(mod->mm->sm->config, "offline.dir", 0);
+    if (offline->spooldir == NULL || offline->spooldir[0] == '\0') {
+        log_write(mod->mm->sm->log, LOG_ERR, "offline: offline.dir is not set");
+        return 1;
+    }
+
+    if(mkdir(offline->spooldir, 0750) < 0 && errno != EEXIST)
+        log_write(mod->mm->sm->log, LOG_ERR, "offline: can't create %s: %s", offline->spooldir, strerror(errno));
 
     mod->private = offline;
 

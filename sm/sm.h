@@ -33,7 +33,6 @@
 #include "sx/sx.h"
 #include "mio/mio.h"
 #include "util/util.h"
-#include "storage/storage.h"
 
 #ifdef HAVE_SIGNAL_H
   #include <signal.h>
@@ -188,8 +187,6 @@ struct sm_st {
     int                 retry_lost;         /**< number of times to try reconnecting to the router if the connection drops */
     int                 retry_sleep;        /**< sleep interval between retries */
     int                 retry_left;         /**< number of tries left before failure */
-
-    storage_t           st;                 /**< storage subsystem */
 
     mm_t                mm;                 /**< module subsystem */
 

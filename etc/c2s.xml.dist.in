@@ -415,7 +415,7 @@
 
     </ssl-mechanisms>
 
-    <!-- SQLite driver configuration -->
+    <!-- Plain driver configuration -->
     <plain>
       <!-- Database name -->
       <filename>@localstatedir@/@package@/db/users.txt</filename>

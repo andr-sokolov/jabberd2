@@ -35,8 +35,7 @@ sm_CPPFLAGS = -DCONFIG_DIR=\"$(sysconfdir)\" -DLIBRARY_DIR=\"$(pkglibdir)\" -I@t
 sm_LDFLAGS = -export-dynamic
 sm_LDADD = $(top_builddir)/sx/libsx.la \
            $(top_builddir)/mio/libmio.la \
-           $(top_builddir)/util/libutil.la \
-           $(top_builddir)/storage/libstorage.la
+           $(top_builddir)/util/libutil.la
 
 mod_amp_la_SOURCES = mod_amp.c
 mod_amp_la_LDFLAGS = -module -export-dynamic

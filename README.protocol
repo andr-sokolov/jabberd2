@@ -95,8 +95,8 @@ Additional features supported by jabberd 2.1.22 (without plugins):
 - Server MOTD
 - Offline message storage
 - Message archiving
-- Authorization with: BerkeleyDB, LDAP, MySQL, NTLogon, Oracle, PAM, PostgreSQL, Pipe, SQLite, SSPI
-- Storage in: BerkeleyDB, files, LDAP(vCard), MySQL, Oracle, PostreSQL, SQLite
+- Authorization with: BerkeleyDB, LDAP, MySQL, NTLogon, Oracle, PAM, PostgreSQL, Pipe, SSPI
+- Storage in: BerkeleyDB, files, LDAP(vCard), MySQL, Oracle, PostreSQL
 - jabberd2 Component Protocol
 
 
