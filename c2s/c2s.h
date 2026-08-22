@@ -129,10 +129,6 @@ struct host_st {
 
     /** list of TLS ciphers */
     const char          *host_ciphers;
-
-    /* authreg module if different than default */
-    const char          *ar_module_name;
-    authreg_t           ar;
 };
 
 struct c2s_st {
@@ -238,11 +234,7 @@ struct c2s_st {
     time_t              next_check;
 
     /** default auth/reg module */
-    const char          *ar_module_name;
     authreg_t           ar;
-
-    /** loaded auth/reg modules */
-    xht                 ar_modules;
 
     /** allowed mechanisms */
     int                 ar_mechanisms;
@@ -331,8 +323,8 @@ struct authreg_st
     void        (*free)(authreg_t ar);
 };
 
-/** get a handle for a single module */
-authreg_t   authreg_init(c2s_t c2s, const char *name);
+/** get a handle for the plain module */
+authreg_t   authreg_init(c2s_t c2s);
 
 /** shut down */
 void        authreg_free(authreg_t ar);

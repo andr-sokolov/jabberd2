@@ -31,19 +31,12 @@ typedef struct _authreg_error_st {
     char        *uri;
 } *authreg_error_t;
 
-/** get a handle for the named module */
-authreg_t authreg_init(c2s_t c2s, const char *name) {
+/** get a handle for the plain module */
+authreg_t authreg_init(c2s_t c2s) {
     char mod_fullpath[PATH_MAX];
     const char *modules_path;
     ar_module_init_fn init_fn = NULL;
-    authreg_t ar;
     void *handle;
-
-    /* return if already loaded */
-    ar = xhash_get(c2s->ar_modules, name);
-    if (ar) {
-        return ar->initialized ? ar : NULL;
-    }
 
     /* load authreg module */
     modules_path = config_get_one(c2s->config, "authreg.path", 0);
@@ -52,26 +45,26 @@ authreg_t authreg_init(c2s_t c2s, const char *name) {
     else
         log_write(c2s->log, LOG_NOTICE, "modules search path undefined, using default: "LIBRARY_DIR);
 
-    log_write(c2s->log, LOG_INFO, "loading '%s' authreg module", name);
+    log_write(c2s->log, LOG_INFO, "loading 'plain' authreg module");
     if (modules_path != NULL)
-        snprintf(mod_fullpath, PATH_MAX, "%s/authreg_%s.so", modules_path, name);
+        snprintf(mod_fullpath, PATH_MAX, "%s/authreg_plain.so", modules_path);
     else
-        snprintf(mod_fullpath, PATH_MAX, "%s/authreg_%s.so", LIBRARY_DIR, name);
+        snprintf(mod_fullpath, PATH_MAX, "%s/authreg_plain.so", LIBRARY_DIR);
     handle = dlopen(mod_fullpath, RTLD_LAZY);
     if (handle != NULL)
         init_fn = dlsym(handle, "ar_init");
 
     if (handle != NULL && init_fn != NULL) {
-        log_debug(ZONE, "preloaded module '%s' (not initialized yet)", name);
+        log_debug(ZONE, "preloaded module 'plain' (not initialized yet)");
     } else {
-        log_write(c2s->log, LOG_ERR, "failed loading authreg module '%s' (%s)", name, dlerror());
+        log_write(c2s->log, LOG_ERR, "failed loading authreg module 'plain' (%s)", dlerror());
         if (handle != NULL)
             dlclose(handle);
         return NULL;
     }
 
     /* make a new one */
-    ar = (authreg_t) pmalloco(xhash_pool(c2s->ar_modules), sizeof(struct authreg_st));
+    authreg_t ar = (authreg_t) calloc(1, sizeof(*ar));
     if(!ar) {
         log_write(c2s->log, LOG_ERR, "cannot allocate memory for new authreg, aborting");
         exit(1);
@@ -80,12 +73,10 @@ authreg_t authreg_init(c2s_t c2s, const char *name) {
     ar->handle = handle;
     ar->c2s = c2s;
 
-    xhash_put(c2s->ar_modules, name, ar);
-
     /* call the initialiser */
     if((init_fn)(ar) != 0)
     {
-        log_write(c2s->log, LOG_ERR, "failed to initialize auth module '%s'", name);
+        log_write(c2s->log, LOG_ERR, "failed to initialize auth module 'plain'");
         authreg_free(ar);
         return NULL;
     }
@@ -93,14 +84,14 @@ authreg_t authreg_init(c2s_t c2s, const char *name) {
     /* we need user_exists(), at the very least */
     if(ar->user_exists == NULL)
     {
-        log_write(c2s->log, LOG_ERR, "auth module '%s' has no check for user existence", name);
+        log_write(c2s->log, LOG_ERR, "auth module 'plain' has no check for user existence");
         authreg_free(ar);
         return NULL;
     }
     
     /* its good */
     ar->initialized = TRUE;
-    log_write(c2s->log, LOG_NOTICE, "initialized auth module '%s'", name);
+    log_write(c2s->log, LOG_NOTICE, "initialized auth module 'plain'");
 
     return ar;
 }
@@ -163,7 +154,7 @@ static void _authreg_auth_get(c2s_t c2s, sess_t sess, nad_t nad) {
     }
     
     /* do we have the user? */
-    if((sess->host->ar->user_exists)(sess->host->ar, sess, username, sess->host->realm) == 0) {
+    if((c2s->ar->user_exists)(c2s->ar, sess, username, sess->host->realm) == 0) {
         sx_nad_write(sess->s, stanza_tofrom(stanza_error(nad, 0, stanza_err_OLD_UNAUTH), 0));
         return;
     }
@@ -195,10 +186,10 @@ static void _authreg_auth_get(c2s_t c2s, sess_t sess, nad_t nad) {
     nad_append_elem(nad, ns, "resource", 2);
 
     /* fill out the packet with available auth mechanisms */
-    if(ar_mechs & AR_MECH_TRAD_PLAIN && (sess->host->ar->get_password != NULL || sess->host->ar->check_password != NULL))
+    if(ar_mechs & AR_MECH_TRAD_PLAIN && (c2s->ar->get_password != NULL || c2s->ar->check_password != NULL))
         nad_append_elem(nad, ns, "password", 2);
 
-    if(ar_mechs & AR_MECH_TRAD_DIGEST && sess->host->ar->get_password != NULL)
+    if(ar_mechs & AR_MECH_TRAD_DIGEST && c2s->ar->get_password != NULL)
         nad_append_elem(nad, ns, "digest", 2);
 
     /* give it back to the client */
@@ -268,18 +259,18 @@ static void _authreg_auth_set(c2s_t c2s, sess_t sess, nad_t nad) {
     }
     
     /* do we have the user? */
-    if((sess->host->ar->user_exists)(sess->host->ar, sess, username, sess->host->realm) == 0) {
+    if((c2s->ar->user_exists)(c2s->ar, sess, username, sess->host->realm) == 0) {
         sx_nad_write(sess->s, stanza_tofrom(stanza_error(nad, 0, stanza_err_OLD_UNAUTH), 0));
         return;
     }
 
     /* digest auth */
-    if(!authd && ar_mechs & AR_MECH_TRAD_DIGEST && sess->host->ar->get_password != NULL)
+    if(!authd && ar_mechs & AR_MECH_TRAD_DIGEST && c2s->ar->get_password != NULL)
     {
         elem = nad_find_elem(nad, 1, ns, "digest", 1);
         if(elem >= 0)
         {
-            if((sess->host->ar->get_password)(sess->host->ar, sess, username, sess->host->realm, str) == 0)
+            if((c2s->ar->get_password)(c2s->ar, sess, username, sess->host->realm, str) == 0)
             {
                 snprintf(hash, 280, "%s%s", sess->s->id, str);
                 shahash_r(hash, hash);
@@ -297,12 +288,12 @@ static void _authreg_auth_set(c2s_t c2s, sess_t sess, nad_t nad) {
     }
 
     /* plaintext auth (compare) */
-    if(!authd && ar_mechs & AR_MECH_TRAD_PLAIN && sess->host->ar->get_password != NULL)
+    if(!authd && ar_mechs & AR_MECH_TRAD_PLAIN && c2s->ar->get_password != NULL)
     {
         elem = nad_find_elem(nad, 1, ns, "password", 1);
         if(elem >= 0)
         {
-            if((sess->host->ar->get_password)(sess->host->ar, sess, username, sess->host->realm, str) == 0 &&
+            if((c2s->ar->get_password)(c2s->ar, sess, username, sess->host->realm, str) == 0 &&
                     strlen(str) == NAD_CDATA_L(nad, elem) && strncmp(str, NAD_CDATA(nad, elem), NAD_CDATA_L(nad, elem)) == 0)
             {
                 log_debug(ZONE, "plaintext auth (compare) succeeded");
@@ -315,13 +306,13 @@ static void _authreg_auth_set(c2s_t c2s, sess_t sess, nad_t nad) {
     }
 
     /* plaintext auth (check) */
-    if(!authd && ar_mechs & AR_MECH_TRAD_PLAIN && sess->host->ar->check_password != NULL)
+    if(!authd && ar_mechs & AR_MECH_TRAD_PLAIN && c2s->ar->check_password != NULL)
     {
         elem = nad_find_elem(nad, 1, ns, "password", 1);
         if(elem >= 0)
         {
             snprintf(str, 1024, "%.*s", NAD_CDATA_L(nad, elem), NAD_CDATA(nad, elem));
-            if((sess->host->ar->check_password)(sess->host->ar, sess, username, sess->host->realm, str) == 0)
+            if((c2s->ar->check_password)(c2s->ar, sess, username, sess->host->realm, str) == 0)
             {
                 log_debug(ZONE, "plaintext auth (check) succeded");
                 authd = 1;

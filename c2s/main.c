@@ -195,8 +195,6 @@ static void _c2s_config_expand(c2s_t c2s)
         }
     }
 
-    c2s->ar_module_name = config_get_one(c2s->config, "authreg.module", 0);
-
     if(config_get(c2s->config, "authreg.mechanisms.traditional.plain") != NULL) c2s->ar_mechanisms |= AR_MECH_TRAD_PLAIN;
     if(config_get(c2s->config, "authreg.mechanisms.traditional.digest") != NULL) c2s->ar_mechanisms |= AR_MECH_TRAD_DIGEST;
     if(config_get(c2s->config, "authreg.mechanisms.traditional.cram-md5") != NULL) c2s->ar_mechanisms |= AR_MECH_TRAD_CRAMMD5;
@@ -352,15 +350,6 @@ static void _c2s_hosts_expand(c2s_t c2s)
 
         host->host_require_starttls = (j_attr((const char **) elem->attrs[i], "require-starttls") != NULL);
 
-        host->ar_module_name = j_attr((const char **) elem->attrs[i], "authreg-module");
-        if(host->ar_module_name) {
-            if((host->ar = authreg_init(c2s, host->ar_module_name)) == NULL) {
-                log_write(c2s->log, LOG_NOTICE, "failed to load %s authreg module - using default", host->realm);
-                host->ar = c2s->ar;
-            }
-        } else
-            host->ar = c2s->ar;
-
         /* check for empty <id/> CDATA - XXX this "1" is VERY config.c dependant !!! */
         if(! strcmp(id, "1")) {
             /* remove the realm even if set */
@@ -377,9 +366,8 @@ static void _c2s_hosts_expand(c2s_t c2s)
             xhash_put(c2s->hosts, pstrdup(xhash_pool(c2s->hosts), id), host);
         }
 
-        log_write(c2s->log, LOG_NOTICE, "[%s] configured; realm=%s, authreg=%s, using PEM:%s",
+        log_write(c2s->log, LOG_NOTICE, "[%s] configured; realm=%s, using PEM:%s",
                   id, (host->realm != NULL ? host->realm : "no realm set"),
-                  (host->ar_module_name ? host->ar_module_name : c2s->ar_module_name),
                   (host->host_pemfile ? host->host_pemfile : "Default"));
     }
 }
@@ -460,8 +448,8 @@ static int _c2s_sx_sasl_callback(int cb, void *arg, void **res, sx_t s, void *cb
 
             log_debug(ZONE, "sx sasl callback: get pass (authnid=%s, realm=%s)", creds->authnid, creds->realm);
 
-            if(sess->host->ar->get_password && (sess->host->ar->get_password)(
-                        sess->host->ar, sess, (char *)creds->authnid, (creds->realm != NULL) ? (char *)creds->realm: "", buf) == 0) {
+            if(c2s->ar->get_password && (c2s->ar->get_password)(
+                        c2s->ar, sess, (char *)creds->authnid, (creds->realm != NULL) ? (char *)creds->realm: "", buf) == 0) {
                 *res = buf;
                 return sx_sasl_ret_OK;
             }
@@ -474,16 +462,16 @@ static int _c2s_sx_sasl_callback(int cb, void *arg, void **res, sx_t s, void *cb
 
             log_debug(ZONE, "sx sasl callback: check pass (authnid=%s, realm=%s)", creds->authnid, creds->realm);
 
-            if(sess->host->ar->check_password != NULL) {
-                if ((sess->host->ar->check_password)(
-                            sess->host->ar, sess, (char *)creds->authnid, (creds->realm != NULL) ? (char *)creds->realm : "", (char *)creds->pass) == 0)
+            if(c2s->ar->check_password != NULL) {
+                if ((c2s->ar->check_password)(
+                            c2s->ar, sess, (char *)creds->authnid, (creds->realm != NULL) ? (char *)creds->realm : "", (char *)creds->pass) == 0)
                     return sx_sasl_ret_OK;
                 else
                     return sx_sasl_ret_FAIL;
             }
 
-            if(sess->host->ar->get_password != NULL) {
-                if ((sess->host->ar->get_password)(sess->host->ar, sess, (char *)creds->authnid, (creds->realm != NULL) ? (char *)creds->realm : "", buf) != 0)
+            if(c2s->ar->get_password != NULL) {
+                if ((c2s->ar->get_password)(c2s->ar, sess, (char *)creds->authnid, (creds->realm != NULL) ? (char *)creds->realm : "", buf) != 0)
                     return sx_sasl_ret_FAIL;
 
                 if (strcmp(creds->pass, buf)==0)
@@ -514,7 +502,7 @@ static int _c2s_sx_sasl_callback(int cb, void *arg, void **res, sx_t s, void *cb
                 return sx_sasl_ret_FAIL;
 
             if (strcmp(creds->authnid, jid.node) == 0 &&
-                (sess->host->ar->user_exists)(sess->host->ar, sess, jid.node, jid.domain))
+                (c2s->ar->user_exists)(c2s->ar, sess, jid.node, jid.domain))
                 return sx_sasl_ret_OK;
 
             return sx_sasl_ret_FAIL;
@@ -553,11 +541,11 @@ static int _c2s_sx_sasl_callback(int cb, void *arg, void **res, sx_t s, void *cb
              * We support different mechanisms for both SSL and normal use */
             if (strcmp(mechbuf, "digest-md5") == 0) {
                 /* digest-md5 requires that our authreg support get_password */
-                if (host->ar->get_password == NULL)
+                if (c2s->ar->get_password == NULL)
                     return sx_sasl_ret_FAIL;
             } else if (strcmp(mechbuf, "plain") == 0) {
                 /* plain requires either get_password or check_password */
-                if (host->ar->get_password == NULL && host->ar->check_password == NULL)
+                if (c2s->ar->get_password == NULL)
                     return sx_sasl_ret_FAIL;
             }
 
@@ -625,11 +613,6 @@ static void _c2s_time_checks(c2s_t c2s) {
             }
 
         } while(xhash_iter_next(c2s->sessions));
-}
-
-static void _c2s_ar_free(const char *module, int modulelen, void *val, void *arg) {
-    authreg_t ar = (authreg_t) val;
-    authreg_free(ar);
 }
 
 JABBER_MAIN("jabberd2c2s", "Jabber 2 C2S", "Jabber Open Source Server: Client to Server", "jabberd2router\0")
@@ -719,11 +702,7 @@ JABBER_MAIN("jabberd2c2s", "Jabber 2 C2S", "Jabber Open Source Server: Client to
 
     c2s->log = log_new(c2s->log_type, c2s->log_ident, c2s->log_facility);
 
-    c2s->ar_modules = xhash_new(5);
-    if(c2s->ar_module_name == NULL) {
-        log_write(c2s->log, LOG_NOTICE, "no default authreg module specified in config file");
-    }
-    else if((c2s->ar = authreg_init(c2s, c2s->ar_module_name)) == NULL) {
+    if((c2s->ar = authreg_init(c2s)) == NULL) {
         access_free(c2s->access);
         config_free(c2s->config);
         log_free(c2s->log);
@@ -1004,8 +983,7 @@ JABBER_MAIN("jabberd2c2s", "Jabber 2 C2S", "Jabber Open Source Server: Client to
 
     xhash_free(c2s->sessions);
 
-    xhash_walk(c2s->ar_modules, _c2s_ar_free, NULL);
-    xhash_free(c2s->ar_modules);
+    authreg_free(c2s->ar);
 
     xhash_free(c2s->conn_rates);
 
