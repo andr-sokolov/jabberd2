@@ -448,8 +448,7 @@ static int _c2s_sx_sasl_callback(int cb, void *arg, void **res, sx_t s, void *cb
 
             log_debug(ZONE, "sx sasl callback: get pass (authnid=%s, realm=%s)", creds->authnid, creds->realm);
 
-            if(c2s->ar->get_password && (c2s->ar->get_password)(
-                        c2s->ar, sess, (char *)creds->authnid, (creds->realm != NULL) ? (char *)creds->realm: "", buf) == 0) {
+            if(authreg_get_password(c2s, (char *)creds->authnid, buf) == 0) {
                 *res = buf;
                 return sx_sasl_ret_OK;
             }
@@ -462,21 +461,18 @@ static int _c2s_sx_sasl_callback(int cb, void *arg, void **res, sx_t s, void *cb
 
             log_debug(ZONE, "sx sasl callback: check pass (authnid=%s, realm=%s)", creds->authnid, creds->realm);
 
-            if(c2s->ar->check_password != NULL) {
-                if ((c2s->ar->check_password)(
-                            c2s->ar, sess, (char *)creds->authnid, (creds->realm != NULL) ? (char *)creds->realm : "", (char *)creds->pass) == 0)
-                    return sx_sasl_ret_OK;
-                else
-                    return sx_sasl_ret_FAIL;
-            }
+            if (authreg_check_password(
+                        c2s, (char *)creds->authnid, (creds->realm != NULL) ? (char *)creds->realm : "", (char *)creds->pass) == 0)
+                return sx_sasl_ret_OK;
+            else
+                return sx_sasl_ret_FAIL;
 
-            if(c2s->ar->get_password != NULL) {
-                if ((c2s->ar->get_password)(c2s->ar, sess, (char *)creds->authnid, (creds->realm != NULL) ? (char *)creds->realm : "", buf) != 0)
-                    return sx_sasl_ret_FAIL;
 
-                if (strcmp(creds->pass, buf)==0)
-                    return sx_sasl_ret_OK;
-            }
+            if (authreg_get_password(c2s, (char *)creds->authnid, buf) != 0)
+                return sx_sasl_ret_FAIL;
+
+            if (strcmp(creds->pass, buf)==0)
+                return sx_sasl_ret_OK;
 
             return sx_sasl_ret_FAIL;
             break;
@@ -502,7 +498,7 @@ static int _c2s_sx_sasl_callback(int cb, void *arg, void **res, sx_t s, void *cb
                 return sx_sasl_ret_FAIL;
 
             if (strcmp(creds->authnid, jid.node) == 0 &&
-                (c2s->ar->user_exists)(c2s->ar, sess, jid.node, jid.domain))
+                authreg_user_exists(c2s, jid.node))
                 return sx_sasl_ret_OK;
 
             return sx_sasl_ret_FAIL;
@@ -535,18 +531,6 @@ static int _c2s_sx_sasl_callback(int cb, void *arg, void **res, sx_t s, void *cb
             if(host == NULL) {
                 log_write(c2s->log, LOG_WARNING, "SASL callback for non-existing host: %s", s->req_to);
                 return sx_sasl_ret_FAIL;
-            }
-
-            /* Determine if our configuration will let us use this mechanism.
-             * We support different mechanisms for both SSL and normal use */
-            if (strcmp(mechbuf, "digest-md5") == 0) {
-                /* digest-md5 requires that our authreg support get_password */
-                if (c2s->ar->get_password == NULL)
-                    return sx_sasl_ret_FAIL;
-            } else if (strcmp(mechbuf, "plain") == 0) {
-                /* plain requires either get_password or check_password */
-                if (c2s->ar->get_password == NULL)
-                    return sx_sasl_ret_FAIL;
             }
 
             /* Using SSF is potentially dangerous, as SASL can also set the
@@ -702,7 +686,7 @@ JABBER_MAIN("jabberd2c2s", "Jabber 2 C2S", "Jabber Open Source Server: Client to
 
     c2s->log = log_new(c2s->log_type, c2s->log_ident, c2s->log_facility);
 
-    if((c2s->ar = authreg_init(c2s)) == NULL) {
+    if(!authreg_init(c2s)) {
         access_free(c2s->access);
         config_free(c2s->config);
         log_free(c2s->log);
@@ -982,8 +966,6 @@ JABBER_MAIN("jabberd2c2s", "Jabber 2 C2S", "Jabber Open Source Server: Client to
     mio_free(c2s->mio);
 
     xhash_free(c2s->sessions);
-
-    authreg_free(c2s->ar);
 
     xhash_free(c2s->conn_rates);
 

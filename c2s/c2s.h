@@ -23,6 +23,7 @@
 #endif
 
 #include <expat.h>
+#include <stdbool.h>
 
 #include "mio/mio.h"
 #include "sx/sx.h"
@@ -40,7 +41,6 @@ typedef struct host_st      *host_t;
 typedef struct c2s_st       *c2s_t;
 typedef struct bres_st      *bres_t;
 typedef struct sess_st      *sess_t;
-typedef struct authreg_st   *authreg_t;
 
 /** list of resources bound to session */
 struct bres_st {
@@ -129,6 +129,16 @@ struct host_st {
 
     /** list of TLS ciphers */
     const char          *host_ciphers;
+};
+
+enum pws_crypt {
+    MPC_PLAIN,
+#ifdef HAVE_CRYPT
+    MPC_CRYPT,
+#endif
+#ifdef HAVE_SSL
+    MPC_A1HASH,
+#endif
 };
 
 struct c2s_st {
@@ -233,9 +243,6 @@ struct c2s_st {
 
     time_t              next_check;
 
-    /** default auth/reg module */
-    authreg_t           ar;
-
     /** allowed mechanisms */
     int                 ar_mechanisms;
     int                 ar_ssl_mechanisms;
@@ -281,6 +288,9 @@ struct c2s_st {
 
     /** availability of sms that we are servicing */
     xht                 sm_avail;
+
+    const char          *authreg_filename;
+    enum pws_crypt      password_type;
 };
 
 extern sig_atomic_t c2s_lost_router;
@@ -299,42 +309,16 @@ int         bind_init(sx_env_t env, sx_plugin_t p, va_list args);
 /* My IP Address plugin */
 int    address_init(sx_env_t env, sx_plugin_t p, va_list args);
 
-struct authreg_st
-{
-    c2s_t       c2s;
-    int         initialized;
-
-    /** module private data */
-    void        *private;
-
-    /** returns 1 if the user exists, 0 if not */
-    int         (*user_exists)(authreg_t ar, sess_t sess, const char *username,const char *realm);
-
-    /** return this users cleartext password in the array (digest auth, password auth) */
-    int         (*get_password)(authreg_t ar, sess_t sess, const char *username, const char *realm, char password[257]);
-
-    /** check the given password against the stored password, 0 if equal, !0 if not equal (password auth) */
-    int         (*check_password)(authreg_t ar, sess_t sess, const char *username, const char *realm, char password[257]);
-
-    /** called prior to authreg shutdown */
-    void        (*free)(authreg_t ar);
-};
-
 /** get a handle for the plain module */
-authreg_t   authreg_init(c2s_t c2s);
-
-/** shut down */
-void        authreg_free(authreg_t ar);
+bool   authreg_init(c2s_t c2s);
 
 /** the main authreg processor */
 int         authreg_process(c2s_t c2s, sess_t sess, nad_t nad);
 
-/*
-int     authreg_user_exists(authreg_t ar, const char *username, const char *realm);
-int     authreg_get_password(authreg_t ar, const char *username, const char *realm, char password[257]);
-int     authreg_check_password(authreg_t ar, const char *username, const char *realm, char password[257]);
-void    authreg_free(authreg_t ar);
-*/
+int authreg_user_exists(c2s_t c2s, const char *username);
+int authreg_get_password(c2s_t c2s, const char *username, char password[257]);
+int authreg_check_password(c2s_t c2s, const char *username, const char *realm,
+              char password[257]);
 
 /* union for xhash_iter_get to comply with strict-alias rules for gcc3 */
 union xhashv
