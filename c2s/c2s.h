@@ -304,9 +304,6 @@ struct authreg_st
     c2s_t       c2s;
     int         initialized;
 
-    /**< loaded module handle */
-    void        *handle;
-
     /** module private data */
     void        *private;
 
@@ -328,9 +325,6 @@ authreg_t   authreg_init(c2s_t c2s);
 
 /** shut down */
 void        authreg_free(authreg_t ar);
-
-/** type for the module init function */
-typedef int (*ar_module_init_fn)(authreg_t);
 
 /** the main authreg processor */
 int         authreg_process(c2s_t c2s, sess_t sess, nad_t nad);

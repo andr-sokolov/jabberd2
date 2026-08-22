@@ -360,9 +360,6 @@
 
   <!-- Authentication/registration database configuration -->
   <authreg>
-    <!-- Dynamic authreg modules path -->
-    <path>@pkglibdir@</path>
-
     <!-- Available authentication mechanisms -->
     <mechanisms>
 
@@ -409,29 +406,25 @@
 
     </ssl-mechanisms>
 
-    <!-- Plain driver configuration -->
-    <plain>
-      <!-- Database name -->
-      <filename>@localstatedir@/@package@/db/users.txt</filename>
+    <!-- File with groups, users and passwords -->
+    <filename>@localstatedir@/@package@/db/users.txt</filename>
 
-      <!-- Passwords in DB may be stored in plain or hashed format -->
-      <!-- NOTE: If you are using hashed passwords, the only auth
-                 method that will work is PLAIN.
-                 Make sure that you disabled others in 'mechanisms'
-                 sections of the config file. -->
-      <password_type>
-        <!-- only one may be enabled here -->
-        <plaintext/>
-        <!-- use crypt(3)ed passwords
-        <crypt/>
-        -->
-        <!-- use A1HASH passwords
-             This stores the MD5 digest of user:realm:password in the database
-        <a1hash/>
-        -->
-      </password_type>
-    </plain>
-
+    <!-- Passwords in DB may be stored in plain or hashed format -->
+    <!-- NOTE: If you are using hashed passwords, the only auth
+               method that will work is PLAIN.
+               Make sure that you disabled others in 'mechanisms'
+               sections of the config file. -->
+    <password_type>
+      <!-- only one may be enabled here -->
+      <plaintext/>
+      <!-- use crypt(3)ed passwords
+      <crypt/>
+      -->
+      <!-- use A1HASH passwords
+           This stores the MD5 digest of user:realm:password in the database
+      <a1hash/>
+      -->
+    </password_type>
   </authreg>
 
 </c2s>
