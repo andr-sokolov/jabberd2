@@ -82,7 +82,7 @@ static void _authreg_auth_get(c2s_t c2s, sess_t sess, nad_t nad) {
     }
     
     /* do we have the user? */
-    if(authreg_user_exists(c2s, username) == 0) {
+    if(!authreg_user_exists(c2s, username)) {
         sx_nad_write(sess->s, stanza_tofrom(stanza_error(nad, 0, stanza_err_OLD_UNAUTH), 0));
         return;
     }
@@ -187,7 +187,7 @@ static void _authreg_auth_set(c2s_t c2s, sess_t sess, nad_t nad) {
     }
     
     /* do we have the user? */
-    if(authreg_user_exists(c2s, username) == 0) {
+    if(!authreg_user_exists(c2s, username)) {
         sx_nad_write(sess->s, stanza_tofrom(stanza_error(nad, 0, stanza_err_OLD_UNAUTH), 0));
         return;
     }
@@ -198,7 +198,7 @@ static void _authreg_auth_set(c2s_t c2s, sess_t sess, nad_t nad) {
         elem = nad_find_elem(nad, 1, ns, "digest", 1);
         if(elem >= 0)
         {
-            if(authreg_get_password(c2s, username, str) == 0)
+            if(authreg_get_password(c2s, username, str))
             {
                 snprintf(hash, 280, "%s%s", sess->s->id, str);
                 shahash_r(hash, hash);
@@ -221,7 +221,7 @@ static void _authreg_auth_set(c2s_t c2s, sess_t sess, nad_t nad) {
         elem = nad_find_elem(nad, 1, ns, "password", 1);
         if(elem >= 0)
         {
-            if(authreg_get_password(c2s, username, str) == 0 &&
+            if(authreg_get_password(c2s, username, str) &&
                     strlen(str) == NAD_CDATA_L(nad, elem) && strncmp(str, NAD_CDATA(nad, elem), NAD_CDATA_L(nad, elem)) == 0)
             {
                 log_debug(ZONE, "plaintext auth (compare) succeeded");
@@ -240,7 +240,7 @@ static void _authreg_auth_set(c2s_t c2s, sess_t sess, nad_t nad) {
         if(elem >= 0)
         {
             snprintf(str, 1024, "%.*s", NAD_CDATA_L(nad, elem), NAD_CDATA(nad, elem));
-            if(authreg_check_password(c2s, username, sess->host->realm, str) == 0)
+            if(authreg_check_password(c2s, username, sess->host->realm, str))
             {
                 log_debug(ZONE, "plaintext auth (check) succeded");
                 authd = 1;
@@ -410,27 +410,25 @@ static void calc_a1hash(const char *username, const char *realm, const char *pas
  * Leading tabs are nesting indent. After indent: two columns (tab-separated)
  * are login and password; one column is a group at that level (skipped).
  * Nesting depth is arbitrary; groups may be omitted entirely.
- * @return 1 if found, 0 if not
+ * @return true if found, false if not
  */
-static int
+static bool
 _ar_plain_lookup(c2s_t c2s, const char *username, char *password_out)
 {
-    FILE *fp;
-    char line[PLAIN_MAX_INDENT + PLAIN_LU + 1 + PLAIN_LP + 8];
-    size_t userlen;
-    int found = 0;
+    bool found = false;
 
     if (username == NULL || c2s->authreg_filename == NULL)
         return 0;
 
-    fp = fopen(c2s->authreg_filename, "r");
+    FILE *fp = fopen(c2s->authreg_filename, "r");
     if (fp == NULL) {
         log_write(c2s->log, LOG_ERR, "authreg: can't open %s", c2s->authreg_filename);
         return 0;
     }
 
-    userlen = strlen(username);
+    size_t userlen = strlen(username);
 
+    char line[PLAIN_MAX_INDENT + PLAIN_LU + 1 + PLAIN_LP + 8];
     while (fgets(line, sizeof(line), fp) != NULL) {
         char *p;
         char *tab;
@@ -462,7 +460,7 @@ _ar_plain_lookup(c2s_t c2s, const char *username, char *password_out)
         if (login_len != userlen || strncmp(p, username, userlen) != 0)
             continue;
 
-        found = 1;
+        found = true;
         if (password_out != NULL) {
             strncpy(password_out, tab + 1, 256);
             password_out[256] = '\0';
@@ -475,83 +473,65 @@ _ar_plain_lookup(c2s_t c2s, const char *username, char *password_out)
 }
 
 /**
- * @return 1 if the user exists, 0 if not
+ * @return true if the user exists, false if not
  */
-int authreg_user_exists(c2s_t c2s, const char *username)
+bool authreg_user_exists(c2s_t c2s, const char *username)
 {
     return _ar_plain_lookup(c2s, username, NULL);
 }
 
 /**
- * @return 0 is password is populated, 1 if not
+ * @return true is password is populated, false if not
  */
-int authreg_get_password(c2s_t c2s, const char *username, char password[257])
+bool authreg_get_password(c2s_t c2s, const char *username, char password[257])
 {
-    log_debug(ZONE, "plain (authreg): get password");
-
-    if (!_ar_plain_lookup(c2s, username, password))
-        return 1;
-    return 0;
+    return _ar_plain_lookup(c2s, username, password);
 }
 
 /**
- * @return 0 if the given password matches the password stored in the file, !0 if not
+ * @return true if the given password matches the password stored in the file, false if not
  */
-int authreg_check_password(c2s_t c2s, const char *username, const char *realm,
-              char password[257])
+bool authreg_check_password(c2s_t c2s, const char *username, const char *realm, char password[257])
 {
-
     char db_pw_value[257];
-#ifdef HAVE_CRYPT
-    char *crypted_pw;
-#endif
-#ifdef HAVE_SSL
-    char a1hash_pw[33];
-#endif
-
-    log_debug(ZONE, "authreg: check password");
-
-    int ret = authreg_get_password(c2s, username, db_pw_value);
-    if (ret)
-        return ret;
+    if (!authreg_get_password(c2s, username, db_pw_value))
+        return false;
 
     switch (c2s->password_type) {
         case MPC_PLAIN:
-                ret = (strcmp (password, db_pw_value) != 0);
-                break;
+                return (strcmp (password, db_pw_value) == 0);
 
 #ifdef HAVE_CRYPT
         case MPC_CRYPT:
-                crypted_pw = crypt(password,db_pw_value);
-                ret = (strcmp(crypted_pw, db_pw_value) != 0);
-                break;
+        {
+                char *crypted_pw = crypt(password,db_pw_value);
+                return (strcmp(crypted_pw, db_pw_value) == 0);
+        }
 #endif
 
 #ifdef HAVE_SSL
         case MPC_A1HASH:
+        {
                 if (strchr(username, ':')) {
-                    ret = 1;
                     log_write(c2s->log, LOG_ERR, "Username cannot contain : with a1hash encryption type.");
-                    break;
+                    return false;
                 }
                 if (strchr(realm, ':')) {
-                    ret = 1;
                     log_write(c2s->log, LOG_ERR, "Realm cannot contain : with a1hash encryption type.");
-                    break;
+                    return false;
                 }
+
+                char a1hash_pw[33];
                 calc_a1hash(username, realm, password, a1hash_pw);
-                ret = (strncmp(a1hash_pw, db_pw_value, 32) != 0);
-                break;
+                return (strncmp(a1hash_pw, db_pw_value, 32) == 0);
+        }
 #endif
 
         default:
         /* should never happen */
-                ret = 1;
                 log_write(c2s->log, LOG_ERR, "Unknown encryption type which passed through config check.");
-                break;
+                return false;
     }
-
-    return ret;
 }
 
 /** get a handle for the plain module */

@@ -315,10 +315,9 @@ bool   authreg_init(c2s_t c2s);
 /** the main authreg processor */
 int         authreg_process(c2s_t c2s, sess_t sess, nad_t nad);
 
-int authreg_user_exists(c2s_t c2s, const char *username);
-int authreg_get_password(c2s_t c2s, const char *username, char password[257]);
-int authreg_check_password(c2s_t c2s, const char *username, const char *realm,
-              char password[257]);
+bool authreg_user_exists(c2s_t c2s, const char *username);
+bool authreg_get_password(c2s_t c2s, const char *username, char password[257]);
+bool authreg_check_password(c2s_t c2s, const char *username, const char *realm, char password[257]);
 
 /* union for xhash_iter_get to comply with strict-alias rules for gcc3 */
 union xhashv

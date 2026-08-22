@@ -448,7 +448,7 @@ static int _c2s_sx_sasl_callback(int cb, void *arg, void **res, sx_t s, void *cb
 
             log_debug(ZONE, "sx sasl callback: get pass (authnid=%s, realm=%s)", creds->authnid, creds->realm);
 
-            if(authreg_get_password(c2s, (char *)creds->authnid, buf) == 0) {
+            if(authreg_get_password(c2s, (char *)creds->authnid, buf)) {
                 *res = buf;
                 return sx_sasl_ret_OK;
             }
@@ -461,21 +461,12 @@ static int _c2s_sx_sasl_callback(int cb, void *arg, void **res, sx_t s, void *cb
 
             log_debug(ZONE, "sx sasl callback: check pass (authnid=%s, realm=%s)", creds->authnid, creds->realm);
 
-            if (authreg_check_password(
-                        c2s, (char *)creds->authnid, (creds->realm != NULL) ? (char *)creds->realm : "", (char *)creds->pass) == 0)
-                return sx_sasl_ret_OK;
-            else
-                return sx_sasl_ret_FAIL;
-
-
-            if (authreg_get_password(c2s, (char *)creds->authnid, buf) != 0)
-                return sx_sasl_ret_FAIL;
-
-            if (strcmp(creds->pass, buf)==0)
-                return sx_sasl_ret_OK;
-
-            return sx_sasl_ret_FAIL;
-            break;
+            return authreg_check_password(
+                        c2s, (char *)creds->authnid,
+                        (creds->realm != NULL) ? (char *)creds->realm : "",
+                        (char *)creds->pass)
+                            ? sx_sasl_ret_OK
+                            : sx_sasl_ret_FAIL;
 
         case sx_sasl_cb_CHECK_AUTHZID:
             assert(sess != NULL);
