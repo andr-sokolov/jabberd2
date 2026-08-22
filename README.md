@@ -18,8 +18,6 @@ get you started. Complete documentation is available at http://jabberd2.org/
      http://expat.sourceforge.net/
  - GnuSASL (1.1 or higher) - Simple Authentication and Security Layer library
      http://www.gnu.org/software/gsasl/
- - UDNS - asynchronous DNS resolver library
-     http://www.corpit.ru/mjt/udns.html
 
 ### Optional packages:
 
@@ -29,16 +27,6 @@ get you started. Complete documentation is available at http://jabberd2.org/
      http://www.openssl.org/news/
  - zlib (1.2.3 or higher) - needed for stream compression
      http://www.zlib.net/
- - Berkeley DB (4.1.24 or higher)
-     http://www.sleepycat.com/download/
- - OpenLDAP (2.1.0 or higher)
-     http://www.openldap.org/software/download/
- - PostgresSQL (8.0 or higher; development libraries and headers)
-     http://www.postgresql.org/
- - MySQL (5.0 or higher; development libraries and headers)
-     http://www.mysql.com/
- - PAM
-     http://www.linux-pam.org/  (for Linux)
  - http-parser
      http://github.com/nodejs/http-parser
 

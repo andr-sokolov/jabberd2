@@ -23,14 +23,8 @@ addons:
       - autoconf-archive
       - libssl-dev
       - libgsasl7-dev
-      - libdb-dev
-      - libpam0g-dev
-      - libmysqlclient-dev
-      - libpq-dev
-      - libldap2-dev
       - libidn11-dev
       - libexpat1-dev
-      - libudns-dev
       - check
   coverity_scan:
     project:

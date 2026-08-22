@@ -88,15 +88,14 @@ XEP-0220	Server Dialback				supported
 XEP-0225	Component Connections			supported
 
 
-Additional features supported by jabberd 2.1.22 (without plugins):
+Additional features (without plugins):
 
 - Server admin address
 - Echo address
-- Server MOTD
 - Offline message storage
 - Message archiving
-- Authorization with: BerkeleyDB, LDAP, MySQL, NTLogon, Oracle, PAM, PostgreSQL, Pipe, SSPI
-- Storage in: BerkeleyDB, files, LDAP(vCard), MySQL, Oracle, PostreSQL
+- Authorization with plain text file
+- Storage in files
 - jabberd2 Component Protocol
 
 
