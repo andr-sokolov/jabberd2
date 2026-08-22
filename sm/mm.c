@@ -36,7 +36,7 @@
    Modules are searched by name mod_[modulename].so or mod_[modulename].dll
    depending platform.
    You have to set <path>[full_path]</path> within <modules> in sm.xml config,
-   else it will only search in LD_LIBRARY_PATH or c:\windows\system32
+   else it will only search in LD_LIBRARY_PATH
  */
 
 mm_t mm_new(sm_t sm) {

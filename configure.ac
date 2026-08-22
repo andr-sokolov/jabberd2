@@ -100,18 +100,13 @@ AC_CHECK_HEADERS([arpa/inet.h \
                   sys/utsname.h \
                   syslog.h \
                   unistd.h \
-                  windows.h \
-                  winsock2.h \
 ])
 
 # Now check for those headers that do, including all the required
 # headers.
-AC_CHECK_HEADERS([resolv.h windns.h],,,
+AC_CHECK_HEADERS([resolv.h],,,
 [#ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
-#endif
-#ifdef HAVE_WINSOCK2_H
-# include <winsock2.h>
 #endif
 #ifdef HAVE_NETINET_IN_H
 # include <netinet/in.h>
@@ -187,7 +182,6 @@ if test "x$ac_cv_lib_crypt_crypt" = "xyes"; then
 fi
 AM_CONDITIONAL(HAVE_CRYPT, [test "x$ac_cv_lib_crypt_crypt" = "xyes"])
 AC_CHECK_FUNC([connect], ,[AC_CHECK_LIB([socket], [connect])])
-AC_CHECK_LIB([ws2_32], [_head_libws2_32_a])
 
 AC_CHECK_FUNC(gethostbyname, ,[AC_CHECK_LIB([resolv], [gethostbyname])])
 AC_CHECK_FUNC(gethostbyname, ,[AC_CHECK_LIB([nsl], [gethostbyname])])
@@ -214,44 +208,6 @@ dnl ** Check for inet_ntop
 AC_SEARCH_LIBS(inet_pton, nsl,[
     AC_DEFINE(HAVE_INET_PTON, 1,
     [Define to 1 if you have the `inet_pton' function.])])
-
-# windows has different names for a few basic things
-if test "x-$ac_cv_func_getpid" != "x-yes" -a "x-$ac_cv_func__getpid" = "x-yes" ; then
-    AC_DEFINE(getpid,_getpid,[Define to a function than can provide getpid(2) functionality.])
-fi
-
-if test "x-$ac_cv_func_sleep" != "x-yes" -a "x-$ac_cv_func_Sleep" = "x-yes" ; then
-    AC_DEFINE(sleep,Sleep,[Define to a function than can provide sleep(2) functionality.])
-fi
-
-if test "x-$ac_cv_func_strcasecmp" != "x-yes" -a "x-$ac_cv_func_stricmp" = "x-yes" ; then
-    AC_DEFINE(strcasecmp,stricmp,[Define to a function than can provide strcasecmp(3) functionality.])
-fi
-
-if test "x-$ac_cv_func_strncasecmp" != "x-yes" -a "x-$ac_cv_func_strnicmp" = "x-yes" ; then
-    AC_DEFINE(strncasecmp,strnicmp,[Define to a function than can provide strncasecmp(3) functionality.])
-fi
-
-# winsock substitutions
-if test "x-$ac_cv_func_close" != "x-yes" ; then
-    AC_MSG_CHECKING(for closesocket)
-    AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <winsock2.h>]],
-                                    [[closesocket(0)]])],
-                   [AC_MSG_RESULT(yes)
-                    AC_DEFINE(close,closesocket,[Define to a function than can provide close(2) functionality.])],
-                    AC_DEFINE(HAVE_CLOSE,1,[Define to 1 if you have the 'close' function.])
-                   AC_MSG_RESULT(no))
-fi
-
-if test "x-$ac_cv_func_ioctl" != "x-yes" ; then
-    AC_MSG_CHECKING(for ioctlsocket)
-    AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <winsock2.h>]],
-                                    [[ioctlsocket(0,0,0)]])],
-                   [AC_MSG_RESULT(yes)
-                    AC_DEFINE(ioctl,ioctlsocket,[Define to a function than can provide ioctl(2) functionality.])],
-                    AC_DEFINE(HAVE_IOCTL,1,[Define to 1 if you have the 'ioctl' function.])
-                   AC_MSG_RESULT(no))
-fi
 
 # res_query has been seen in libc, libbind and libresolv
 if test "x-$ac_cv_header_resolv_h" = "x-yes" ; then
@@ -281,39 +237,15 @@ if test "x-$ac_cv_header_resolv_h" = "x-yes" ; then
         fi
     fi
 fi
-# windows calls it DnsQuery
-if test "x-$ac_cv_header_windns_h" = "x-yes" ; then
-    AC_MSG_CHECKING([for DnsQuery in -ldnsapi])
-    save_libs="$LIBS"
-    LIBS="-ldnsapi $LIBS"
-    AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <windows.h>
-                                      #include <windns.h>]],
-                                    [[DnsQuery(0,0,0,0,0,0)]])],
-                   [AC_MSG_RESULT(yes)
-                    have_dnsquery=yes],
-                   [AC_MSG_RESULT(no)
-                    LIBS="$save_libs"])
-fi
 if test "x-$have_res_query" = "x-yes" ; then
     AC_DEFINE(HAVE_RES_QUERY,1,[Define to 1 if you have the 'res_query' function.])
-elif test "x-$have_dnsquery" = "x-yes" ; then
-    AC_DEFINE(HAVE_DNSQUERY,1,[Define to 1 if you have the 'DnsQuery' function.])
 else
-    AC_MSG_ERROR([no DNS resolver interface (res_query or DnsQuery) found])
+    AC_MSG_ERROR([no DNS resolver interface (res_query) found])
 fi
 
 # syslog
 if test "x-$ac_cv_header_syslog_h" = "x-yes" ; then
     AC_CHECK_FUNCS(syslog vsyslog)
-fi
-
-if test "x-$ac_cv_header_windows_h" = "x-yes" ; then
-    AC_MSG_CHECKING(for ReportEvent)
-    AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <windows.h>]],
-                                    [[ReportEvent(0,0,0,0,0,0,0,0,0)]])],
-                   [AC_MSG_RESULT(yes)
-                    AC_DEFINE(HAVE_REPORTEVENT,1,[Define to 1 if you have the 'ReportEvent' function.])],
-                   AC_MSG_RESULT(no))
 fi
 
 # snprintf/vsnprintf don't exist everywhere. additionally, we require
@@ -568,15 +500,6 @@ for backend in $mio_check ; do
             AC_CHECK_HEADERS(sys/select.h)
             if test "x-$ac_cv_header_sys_select_h" = "x-yes" ; then
                 AC_CHECK_FUNCS(select, have_select=yes)
-            fi
-
-            if test "x-$have_select" != "x-yes" -a "x-$ac_cv_header_winsock2_h" = "x-yes" ; then
-                AC_MSG_CHECKING([for select in ws2_32])
-                AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <winsock2.h>]],
-                                                [[select(0,0,0,0,0)]])],
-                               [AC_MSG_RESULT(yes)
-                                have_select=yes],
-                               AC_MSG_RESULT(no))
             fi
 
             if test "x-$have_select" = "x-yes" ; then

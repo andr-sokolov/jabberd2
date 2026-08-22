@@ -158,16 +158,6 @@ JABBER_MAIN("jabberd2proxy65", "Jabber 2 SOCKS5 Bytestreams Proxy", "Jabber Open
 
     srand(time(NULL));
 
-#ifdef HAVE_WINSOCK2_H
-    {
-        WORD wVersionRequested = MAKEWORD(2, 2);
-        WSADATA wsaData;
-        int err = WSAStartup(wVersionRequested, &wsaData);
-        if(err != 0)
-            return 0;
-    }
-#endif
-
     jabber_signal(SIGINT, _proxy65_signal);
     jabber_signal(SIGTERM, _proxy65_signal);
 #ifdef SIGHUP

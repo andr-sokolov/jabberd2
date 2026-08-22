@@ -650,23 +650,6 @@ JABBER_MAIN("jabberd2c2s", "Jabber 2 C2S", "Jabber Open Source Server: Client to
 
     srand(time(NULL));
 
-#ifdef HAVE_WINSOCK2_H
-/* get winsock running */
-    {
-        WORD wVersionRequested;
-        WSADATA wsaData;
-        int err;
-
-        wVersionRequested = MAKEWORD( 2, 2 );
-
-        err = WSAStartup( wVersionRequested, &wsaData );
-        if ( err != 0 ) {
-            /* !!! tell user that we couldn't find a usable winsock dll */
-            return 0;
-        }
-    }
-#endif
-
     jabber_signal(SIGINT, _c2s_signal);
     jabber_signal(SIGTERM, _c2s_signal);
 #ifdef SIGHUP
@@ -1046,10 +1029,6 @@ JABBER_MAIN("jabberd2c2s", "Jabber 2 C2S", "Jabber Open Source Server: Client to
 
 #ifdef POOL_DEBUG
     pool_stat(1);
-#endif
-
-#ifdef HAVE_WINSOCK2_H
-    WSACleanup();
 #endif
 
     return 0;
