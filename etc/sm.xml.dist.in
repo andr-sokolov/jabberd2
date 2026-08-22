@@ -82,12 +82,6 @@
 
   </local>
 
-  <!-- Storage database configuration -->
-  <storage>
-    <!-- Dynamic storage modules path -->
-    <path>@pkglibdir@</path>
-  </storage>
-
   <!-- Access control information -->
   <aci>
     <!-- The JIDs listed here will get access to all restricted
