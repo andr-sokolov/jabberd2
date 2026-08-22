@@ -200,12 +200,6 @@ struct sm_st {
     int                 online;             /**< true if we're currently bound in the router */
 
     xht                 hosts;              /**< vHosts map */
-
-    /** Database query rate limits */
-    int                 query_rate_total;
-    int                 query_rate_seconds;
-    int                 query_rate_wait;
-    xht                 query_rates;
 };
 
 /** data for a single user */
@@ -269,8 +263,6 @@ void            sm_signature(sm_t sm, const char *str);
 int             sm_register_ns(sm_t sm, const char *uri);
 void            sm_unregister_ns(sm_t sm, const char *uri);
 int             sm_get_ns(sm_t sm, const char *uri);
-
-int             sm_storage_rate_limit(sm_t sm, const char *owner);
 
 void            dispatch(sm_t sm, pkt_t pkt);
 

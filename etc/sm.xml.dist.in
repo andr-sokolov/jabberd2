@@ -86,20 +86,6 @@
   <storage>
     <!-- Dynamic storage modules path -->
     <path>@pkglibdir@</path>
-
-    <!-- Rate limiting -->
-    <limits>
-      <!-- Maximum queries per second - if more than X queries are sent in Y
-           seconds, connection is throttled for Z seconds. The format
-           is:
-
-             <queries seconds='Y' throttle='Z'>X</bytes>
-
-           Default Y is 5, default Z is 60. set X to 0 to disable. -->
-      <!--
-      <queries>3</queries>
-      -->
-    </limits>
   </storage>
 
   <!-- Access control information -->
