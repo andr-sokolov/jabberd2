@@ -132,7 +132,7 @@
        When configuring sm for ANONYMOUS access, remove all instances
        of the following modules:
          active announce amp offline
-         roster template-roster roster-publish pep
+         roster template-roster pep
          iq-vcard
        and do not enable auto-create option. -->
   <modules>
@@ -232,7 +232,6 @@
          before a session is created). -->
     <chain id='user-load'>
       <module>roster</module>           <!-- load the roster and trust list -->
-      <module>roster-publish</module>   <!-- load the published roster -->
     </chain>
 
     <!-- user-unload. The modules in this chain are called right
