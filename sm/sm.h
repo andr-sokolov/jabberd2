@@ -217,8 +217,6 @@ struct user_st {
     int                 available;          /**< true if this user has any available session */
 
     time_t              active;             /**< time that user first logged in (ever) */
-
-    void                **module_data;      /**< per-user module data */
 };
 
 /** data for a single session */

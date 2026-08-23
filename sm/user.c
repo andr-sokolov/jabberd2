@@ -42,9 +42,6 @@ static user_t _user_alloc(sm_t sm, jid_t jid) {
     user->jid = jid_dup(jid);
     pool_cleanup(p, (void (*)(void *)) jid_free, user->jid);
 
-    /* a place for modules to store stuff */
-    user->module_data = (void **) pmalloco(p, sizeof(void *) * sm->mm->nindex);
-
     return user;
 }
 
