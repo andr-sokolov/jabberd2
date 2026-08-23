@@ -240,8 +240,6 @@ struct sess_st {
     jid_t               A;                  /**< list of jids that this session has sent directed presence to */
     jid_t               E;                  /**< list of jids that bounced presence updates we sent them */
 
-    void                **module_data;      /**< per-session module data */
-
     sess_t              next;               /**< next session (in a list of sessions) */
 };
 
@@ -330,8 +328,6 @@ struct mm_st {
 
     xht                 modules;    /**< pointers to module data (key is module name) */
 
-    int                 nindex;     /**< counter for module instance sequence (!!! should be local to mm_new) */
-
     /** sess-start chain */
     mod_instance_t      *sess_start;    int nsess_start;
     /** sess-end chain */
@@ -363,10 +359,6 @@ struct module_st {
     mm_t                mm;         /**< module manager */
 
     const char          *name;      /**< name of module */
-
-    int                 index;      /**< module index. this is the index into user->module_data and
-                                         sess->module_data where the module can store its own
-                                         per-user/per-session data */
 
     void                *handle;    /**< module handle */
 

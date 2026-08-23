@@ -157,9 +157,6 @@ sess_t sess_start(sm_t sm, jid_t jid) {
     sess->jid = jid_dup(jid);
     pool_cleanup(sess->p, (void (*))(void *) jid_free, sess->jid);
 
-    /* a place for modules to store stuff */
-    sess->module_data = (void **) pmalloco(sess->p, sizeof(void *) * sess->user->sm->mm->nindex);
-
     /* add it to the list */
     sess->next = user->sessions;
     user->sessions = sess;

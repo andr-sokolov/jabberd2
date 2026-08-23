@@ -187,9 +187,6 @@ static mod_ret_t _roster_in_sess(mod_instance_t mi, sess_t sess, pkt_t pkt)
 
     free(rw);
 
-    /* remember that they loaded it, so we know to push updates to them */
-    sess->module_data[mod->index] = (void *) 1;
-
     return mod_HANDLED;
 }
 

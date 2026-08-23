@@ -164,7 +164,6 @@ mm_t mm_new(sm_t sm) {
                 mod = (module_t) calloc(1, sizeof(struct module_st));
 
                 mod->mm = mm;
-                mod->index = mm->nindex;
                 mod->name = strdup(name);
                 if (modules_path != NULL)
                     snprintf(mod_fullpath, PATH_MAX, "%s/mod_%s.so", modules_path, name);
@@ -177,7 +176,6 @@ mm_t mm_new(sm_t sm) {
                 if (mod->handle != NULL && mod->module_init_fn != NULL) {
                     log_debug(ZONE, "preloaded module '%s' to chain '%s' (not added yet)", name, id);
                         xhash_put(mm->modules, mod->name, (void *) mod);
-                        mm->nindex++;
                 } else {
                       log_write(sm->log, LOG_ERR, "failed loading module '%s' to chain '%s' (%s)", name, id, dlerror());
                       if (mod->handle != NULL)
@@ -212,8 +210,6 @@ mm_t mm_new(sm_t sm) {
                     free((void*)mod->name);
                     free(mod);
 
-                    mm->nindex--;
-
                     melem = nad_find_elem(sm->config->nad, melem, -1, "module", 0);
                 }
                 continue;
@@ -224,7 +220,7 @@ mm_t mm_new(sm_t sm) {
             *list = (mod_instance_t *) realloc(*list, sizeof(mod_instance_t) * (*nlist + 1));
             (*list)[*nlist] = mi;
 
-            log_write(sm->log, LOG_NOTICE, "module '%s' added to chain '%s' (order %d index %d seq %d)", mod->name, id, *nlist, mod->index, mi->seq);
+            log_write(sm->log, LOG_NOTICE, "module '%s' added to chain '%s' (order %d seq %d)", mod->name, id, *nlist, mi->seq);
 
             (*nlist)++;
 
