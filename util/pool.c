@@ -279,11 +279,9 @@ void pool_stat(int full)
     if(pool__total != pool__ltotal)
         fprintf(stderr, "POOL: %d total missed mallocs\n",pool__total);
     pool__ltotal = pool__total;
-    return;
 }
 #else
 void pool_stat(int full)
 {
-    return;
 }
 #endif

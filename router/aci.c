@@ -127,5 +127,4 @@ void aci_unload(xht aci) {
         } while(xhash_iter_next(aci));
 
     xhash_free(aci);
-    return;
 }

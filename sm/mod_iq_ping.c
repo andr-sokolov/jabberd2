@@ -38,8 +38,6 @@ void _iq_ping_reply(pkt_t pkt) {
         nad_drop_elem(pkt->nad, elem);
 
     nad_set_attr(pkt->nad, 1, -1, "type", "result", 6);
-
-    return;
 }
 
 static mod_ret_t _iq_ping_in_sess(mod_instance_t mi, sess_t sess, pkt_t pkt) {

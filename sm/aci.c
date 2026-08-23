@@ -141,6 +141,4 @@ void aci_unload(xht acls)
                jid_free(jid);
             }
         } while(xhash_iter_next(acls));
-
-  return;
 }

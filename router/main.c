@@ -290,7 +290,6 @@ static void _router_time_checks(router_t r) {
                sx_raw_write(target->s, " ", 1);
           }
        } while(xhash_iter_next(r->components));
-   return;
 }
 
 

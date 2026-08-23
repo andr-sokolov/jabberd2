@@ -180,8 +180,6 @@ static void _mio_accept(mio_t m, mio_fd_t fd)
         close(newfd);
         MIO_FREE_FD(m, mio_fd);
     }
-
-    return;
 }
 
 /** internally change a connecting socket to a normal one */

@@ -364,8 +364,6 @@ void pkt_id_new(pkt_t pkt) {
     }
 
     nad_set_attr(pkt->nad, 1, -1, "id", id, 40);
-
-    return;
 }
 
 void pkt_router(pkt_t pkt) {

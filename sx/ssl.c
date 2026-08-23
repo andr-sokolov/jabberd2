@@ -412,7 +412,6 @@ static void _sx_ssl_get_external_id(sx_t s, _sx_ssl_conn_t sc) {
 
 end:
     X509_free(cert);
-    return;
 }
 
 static int _sx_ssl_handshake(sx_t s, _sx_ssl_conn_t sc) {
