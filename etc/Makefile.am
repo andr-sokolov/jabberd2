@@ -5,6 +5,8 @@ initdir = $(prefix)/etc/init
 init_DATA = jabberd-c2s.conf jabberd-router.conf jabberd-sm.conf
 systemddir = $(prefix)/lib/systemd/system
 systemd_DATA = jabberd-sm.service jabberd.service jabberd-router.service jabberd-c2s.service
+jabberddbdir = $(localstatedir)/jabberd/db
+dist_jabberddb_DATA = users.txt
 configs = $(sysconf_DATA) $(init_DATA) $(systemd_DATA)
 EXTRA_DIST = $(sysconf_DATA:%.dist=%.dist.in) $(init_DATA:%.conf=%.conf.in) $(systemd_DATA:%.service=%.service.in)
 
