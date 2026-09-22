@@ -33,8 +33,9 @@ get you started. Complete documentation is available at http://jabberd2.org/
 
 ## Build:
 
+    % autoreconf -fi
     % ./configure
-    % make
+    % make -j`nproc`
     % make install
 
 ### Options to ./configure:
@@ -45,16 +46,10 @@ get you started. Complete documentation is available at http://jabberd2.org/
 
 ## Configure:
 
-  Edit $prefix/etc/(router|sm|c2s).xml to taste. In
-  particular, make sure you setup for your choice of data storage
-  correctly. If you're using the Berkeley DB backend, you'll need to
-  create /var/run/jabberd and sets its permissions so that the server
-  processes can find it.
+  Edit $prefix/etc/(router|sm|c2s).xml to taste. Replace `localhost.localdomain`
+  with your domain.
   
-  If you're using a SQL backend, you'll need to create an account for
-  the server to use, and create the tables. Load db-setup.mysql or
-  db-setup.pgsql from the tools/ directory into your database to do
-  this.
+  Change groups, users and passwords in $prefix/var/jabberd/db/users.txt.
 
   If you plan to use the jabberd wrapper script, make sure you look at
   the paths in the $prefix/etc/jabber/jabberd.cfg.
@@ -64,8 +59,9 @@ get you started. Complete documentation is available at http://jabberd2.org/
 
   You can either run all of the pieces separately:
 
-    % $prefix/bin/router &
     % $prefix/bin/sm &
+    % $prefix/bin/router &
+    % $prefix/bin/proxy65 &
     % $prefix/bin/c2s &
 
   Or you can run them all from the jabberd wrapper script:
