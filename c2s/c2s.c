@@ -793,23 +793,6 @@ int c2s_router_sx_callback(sx_t s, sx_event_t e, void *data, void *arg) {
                     return 0;
                 }
 
-#ifdef HAVE_SSL
-                /* starttls if we can */
-                if(c2s->sx_ssl != NULL && c2s->router_pemfile != NULL && s->ssf == 0) {
-                    ns = nad_find_scoped_namespace(nad, uri_TLS, NULL);
-                    if(ns >= 0) {
-                        elem = nad_find_elem(nad, 0, ns, "starttls", 1);
-                        if(elem >= 0) {
-                            if(sx_ssl_client_starttls(c2s->sx_ssl, s, c2s->router_pemfile, c2s->router_private_key_password) == 0) {
-                                nad_free(nad);
-                                return 0;
-                            }
-                            log_write(c2s->log, LOG_ERR, "unable to establish encrypted session with router");
-                        }
-                    }
-                }
-#endif
-
                 /* !!! pull the list of mechanisms, and choose the best one.
                  *     if there isn't an appropriate one, error and bail */
 

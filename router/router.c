@@ -1117,12 +1117,7 @@ int router_mio_callback(mio_t m, mio_action_t a, mio_fd_t fd, void *data, void *
             log_debug(ZONE, "new component (%p) \"%s\"", comp, comp->ipport);
             xhash_put(r->components, comp->ipport, (void *) comp);
 
-#ifdef HAVE_SSL
-            sx_server_init(comp->s, SX_SSL_STARTTLS_OFFER | SX_SASL_OFFER);
-#else
             sx_server_init(comp->s, SX_SASL_OFFER);
-#endif
-
             break;
     }
 

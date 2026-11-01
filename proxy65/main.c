@@ -77,7 +77,6 @@ static void _proxy65_config_expand(proxy65_t p) {
     if(p->router_pass == NULL)
         p->router_pass = "secret";
 
-    p->router_pemfile = config_get_one(p->config, "router.pemfile", 0);
     p->router_cachain = config_get_one(p->config, "router.cachain", 0);
     p->router_private_key_password = config_get_one(p->config, "router.private_key_password", 0);
     p->router_ciphers = config_get_one(p->config, "router.ciphers", 0);
@@ -227,16 +226,6 @@ JABBER_MAIN("jabberd2proxy65", "Jabber 2 SOCKS5 Bytestreams Proxy", "Jabber Open
     p->dead = jqueue_new();
 
     p->sx_env = sx_env_new();
-
-#ifdef HAVE_SSL
-    if(p->router_pemfile != NULL) {
-        p->sx_ssl = sx_env_plugin(p->sx_env, sx_ssl_init, NULL, p->router_pemfile, p->router_cachain, NULL, p->router_private_key_password, p->router_ciphers);
-        if(p->sx_ssl == NULL) {
-            log_write(p->log, LOG_ERR, "failed to load router SSL pemfile, channel to router will not be SSL encrypted");
-            p->router_pemfile = NULL;
-        }
-    }
-#endif
 
     p->sx_sasl = sx_env_plugin(p->sx_env, sx_sasl_init, "xmpp", NULL, NULL);
     if(p->sx_sasl == NULL) {

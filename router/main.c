@@ -111,8 +111,6 @@ static void _router_config_expand(router_t r)
 
     r->local_secret = config_get_one(r->config, "local.secret", 0);
 
-    r->local_pemfile = config_get_one(r->config, "local.pemfile", 0);
-
     r->local_private_key_password = config_get_one(r->config, "local.private_key_password", 0);
 
     r->local_ciphers = config_get_one(r->config, "local.ciphers", 0);
@@ -401,14 +399,6 @@ JABBER_MAIN("jabberd2router", "Jabber 2 Router", "Jabber Open Source Server: Rou
     r->deadroutes = jqueue_new();
 
     r->sx_env = sx_env_new();
-
-#ifdef HAVE_SSL
-    if(r->local_pemfile != NULL) {
-        r->sx_ssl = sx_env_plugin(r->sx_env, sx_ssl_init, NULL, r->local_pemfile, NULL, NULL, r->local_private_key_password, r->local_ciphers);
-        if(r->sx_ssl == NULL)
-            log_write(r->log, LOG_ERR, "failed to load SSL pemfile, SSL disabled");
-    }
-#endif
 
     /* get sasl online */
     r->sx_sasl = sx_env_plugin(r->sx_env, sx_sasl_init, "jabberd-router", _router_sx_sasl_callback, (void *) r);

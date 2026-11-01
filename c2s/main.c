@@ -102,8 +102,6 @@ static void _c2s_config_expand(c2s_t c2s)
     if(c2s->router_pass == NULL)
         c2s->router_pass = "secret";
 
-    c2s->router_pemfile = config_get_one(c2s->config, "router.pemfile", 0);
-
     c2s->router_cachain = config_get_one(c2s->config, "router.cachain", 0);
 
     c2s->router_private_key_password = config_get_one(c2s->config, "router.private_key_password", 0);
@@ -702,15 +700,6 @@ JABBER_MAIN("jabberd2c2s", "Jabber 2 C2S", "Jabber Open Source Server: Client to
         if(c2s->sx_ssl == NULL) {
             log_write(c2s->log, LOG_ERR, "failed to load local SSL pemfile, SSL will not be available to clients");
             c2s->local_pemfile = NULL;
-        }
-    }
-
-    /* try and get something online, so at least we can encrypt to the router */
-    if(c2s->sx_ssl == NULL && c2s->router_pemfile != NULL) {
-        c2s->sx_ssl = sx_env_plugin(c2s->sx_env, sx_ssl_init, NULL, c2s->router_pemfile, c2s->router_cachain, NULL, c2s->router_private_key_password, c2s->router_ciphers);
-        if(c2s->sx_ssl == NULL) {
-            log_write(c2s->log, LOG_ERR, "failed to load router SSL pemfile, channel to router will not be SSL encrypted");
-            c2s->router_pemfile = NULL;
         }
     }
 #endif

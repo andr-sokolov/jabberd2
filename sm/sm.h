@@ -151,8 +151,6 @@ struct sm_st {
     int                 router_port;        /**< port to connect to the router at */
     const char          *router_user;       /**< username to authenticate to the router as */
     const char          *router_pass;       /**< password to authenticate to the router with */
-    const char          *router_pemfile;    /**< name of file containing a SSL certificate &
-                                                 key for channel to the router */
     const char          *router_private_key_password;    /** password for private key if pemfile
                                                              key is encrypted */
     const char          *router_ciphers;    /** TLS ciphers */
@@ -161,7 +159,6 @@ struct sm_st {
 
     sx_env_t            sx_env;             /**< SX environment */
     sx_plugin_t         sx_sasl;            /**< SX SASL plugin */
-    sx_plugin_t         sx_ssl;             /**< SX SSL plugin */
 
     sx_t                router;             /**< SX of router connection */
     mio_fd_t            fd;                 /**< file descriptor of router connection */

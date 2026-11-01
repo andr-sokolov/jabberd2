@@ -93,7 +93,6 @@ struct router_st {
     const char          *local_ip;
     int                 local_port;
     const char          *local_secret;
-    const char          *local_pemfile;
     const char          *local_private_key_password;
     const char          *local_ciphers;
 
@@ -117,7 +116,6 @@ struct router_st {
 
     /** sx environment */
     sx_env_t            sx_env;
-    sx_plugin_t         sx_ssl;
     sx_plugin_t         sx_sasl;
 
     /** managed io */

@@ -17,12 +17,6 @@
     <user>jabberd</user>          <!-- default: jabberd -->
     <pass>secret</pass>           <!-- default: secret -->
 
-    <!-- File containing an SSL certificate and private key to use when
-         setting up an encrypted channel with the router. -->
-    <!--
-    <pemfile>@sysconfdir@/server.pem</pemfile>
-    -->
-
     <!-- Router connection retry -->
     <retry>
       <init>3</init>

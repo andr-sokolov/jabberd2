@@ -97,22 +97,6 @@ int proxy65_router_sx_callback(sx_t s, sx_event_t e, void *data, void *arg) {
                     return 0;
                 }
 
-#ifdef HAVE_SSL
-                if(p->sx_ssl != NULL && p->router_pemfile != NULL && s->ssf == 0) {
-                    int ns = nad_find_scoped_namespace(nad, uri_TLS, NULL);
-                    if(ns >= 0) {
-                        int elem = nad_find_elem(nad, 0, ns, "starttls", 1);
-                        if(elem >= 0) {
-                            if(sx_ssl_client_starttls(p->sx_ssl, s, p->router_pemfile, p->router_private_key_password) == 0) {
-                                nad_free(nad);
-                                return 0;
-                            }
-                            log_write(p->log, LOG_NOTICE, "unable to establish encrypted session with router");
-                        }
-                    }
-                }
-#endif
-
                 sx_sasl_auth(p->sx_sasl, s, "jabberd-router", "DIGEST-MD5", p->router_user, p->router_pass);
                 nad_free(nad);
                 return 0;

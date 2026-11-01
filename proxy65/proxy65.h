@@ -73,14 +73,12 @@ struct proxy65_st {
     int                 router_port;
     const char          *router_user;
     const char          *router_pass;
-    const char          *router_pemfile;
     const char          *router_cachain;
     const char          *router_private_key_password;
     const char          *router_ciphers;
 
     mio_t               mio;
     sx_env_t            sx_env;
-    sx_plugin_t         sx_ssl;
     sx_plugin_t         sx_sasl;
 
     sx_t                router;
