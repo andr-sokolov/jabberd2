@@ -89,10 +89,6 @@ static void _c2s_config_expand(c2s_t c2s)
 
     set_debug_log_from_config(c2s->config);
 
-    c2s->id = config_get_one(c2s->config, "id", 0);
-    if(c2s->id == NULL)
-        c2s->id = "c2s";
-
     c2s->router_ip = config_get_one(c2s->config, "router.ip", 0);
     if(c2s->router_ip == NULL)
         c2s->router_ip = "127.0.0.1";

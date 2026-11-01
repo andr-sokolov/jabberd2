@@ -1,11 +1,8 @@
 <!-- c2s configuration -->
 <c2s>
-  <!-- Our ID on the network (default: c2s) -->
-  <id>c2s</id>
-
   <!-- The process ID file. Comment this out if you don't need to know
        the process ID from outside the process (eg for control scripts) -->
-  <pidfile>@localstatedir@/@package@/pid/${id}.pid</pidfile>
+  <pidfile>@localstatedir@/@package@/pid/c2s.pid</pidfile>
 
   <!-- Router connection configuration -->
   <router>
@@ -63,7 +60,7 @@
 
     <!-- Filename of the debug logfile -->
     <!--
-    <debug>@localstatedir@/@package@/log/debug-${id}.log</debug>
+    <debug>@localstatedir@/@package@/log/debug-c2s.log</debug>
     -->
   </log>
 

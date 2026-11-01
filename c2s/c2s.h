@@ -142,9 +142,6 @@ enum pws_crypt {
 };
 
 struct c2s_st {
-    /** our id (hostname) with the router */
-    const char          *id;
-
     /** how to connect to the router */
     const char          *router_ip;
     int                 router_port;

@@ -768,9 +768,9 @@ int c2s_router_sx_callback(sx_t s, sx_event_t e, void *data, void *arg) {
             nad = nad_new();
             ns = nad_add_namespace(nad, uri_COMPONENT, NULL);
             nad_append_elem(nad, ns, "bind", 0);
-            nad_append_attr(nad, -1, "name", c2s->id);
+            nad_append_attr(nad, -1, "name", "c2s");
 
-            log_debug(ZONE, "requesting component bind for '%s'", c2s->id);
+            log_debug(ZONE, "requesting component bind for c2s");
 
             sx_nad_write(c2s->router, nad);
 
@@ -876,7 +876,7 @@ int c2s_router_sx_callback(sx_t s, sx_event_t e, void *data, void *arg) {
 
                 /* we're online */
                 c2s->online = c2s->started = 1;
-                log_write(c2s->log, LOG_NOTICE, "ready for connections", c2s->id);
+                log_write(c2s->log, LOG_NOTICE, "ready for connections");
 
                 nad_free(nad);
                 return 0;
