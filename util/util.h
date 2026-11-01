@@ -389,10 +389,6 @@ void hex_from_raw(const unsigned char* in, int inlen, char* out);
 int hex_to_raw(const char *in, int inlen, char *out);
 
 
-/* xdata in a seperate file */
-#include "xdata.h"
-
-
 /* debug logging */
 int get_debug_flag(void);
 void set_debug_flag(int v);
