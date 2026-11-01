@@ -99,13 +99,6 @@ static void _sm_config_expand(sm_t sm)
 
     sm->router_port = j_atoi(config_get_one(sm->config, "router.port", 0), 5347);
 
-    sm->router_user = config_get_one(sm->config, "router.user", 0);
-    if(sm->router_user == NULL)
-        sm->router_user = "jabberd";
-    sm->router_pass = config_get_one(sm->config, "router.pass", 0);
-    if(sm->router_pass == NULL)
-        sm->router_pass = "secret";
-
     sm->router_private_key_password = config_get_one(sm->config, "router.private_key_password", 0);
     sm->router_ciphers = config_get_one(sm->config, "router.ciphers", 0);
 

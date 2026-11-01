@@ -1,6 +1,6 @@
 LIBTOOL += --quiet
 
-sysconf_DATA = c2s.xml.dist router.xml.dist sm.xml.dist proxy65.xml.dist jabberd.cfg.dist router-users.xml.dist router-filter.xml.dist
+sysconf_DATA = c2s.xml.dist router.xml.dist sm.xml.dist proxy65.xml.dist jabberd.cfg.dist router-filter.xml.dist
 initdir = $(prefix)/etc/init
 init_DATA = jabberd-c2s.conf jabberd-router.conf jabberd-sm.conf
 systemddir = $(prefix)/lib/systemd/system

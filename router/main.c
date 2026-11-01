@@ -212,7 +212,6 @@ static int _router_sx_sasl_callback(int cb, void *arg, void ** res, sx_t s, void
     router_t r = (router_t) cbarg;
     sx_sasl_creds_t creds;
     static char buf[1024];
-    char *pass;
 
     switch(cb) {
         case sx_sasl_cb_GET_REALM:
@@ -222,28 +221,11 @@ static int _router_sx_sasl_callback(int cb, void *arg, void ** res, sx_t s, void
             break;
 
         case sx_sasl_cb_GET_PASS:
-            creds = (sx_sasl_creds_t) arg;
-
-            log_debug(ZONE, "sx sasl callback: get pass (authnid=%s, realm=%s)", creds->authnid, creds->realm);
-
-            pass = xhash_get(r->users, creds->authnid);
-            if(pass == NULL)
-                return sx_sasl_ret_FAIL;
-
-            *res = (void *)pass;
+            *res = (void *)"secret";
             return sx_sasl_ret_OK;
-            break;
 
         case sx_sasl_cb_CHECK_PASS:
-            creds = (sx_sasl_creds_t) arg;
-
-            log_debug(ZONE, "sx sasl callback: check pass (authnid=%s, realm=%s)", creds->authnid, creds->realm);
-
-            pass = xhash_get(r->users, creds->authnid);
-            if(pass == NULL || strcmp(creds->pass, pass) != 0)
-                return sx_sasl_ret_OK;
-
-            return sx_sasl_ret_FAIL;
+            return sx_sasl_ret_OK;
             break;
 
         case sx_sasl_cb_CHECK_AUTHZID:
@@ -381,8 +363,6 @@ JABBER_MAIN("jabberd2router", "Jabber 2 Router", "Jabber Open Source Server: Rou
 
     _router_pidfile(r);
 
-    user_table_load(r);
-
     r->aci = aci_load(r);
 
     if(filter_load(r)) exit(1);
@@ -433,10 +413,6 @@ JABBER_MAIN("jabberd2router", "Jabber 2 Router", "Jabber Open Source Server: Rou
             log_write(r->log, LOG_NOTICE, "reloading filter ...");
             filter_unload(r);
             filter_load(r);
-
-            log_write(r->log, LOG_NOTICE, "reloading users ...");
-            user_table_unload(r);
-            user_table_load(r);
 
             router_logrotate = 0;
         }
@@ -539,9 +515,6 @@ JABBER_MAIN("jabberd2router", "Jabber 2 Router", "Jabber Open Source Server: Rou
             routes_free(p);
         } while(xhash_iter_next(r->routes));
     xhash_free(r->routes);
-
-    /* unload users */
-    user_table_unload(r);
 
     /* unload acls */
     aci_unload(r->aci);

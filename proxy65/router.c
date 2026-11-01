@@ -97,7 +97,7 @@ int proxy65_router_sx_callback(sx_t s, sx_event_t e, void *data, void *arg) {
                     return 0;
                 }
 
-                sx_sasl_auth(p->sx_sasl, s, "jabberd-router", "DIGEST-MD5", p->router_user, p->router_pass);
+                sx_sasl_auth(p->sx_sasl, s);
                 nad_free(nad);
                 return 0;
             }

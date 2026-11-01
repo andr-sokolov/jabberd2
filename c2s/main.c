@@ -95,13 +95,6 @@ static void _c2s_config_expand(c2s_t c2s)
 
     c2s->router_port = j_atoi(config_get_one(c2s->config, "router.port", 0), 5347);
 
-    c2s->router_user = config_get_one(c2s->config, "router.user", 0);
-    if(c2s->router_user == NULL)
-        c2s->router_user = "jabberd";
-    c2s->router_pass = config_get_one(c2s->config, "router.pass", 0);
-    if(c2s->router_pass == NULL)
-        c2s->router_pass = "secret";
-
     c2s->router_cachain = config_get_one(c2s->config, "router.cachain", 0);
 
     c2s->router_private_key_password = config_get_one(c2s->config, "router.private_key_password", 0);

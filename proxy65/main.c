@@ -70,13 +70,6 @@ static void _proxy65_config_expand(proxy65_t p) {
 
     p->router_port = j_atoi(config_get_one(p->config, "router.port", 0), 5347);
 
-    p->router_user = config_get_one(p->config, "router.user", 0);
-    if(p->router_user == NULL)
-        p->router_user = "jabberd";
-    p->router_pass = config_get_one(p->config, "router.pass", 0);
-    if(p->router_pass == NULL)
-        p->router_pass = "secret";
-
     p->router_cachain = config_get_one(p->config, "router.cachain", 0);
     p->router_private_key_password = config_get_one(p->config, "router.private_key_password", 0);
     p->router_ciphers = config_get_one(p->config, "router.ciphers", 0);

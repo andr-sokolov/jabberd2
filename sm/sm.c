@@ -166,7 +166,7 @@ int sm_sx_callback(sx_t s, sx_event_t e, void *data, void *arg) {
                  *     if there isn't an appropriate one, error and bail */
 
                 /* authenticate */
-                sx_sasl_auth(sm->sx_sasl, s, "jabberd-router", "DIGEST-MD5", sm->router_user, sm->router_pass);
+                sx_sasl_auth(sm->sx_sasl, s);
 
                 nad_free(nad);
                 return 0;

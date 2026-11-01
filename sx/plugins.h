@@ -119,7 +119,7 @@ typedef int                 (*sx_sasl_callback_t)(int cb, void *arg, void **res,
 #define sx_sasl_ret_FAIL	    (1)
 
 /** trigger for client auth */
-int                         sx_sasl_auth(sx_plugin_t p, sx_t s, const char *appname, const char *mech, const char *user, const char *pass);
+int                         sx_sasl_auth(sx_plugin_t p, sx_t s);
 
 /* for passing auth data to callback */
 typedef struct sx_sasl_creds_st {

@@ -13,10 +13,6 @@
     <ip>127.0.0.1</ip>            <!-- default: 127.0.0.1 -->
     <port>5347</port>             <!-- default: 5347 -->
 
-    <!-- Username/password to authenticate as -->
-    <user>jabberd</user>          <!-- default: jabberd -->
-    <pass>secret</pass>           <!-- default: secret -->
-
     <!-- Router connection retry -->
     <retry>
       <!-- If the connection to the router can't be established at

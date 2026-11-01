@@ -178,7 +178,6 @@ const char *generated_configs[] = {
     "../etc/router-filter.xml.dist",
     "../etc/templates/roster.xml.dist",
     "../etc/c2s.xml.dist",
-    "../etc/router-users.xml.dist"
 };
 
 START_TEST (test_generated_config)

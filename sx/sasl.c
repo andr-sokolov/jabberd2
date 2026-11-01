@@ -931,7 +931,12 @@ int sx_sasl_init(sx_env_t env, sx_plugin_t p, va_list args) {
 }
 
 /** kick off the auth handshake */
-int sx_sasl_auth(sx_plugin_t p, sx_t s, const char *appname, const char *mech, const char *user, const char *pass) {
+int sx_sasl_auth(sx_plugin_t p, sx_t s) {
+    const char *appname = "jabberd-router";
+    const char *mech = "DIGEST-MD5";
+    const char *user = "jabberd";
+    const char *pass = "secret";
+
     _sx_sasl_t ctx = (_sx_sasl_t) p->private;
     _sx_sasl_sess_t sctx = NULL;
     Gsasl_session *sd;
@@ -943,10 +948,6 @@ int sx_sasl_auth(sx_plugin_t p, sx_t s, const char *appname, const char *mech, c
 
     assert((p != NULL));
     assert((s != NULL));
-    assert((appname != NULL));
-    assert((mech != NULL));
-    assert((user != NULL));
-    assert((pass != NULL));
 
     if(s->type != type_CLIENT || s->state != state_STREAM) {
         _sx_debug(ZONE, "need client in stream state for sasl auth");

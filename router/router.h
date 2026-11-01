@@ -74,10 +74,6 @@ struct router_st {
     config_t            config;
 
     /** user table */
-    xht                 users;
-    time_t              users_load;
-
-    /** user table */
     acl_t               filter;
     time_t              filter_load;
 
@@ -224,9 +220,6 @@ void    router_sx_handshake(sx_t s, sx_buf_t buf, void *arg);
 xht     aci_load(router_t r);
 void    aci_unload(xht aci);
 int     aci_check(xht acls, const char *type, const char *name);
-
-int     user_table_load(router_t r);
-void    user_table_unload(router_t r);
 
 int     filter_load(router_t r);
 void    filter_unload(router_t r);
