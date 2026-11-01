@@ -46,6 +46,9 @@ get you started. Complete documentation is available at http://jabberd2.org/
 
 ## Configure:
 
+  Create PEM certificate and place it in $prefix/etc. For example:
+  `openssl req -new -newkey rsa:2048 -nodes -x509 -days 3650 -keyout server.pem -out server.pem`
+
   Edit $prefix/etc/(router|sm|c2s).xml to taste. Replace `localhost.localdomain`
   with your domain.
   
