@@ -102,7 +102,7 @@
          before they can authenticate. Until the stream is encrypted,
          all packets will be dropped.
           -->
-    <id>localhost.localdomain</id>
+    <id pemfile='@sysconfdir@/server.pem'>localhost.localdomain</id>
     <!-- or
     <id realm='company.int'
         pemfile='@sysconfdir@/server.pem'
