@@ -121,36 +121,17 @@
          If this attribute is set to any value, clients must do STARTTLS
          before they can authenticate. Until the stream is encrypted,
          all packets will be dropped.
-
-         register-enable
-         Remove this attribute to disable account registrations.
-
-         instructions
-         Human-readable instructions to be returned to client when
-         registration is requested.
-
-         register-oob
-         URL to be attached as an alternative, out-of-band registration
-         method. Usually web-based http:// URL.
-
-         password-change
-         Password change only. When registration is disabled, it may
-         still be useful to allow clients to change their password. If
-         you want this, add this attribute with any value, when you need
-         registration disabled.
           -->
-    <id register-enable='mu'>localhost.localdomain</id>
+    <id>localhost.localdomain</id>
     <!-- or
     <id realm='company.int'
         pemfile='@sysconfdir@/server.pem'
         verify-mode='7'
         cachain='@sysconfdir@/client_ca_certs.pem'
         require-starttls='mu'
-        register-oob='http://example.net/register'
-        password-change='mu'
     >example.net</id> -->
     <!-- or the default host
-    <id password-change='mu' /> -->
+    <id/> -->
 
     <!-- IP address to bind to (default: 0.0.0.0) -->
     <ip>0.0.0.0</ip>
