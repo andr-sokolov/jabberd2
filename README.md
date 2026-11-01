@@ -60,10 +60,10 @@ get you started. Complete documentation is available at http://jabberd2.org/
 
 ## Run:
 
-  You can either run all of the pieces separately:
+  You can either run all of the pieces separately, router should be run first:
 
-    % $prefix/bin/sm &
     % $prefix/bin/router &
+    % $prefix/bin/sm &
     % $prefix/bin/proxy65 &
     % $prefix/bin/c2s &
 
