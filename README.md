@@ -50,7 +50,7 @@ get you started. Complete documentation is available at http://jabberd2.org/
   `openssl req -new -newkey rsa:2048 -nodes -x509 -days 3650 -keyout server.pem -out server.pem`
 
   Edit $prefix/etc/(router|sm|c2s).xml to taste. Replace `localhost.localdomain`
-  with your domain.
+  with your domain. Set `local.host` in $prefix/etc/proxy65.xml.
   
   Change groups, users and passwords in $prefix/var/jabberd/db/users.txt.
 
